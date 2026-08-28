@@ -459,8 +459,6 @@ const MAX_WORD_IMAGES = 12;
 
 // ============================================================
 // S開始判定
-//
-// 基準値は変更しない。
 // ============================================================
 
 const HIGH_RATIO_MIN = 0.38;
@@ -505,8 +503,6 @@ const IS_IOS =
 
 // ============================================================
 // Android
-//
-// 現在良好なので変更しない。
 // ============================================================
 
 const ANDROID_HOLD_HIGH_RATIO_MIN = 0.30;
@@ -524,17 +520,6 @@ const PC_HOLD_ZCR_MIN = 0.017;
 const PC_SOFT_RELEASE_SECONDS = 0.50;
 const PC_SILENCE_RELEASE_SECONDS = 0.18;
 
-
-/*
-    PCだけに使う追加確認。
-
-    既存のS開始条件に合格しても、
-    さらに約2フレームS系の音が続くことを確認。
-
-    リップノイズ、舌打ち、にちゃ音などの
-    瞬間的な音を弾きやすくする。
-*/
-
 const PC_ONSET_EXTRA_FRAMES = 2;
 
 
@@ -545,54 +530,17 @@ const PC_ONSET_EXTRA_FRAMES = 2;
 const IOS_HOLD_HIGH_RATIO_MIN = 0.30;
 const IOS_HOLD_ZCR_MIN = 0.017;
 
-
-/*
-    S開始直後の最初の0.25秒で
-    実際のSの音量ピークを測る。
-*/
-
 const IOS_REFERENCE_BUILD_SECONDS = 0.25;
-
-
-/*
-    そのピークから45%以下まで落ちると
-    終了候補。
-
-    前回の35%よりかなり高めにする。
-*/
-
 const IOS_RELEASE_RATIO = 0.45;
-
-
-/*
-    絶対値とキャリブレーション音量も併用。
-*/
 
 const IOS_RELEASE_ABSOLUTE = 0.0028;
 
 const IOS_RELEASE_NOISE_MULTIPLIER = 1.45;
 const IOS_RELEASE_NOISE_ADD = 0.0008;
 
-
-/*
-    約0.15秒連続で音量が下がれば終了。
-*/
-
 const IOS_RELEASE_SECONDS = 0.15;
 
-
-/*
-    Sらしい特徴までなくなった状態が続いた場合の
-    第二の終了経路。
-*/
-
 const IOS_SPECTRAL_RELEASE_SECONDS = 0.32;
-
-
-/*
-    S開始からピーク測定終了までの間に
-    一瞬音が弱くなっても画像は消さない。
-*/
 
 const IOS_INITIAL_PROTECTION_SECONDS = 0.30;
 
@@ -955,9 +903,24 @@ function revokeImageURL(imageElement) {
 
 function clearImageElement(imageElement) {
 
+    /*
+        iPad Safari対策。
+
+        src削除だけに頼らず、
+        CSSでも強制的に非表示にする。
+    */
+
+    imageElement.style.visibility =
+        "hidden";
+
+    imageElement.style.opacity =
+        "0";
+
+
     revokeImageURL(
         imageElement
     );
+
 
     imageElement.removeAttribute(
         "src"
@@ -970,6 +933,18 @@ function displayBlob(
     imageElement,
     record
 ) {
+
+    /*
+        いったん確実に非表示にしてから
+        新しい画像を読み込む。
+    */
+
+    imageElement.style.visibility =
+        "hidden";
+
+    imageElement.style.opacity =
+        "0";
+
 
     revokeImageURL(
         imageElement
@@ -984,6 +959,19 @@ function displayBlob(
 
     imageElement.dataset.url =
         url;
+
+
+    imageElement.onload =
+        function() {
+
+            imageElement.style.visibility =
+                "visible";
+
+            imageElement.style.opacity =
+                "1";
+
+        };
+
 
     imageElement.src =
         url;
@@ -1881,26 +1869,13 @@ let releaseCount = 0;
 let silenceCount = 0;
 
 
-/*
-    PCの瞬間ノイズ除去用。
-*/
-
 let pcPendingOnset = false;
 let pcOnsetConfirmCount = 0;
 
 
-/*
-    iPad用。
-*/
-
 let iosReferenceVolume = 0;
-
 let iosActiveFrameCount = 0;
 
-
-/*
-    Audio停止監視。
-*/
 
 let lastAudioCallbackTime = 0;
 
@@ -2535,13 +2510,6 @@ function weakS(result) {
 
 function pcOnsetContinuation(result) {
 
-    /*
-        S開始条件そのものより少しだけ緩い。
-
-        本物の弱いSを落としにくくしつつ、
-        瞬間的な口腔ノイズを除く。
-    */
-
     const minimumVolume =
         Math.max(
             0.0027,
@@ -2587,10 +2555,6 @@ function pcOnsetContinuation(result) {
         :
         999;
 
-
-    /*
-        舌打ちなどの瞬間的なピークへの追加防御。
-    */
 
     if (
         peakRatio > 5.0
@@ -2937,11 +2901,6 @@ function latchS(result) {
     pcOnsetConfirmCount = 0;
 
 
-    /*
-        iPadでは、まず検出時の音量を仮の基準にする。
-        その後0.25秒だけ上方向に更新する。
-    */
-
     iosReferenceVolume =
         result.volume;
 
@@ -2983,21 +2942,13 @@ function processResult(result) {
     }
 
 
-    /*
-        ======================================================
-        画像なし
-        ======================================================
-    */
+    // ========================================================
+    // 画像なし
+    // ========================================================
 
     if (
         !soundLatched
     ) {
-
-        /*
-            PCで既に開始候補が見つかっている場合。
-
-            追加の約2フレームが続けば表示。
-        */
 
         if (
             !IS_ANDROID
@@ -3103,10 +3054,6 @@ function processResult(result) {
             weakSuccess
         ) {
 
-            /*
-                PCだけ一瞬ノイズ除去用の追加確認。
-            */
-
             if (
                 !IS_ANDROID
                 &&
@@ -3121,10 +3068,6 @@ function processResult(result) {
             }
 
 
-            /*
-                Android/iPadは開始判定を従来どおり。
-            */
-
             latchS(
                 result
             );
@@ -3137,11 +3080,9 @@ function processResult(result) {
     }
 
 
-    /*
-        ======================================================
-        Android
-        ======================================================
-    */
+    // ========================================================
+    // Android
+    // ========================================================
 
     if (
         IS_ANDROID
@@ -3180,11 +3121,9 @@ function processResult(result) {
     }
 
 
-    /*
-        ======================================================
-        iPad
-        ======================================================
-    */
+    // ========================================================
+    // iPad / iPhone
+    // ========================================================
 
     if (
         IS_IOS
@@ -3192,17 +3131,6 @@ function processResult(result) {
 
         iosActiveFrameCount++;
 
-
-        /*
-            最初の約0.25秒だけ、
-            S音量のピークを上方向へ更新する。
-
-            これが今回の重要部分。
-
-            前回のように
-            「検出した瞬間の弱い音量」だけを
-            永久に基準にはしない。
-        */
 
         if (
             iosActiveFrameCount <=
@@ -3222,14 +3150,6 @@ function processResult(result) {
         }
 
 
-        /*
-            最初の0.30秒は
-            基準作りのため終了させない。
-
-            ただし表示時間を固定する処理ではない。
-            その後は実際の音声に追従する。
-        */
-
         if (
             iosActiveFrameCount <=
             iosInitialProtectionFramesNeeded
@@ -3243,10 +3163,6 @@ function processResult(result) {
         const releaseVolume =
             iosReleaseVolumeThreshold();
 
-
-        /*
-            Sのピークに対して十分音量が下がったか。
-        */
 
         if (
             result.volume <
@@ -3277,14 +3193,6 @@ function processResult(result) {
 
         }
 
-
-        /*
-            もう一つの終了経路。
-
-            音量だけでなく、
-            Sらしい摩擦音自体がなくなっている状態が
-            約0.32秒続いた場合にも終了する。
-        */
 
         if (
             holdSIOS(
@@ -3320,11 +3228,9 @@ function processResult(result) {
     }
 
 
-    /*
-        ======================================================
-        PC
-        ======================================================
-    */
+    // ========================================================
+    // PC
+    // ========================================================
 
     if (
         pcClearlySilent(
@@ -3356,11 +3262,6 @@ function processResult(result) {
 
     }
 
-
-    /*
-        弱いSの保持については
-        前版の改善をそのまま維持。
-    */
 
     if (
         holdSPC(
@@ -3870,10 +3771,6 @@ function stopExistingMicrophone() {
 
 // ============================================================
 // マイク制約
-//
-// iPadでは可能な場合だけ
-// AGC・ノイズ抑制・エコー除去をOFF。
-// 対応していない項目は要求しない。
 // ============================================================
 
 function createAudioConstraints() {
@@ -3950,11 +3847,6 @@ function createAudioConstraints() {
 
     }
 
-
-    /*
-        AndroidとPCは
-        今の音声入力特性を変えない。
-    */
 
     if (
         Object.keys(

@@ -2,7 +2,6 @@
 <html lang="ja">
 
 <head>
-
 <meta charset="utf-8">
 
 <meta
@@ -11,7 +10,6 @@
 >
 
 <title>いきで　あそぼう！</title>
-
 
 <style>
 
@@ -30,6 +28,7 @@ body {
     margin: 0;
     background: var(--bg);
     color: #111;
+
     font-family:
         "Yu Gothic",
         "Hiragino Kaku Gothic ProN",
@@ -41,15 +40,14 @@ button {
     font-family: inherit;
     font-weight: bold;
     cursor: pointer;
+
     min-height: 50px;
     padding: 8px 15px;
+
     border: 1px solid #888;
     border-radius: 7px;
-    background: #f7f7f7;
-}
 
-button:disabled {
-    opacity: 0.55;
+    background: #f7f7f7;
 }
 
 .screen {
@@ -71,6 +69,7 @@ button:disabled {
     padding: 20px;
 
     display: grid;
+
     grid-template-columns:
         minmax(0, 1fr)
         210px;
@@ -84,8 +83,10 @@ button:disabled {
 
 .title {
     display: flex;
+
     justify-content: center;
     align-items: baseline;
+
     flex-wrap: wrap;
 
     margin: 5px 0 15px;
@@ -96,7 +97,9 @@ button:disabled {
 
 .title-s {
     color: var(--blue);
+
     margin-left: 24px;
+
     font-size: 37px;
 }
 
@@ -107,14 +110,17 @@ button:disabled {
 
 .image-box {
     width: min(100%, 650px);
+
     aspect-ratio: 10 / 7;
 
     margin: 10px auto;
 
     background: white;
+
     border: 1px solid #999;
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
@@ -124,11 +130,13 @@ button:disabled {
 .image-box img {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
 .count {
     margin-top: 12px;
+
     font-size: 19px;
     font-weight: bold;
 }
@@ -153,6 +161,7 @@ button:disabled {
 
 .page {
     max-width: 1000px;
+
     margin: auto;
 
     text-align: center;
@@ -162,12 +171,14 @@ button:disabled {
 
 .page h1 {
     font-size: 36px;
+
     margin: 5px 0 18px;
 }
 
 .description {
     font-size: 19px;
     line-height: 1.7;
+
     margin: 5px;
 }
 
@@ -207,6 +218,7 @@ button:disabled {
     color: white;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -239,7 +251,9 @@ button:disabled {
 
 .bar-line.middle {
     top: -22px;
+
     height: 134px;
+
     background: white;
 }
 
@@ -254,6 +268,7 @@ button:disabled {
     min-height: 0;
 
     border-radius: 50%;
+
     border: 2px solid #333;
 
     background: white;
@@ -277,6 +292,7 @@ button:disabled {
 
 #wordPosition {
     min-height: 24px;
+
     color: #555;
 }
 
@@ -289,6 +305,7 @@ button:disabled {
     margin-top: 15px;
 
     display: flex;
+
     justify-content: center;
     flex-wrap: wrap;
 
@@ -297,6 +314,7 @@ button:disabled {
 
 .bottom-buttons button {
     min-width: 145px;
+
     font-size: 16px;
 }
 
@@ -309,6 +327,7 @@ button:disabled {
 
     .main-layout {
         grid-template-columns: 1fr;
+
         padding: 12px;
     }
 
@@ -316,6 +335,7 @@ button:disabled {
         padding-top: 5px;
 
         display: grid;
+
         grid-template-columns:
             1fr
             1fr;
@@ -333,6 +353,7 @@ button:disabled {
 
     .title-s {
         margin-left: 10px;
+
         font-size: 29px;
     }
 
@@ -347,7 +368,6 @@ button:disabled {
 }
 
 </style>
-
 </head>
 
 
@@ -399,7 +419,6 @@ button:disabled {
 >
 登録画像：0 / 10
 </div>
-
 
 </div>
 
@@ -641,7 +660,8 @@ const MAX_WORD_IMAGES = 12;
 
 // ============================================================
 // S開始判定
-// ここは今まで一番良かった値を維持
+//
+// ★ここは変更していません。
 // ============================================================
 
 const HIGH_RATIO_MIN = 0.38;
@@ -658,33 +678,104 @@ const WEAK_REQUIRED = 4;
 const CALIBRATION_SECONDS = 1.0;
 
 
+// ============================================================
+// 端末判定
+// ============================================================
+
+const USER_AGENT =
+    navigator.userAgent || "";
+
+
+const IS_ANDROID =
+    /Android/i.test(
+        USER_AGENT
+    );
+
+
 /*
-    ==========================================================
-    S継続判定
-    ==========================================================
-
-    AndroidではS音を伸ばしていても、
-    途中で音量・高周波比が揺れることがある。
-
-    そのため、画像表示中は開始判定より少し緩くする。
+    最近のiPadでは
+    userAgent上「Macintosh」になることがあるので、
+    maxTouchPointsも併用する。
 */
 
+const IS_IOS =
+    /iPad|iPhone|iPod/i.test(
+        USER_AGENT
+    )
+    ||
+    (
+        navigator.platform === "MacIntel"
+        &&
+        navigator.maxTouchPoints > 1
+    );
 
-// 継続中は開始判定より高周波条件を少し緩める
-const HOLD_HIGH_RATIO_MIN = 0.30;
+
+// ============================================================
+// S継続判定
+// ============================================================
+
+/*
+    Androidは前回うまくいった
+    緩めの条件を維持。
+*/
+
+const ANDROID_HOLD_HIGH_RATIO_MIN = 0.30;
+const ANDROID_HOLD_ZCR_MIN = 0.018;
 
 
-// 継続中のZCRも少し緩める
-const HOLD_ZCR_MIN = 0.018;
+/*
+    iPad/iPhoneはAndroidより少し厳しくする。
+
+    発声終了後の残留ノイズを
+    S継続と誤判定しにくくする。
+*/
+
+const IOS_HOLD_HIGH_RATIO_MIN = 0.35;
+const IOS_HOLD_ZCR_MIN = 0.022;
 
 
-// Sが一時的に途切れても、これだけ待ってから消す
-const S_RELEASE_SECONDS = 0.28;
+/*
+    PCは開始条件より少しだけ緩い。
+*/
+
+const PC_HOLD_HIGH_RATIO_MIN = 0.34;
+const PC_HOLD_ZCR_MIN = 0.021;
 
 
-// 無音にかなり近づいた場合は終了しやすくする
-const RELEASE_NOISE_MULTIPLIER = 1.20;
-const RELEASE_NOISE_ADD = 0.0005;
+/*
+    Sが一時的に揺れても
+    すぐ画像を消さないための猶予。
+*/
+
+const ANDROID_RELEASE_SECONDS = 0.28;
+const IOS_RELEASE_SECONDS = 0.20;
+const PC_RELEASE_SECONDS = 0.22;
+
+
+/*
+    iPad用。
+
+    発声終了後に音量が無音近くへ戻ったら、
+    周波数比がSっぽく残っていても
+    発声終了と判断する。
+
+    本物の弱いSは開始時点で0.0035程度以上を
+    要求しているので、それより十分低くしてある。
+*/
+
+const IOS_SILENCE_FLOOR = 0.0023;
+
+
+/*
+    音声処理そのものが止まった場合の安全監視。
+
+    これは「Sを1.5秒で切る」という意味ではない。
+
+    音声データが届いている限り、
+    何秒でもSを伸ばせる。
+*/
+
+const AUDIO_STALL_MS = 1500;
 
 
 // ============================================================
@@ -709,11 +800,21 @@ const wordScreen =
 
 function showScreen(target) {
 
-    mainScreen.classList.remove("active");
-    vowelScreen.classList.remove("active");
-    wordScreen.classList.remove("active");
+    mainScreen.classList.remove(
+        "active"
+    );
 
-    target.classList.add("active");
+    vowelScreen.classList.remove(
+        "active"
+    );
+
+    wordScreen.classList.remove(
+        "active"
+    );
+
+    target.classList.add(
+        "active"
+    );
 
 }
 
@@ -777,11 +878,18 @@ const wordFileInput =
 // IndexedDB
 // ============================================================
 
-const DB_NAME = "IkiDeAsobouDB";
-const DB_VERSION = 1;
+const DB_NAME =
+    "IkiDeAsobouDB";
 
-const STORE_MAIN = "mainImages";
-const STORE_WORD = "wordImages";
+const DB_VERSION =
+    1;
+
+const STORE_MAIN =
+    "mainImages";
+
+const STORE_WORD =
+    "wordImages";
+
 
 let database = null;
 
@@ -936,17 +1044,10 @@ function addImage(storeName, file) {
                     )
                     .add(
                         {
-                            name:
-                                file.name,
-
-                            type:
-                                file.type,
-
-                            blob:
-                                file,
-
-                            createdAt:
-                                Date.now()
+                            name: file.name,
+                            type: file.type,
+                            blob: file,
+                            createdAt: Date.now()
                         }
                     );
 
@@ -1103,7 +1204,10 @@ function clearImageElement(imageElement) {
 }
 
 
-function displayBlob(imageElement, record) {
+function displayBlob(
+    imageElement,
+    record
+) {
 
     revokeImageURL(
         imageElement
@@ -1258,7 +1362,6 @@ document
                     "画像は10枚まで登録できます。"
                 );
 
-
                 return;
 
             }
@@ -1297,8 +1400,7 @@ mainFileInput.addEventListener(
 
 
         for (
-            const file
-            of files
+            const file of files
         ) {
 
             if (
@@ -1407,7 +1509,6 @@ document
                     "画像は12枚まで登録できます。"
                 );
 
-
                 return;
 
             }
@@ -1447,8 +1548,7 @@ wordFileInput.addEventListener(
 
 
         for (
-            const file
-            of files
+            const file of files
         ) {
 
             if (
@@ -1690,21 +1790,15 @@ function drawBar() {
 
 
     const left =
-        barLeft
-        *
-        width;
+        barLeft * width;
 
 
     const middle =
-        barMiddle
-        *
-        width;
+        barMiddle * width;
 
 
     const right =
-        barRight
-        *
-        width;
+        barRight * width;
 
 
     blueSegment.style.left =
@@ -1842,7 +1936,9 @@ function nearestHandle(clientX) {
 
 
     return Object
-        .entries(values)
+        .entries(
+            values
+        )
         .sort(
             function(a, b) {
 
@@ -2064,7 +2160,7 @@ let queueOffset = 0;
 let frameSize = 735;
 
 let calibrationFramesNeeded = 60;
-let releaseFramesNeeded = 17;
+let releaseFramesNeeded = 12;
 
 let calibrating = false;
 let calibrationVolumes = [];
@@ -2083,6 +2179,53 @@ let weakCount = 0;
 let soundLatched = false;
 
 let releaseCount = 0;
+
+
+/*
+    iPadで「本当に無音近くへ戻った」
+    状態を連続して確認するためのカウンター。
+*/
+
+let iosSilenceCount = 0;
+
+
+/*
+    音声処理停止監視。
+*/
+
+let lastAudioCallbackTime = 0;
+let watchdogTimer = null;
+let rebuildingGraph = false;
+
+
+// ============================================================
+// 認識状態のリセット
+// ============================================================
+
+function resetRecognitionState(
+    hideImage = true
+) {
+
+    normalCount = 0;
+    weakCount = 0;
+
+    releaseCount = 0;
+    iosSilenceCount = 0;
+
+    soundLatched = false;
+
+
+    if (
+        hideImage
+    ) {
+
+        clearImageElement(
+            mainImage
+        );
+
+    }
+
+}
 
 
 // ============================================================
@@ -2127,8 +2270,7 @@ function calculatePeak(samples) {
 
 
     for (
-        const value
-        of samples
+        const value of samples
     ) {
 
         const absolute =
@@ -2279,6 +2421,7 @@ function fftMagnitudes(samples) {
         ) {
 
             j ^= bit;
+
             bit >>= 1;
 
         }
@@ -2533,8 +2676,7 @@ function analyzeFrame(samples) {
             fft.magnitudes[i];
 
 
-        total +=
-            magnitude;
+        total += magnitude;
 
 
         const frequency =
@@ -2549,8 +2691,7 @@ function analyzeFrame(samples) {
             frequency >= 3000
         ) {
 
-            high +=
-                magnitude;
+            high += magnitude;
 
         }
 
@@ -2586,6 +2727,7 @@ function analyzeFrame(samples) {
 
 // ============================================================
 // S開始条件
+// ★変更なし
 // ============================================================
 
 function commonSFeatures(result) {
@@ -2684,18 +2826,11 @@ function weakS(result) {
 
 
 // ============================================================
-// S継続条件
-//
-// 開始後だけ少し緩くする。
-// Androidの持続Sに強くする。
+// Android継続条件
+// 前回うまくいった条件をほぼ維持
 // ============================================================
 
-function holdS(result) {
-
-    /*
-        無音付近まで下がった場合は
-        S継続とはしない。
-    */
+function holdSAndroid(result) {
 
     const minimumVolume =
         Math.max(
@@ -2706,11 +2841,11 @@ function holdS(result) {
 
             noiseFloor
             *
-            RELEASE_NOISE_MULTIPLIER,
+            1.20,
 
             noiseFloor
             +
-            RELEASE_NOISE_ADD
+            0.0005
 
         );
 
@@ -2727,7 +2862,7 @@ function holdS(result) {
 
     if (
         result.highRatio <
-        HOLD_HIGH_RATIO_MIN
+        ANDROID_HOLD_HIGH_RATIO_MIN
     ) {
 
         return false;
@@ -2737,7 +2872,7 @@ function holdS(result) {
 
     if (
         result.zcr <
-        HOLD_ZCR_MIN
+        ANDROID_HOLD_ZCR_MIN
     ) {
 
         return false;
@@ -2754,12 +2889,6 @@ function holdS(result) {
         :
         999;
 
-
-    /*
-        継続中だけ若干ゆるくする。
-        リップノイズのような一瞬の衝撃音は
-        それでも除外する。
-    */
 
     if (
         peakRatio > 6.0
@@ -2780,6 +2909,257 @@ function holdS(result) {
 
 
     return true;
+
+}
+
+
+// ============================================================
+// iPad / iPhone継続条件
+// ============================================================
+
+function holdSIOS(result) {
+
+    /*
+        iPadでは無音近辺のノイズを
+        Sの継続とみなさないことを重視。
+    */
+
+    const minimumVolume =
+        Math.max(
+
+            IOS_SILENCE_FLOOR,
+
+            noiseFloor
+            *
+            1.30,
+
+            noiseFloor
+            +
+            0.0007
+
+        );
+
+
+    if (
+        result.volume <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio <
+        IOS_HOLD_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr <
+        IOS_HOLD_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio > 5.5
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak > 0.10
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// PC継続条件
+// ============================================================
+
+function holdSPC(result) {
+
+    const minimumVolume =
+        Math.max(
+
+            WEAK_MIN_VOLUME
+            *
+            0.72,
+
+            noiseFloor
+            *
+            1.22,
+
+            noiseFloor
+            +
+            0.00055
+
+        );
+
+
+    if (
+        result.volume <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio <
+        PC_HOLD_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr <
+        PC_HOLD_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio > 5.7
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak > 0.105
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// 端末ごとの継続判定
+// ============================================================
+
+function holdS(result) {
+
+    if (
+        IS_ANDROID
+    ) {
+
+        return holdSAndroid(
+            result
+        );
+
+    }
+
+
+    if (
+        IS_IOS
+    ) {
+
+        return holdSIOS(
+            result
+        );
+
+    }
+
+
+    return holdSPC(
+        result
+    );
+
+}
+
+
+// ============================================================
+// iPadで明確に無音へ戻ったか
+// ============================================================
+
+function iosClearlySilent(result) {
+
+    if (
+        !IS_IOS
+    ) {
+
+        return false;
+
+    }
+
+
+    const threshold =
+        Math.max(
+
+            IOS_SILENCE_FLOOR,
+
+            noiseFloor
+            *
+            1.25,
+
+            noiseFloor
+            +
+            0.00055
+
+        );
+
+
+    return (
+        result.volume <
+        threshold
+    );
 
 }
 
@@ -2863,11 +3243,13 @@ function finishCalibration() {
 
     weakDynamicMin =
         Math.max(
+
             weakDynamicMin,
 
             noiseFloor
             +
             0.0004
+
         );
 
 
@@ -2919,8 +3301,10 @@ function processResult(result) {
 
     /*
         ======================================================
-        画像がまだ出ていない
+        画像が出ていない状態
         ======================================================
+
+        ここは従来どおり。
     */
 
     if (
@@ -2988,6 +3372,7 @@ function processResult(result) {
             soundLatched = true;
 
             releaseCount = 0;
+            iosSilenceCount = 0;
 
             showRandomMainImage();
 
@@ -3003,11 +3388,6 @@ function processResult(result) {
         ======================================================
         画像表示中
         ======================================================
-
-        ここでは開始時より少し緩いholdSを使う。
-
-        Androidで一瞬だけS特徴が弱くなっても、
-        すぐには画像を消さない。
     */
 
     const continuing =
@@ -3015,6 +3395,77 @@ function processResult(result) {
             result
         );
 
+
+    /*
+        iPad専用。
+
+        音量が明確に無音近辺へ戻った状態が
+        続いた場合には、
+        周波数比がSっぽく残っていても終了させる。
+    */
+
+    if (
+        IS_IOS
+        &&
+        iosClearlySilent(
+            result
+        )
+    ) {
+
+        iosSilenceCount++;
+
+    }
+
+    else {
+
+        iosSilenceCount = 0;
+
+    }
+
+
+    /*
+        iPadで約0.13秒程度、
+        明確な無音が続いた場合は終了。
+
+        0.20秒より少し早く消せる。
+    */
+
+    const iosSilenceFramesNeeded =
+        Math.max(
+
+            1,
+
+            Math.round(
+                0.13
+                *
+                audioContext.sampleRate
+                /
+                frameSize
+            )
+
+        );
+
+
+    if (
+        IS_IOS
+        &&
+        iosSilenceCount >=
+        iosSilenceFramesNeeded
+    ) {
+
+        resetRecognitionState(
+            true
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+        通常の継続判定。
+    */
 
     if (
         continuing
@@ -3030,25 +3481,13 @@ function processResult(result) {
     releaseCount++;
 
 
-    /*
-        約0.28秒連続して
-        S継続条件を満たさなくなったら終了。
-    */
-
     if (
         releaseCount >=
         releaseFramesNeeded
     ) {
 
-        soundLatched = false;
-
-        normalCount = 0;
-        weakCount = 0;
-
-        releaseCount = 0;
-
-        clearImageElement(
-            mainImage
+        resetRecognitionState(
+            true
         );
 
     }
@@ -3138,10 +3577,10 @@ function addSamples(input) {
 
 
 // ============================================================
-// マイク停止
+// Audio graph
 // ============================================================
 
-function stopExistingMicrophone() {
+function disconnectAudioGraph() {
 
     try {
 
@@ -3154,9 +3593,6 @@ function stopExistingMicrophone() {
 
 
             processorNode.disconnect();
-
-
-            processorNode = null;
 
         }
 
@@ -3173,9 +3609,6 @@ function stopExistingMicrophone() {
 
             sourceNode.disconnect();
 
-
-            sourceNode = null;
-
         }
 
     }
@@ -3191,14 +3624,336 @@ function stopExistingMicrophone() {
 
             muteNode.disconnect();
 
-
-            muteNode = null;
-
         }
 
     }
 
     catch (error) {}
+
+
+    processorNode = null;
+    sourceNode = null;
+    muteNode = null;
+
+}
+
+
+// ============================================================
+// Audio graph作成
+// ============================================================
+
+function buildAudioGraph() {
+
+    disconnectAudioGraph();
+
+
+    sourceNode =
+        audioContext
+            .createMediaStreamSource(
+                mediaStream
+            );
+
+
+    processorNode =
+        audioContext
+            .createScriptProcessor(
+                1024,
+                1,
+                1
+            );
+
+
+    processorNode.onaudioprocess =
+        function(event) {
+
+            lastAudioCallbackTime =
+                performance.now();
+
+
+            const input =
+                event
+                    .inputBuffer
+                    .getChannelData(
+                        0
+                    );
+
+
+            addSamples(
+                input
+            );
+
+        };
+
+
+    muteNode =
+        audioContext
+            .createGain();
+
+
+    muteNode.gain.value =
+        0;
+
+
+    sourceNode.connect(
+        processorNode
+    );
+
+
+    processorNode.connect(
+        muteNode
+    );
+
+
+    muteNode.connect(
+        audioContext.destination
+    );
+
+
+    lastAudioCallbackTime =
+        performance.now();
+
+}
+
+
+// ============================================================
+// 音声処理停止時の復旧
+// ============================================================
+
+async function rebuildAudioGraph() {
+
+    if (
+        rebuildingGraph
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !audioContext
+        ||
+        !mediaStream
+    ) {
+
+        return;
+
+    }
+
+
+    rebuildingGraph = true;
+
+
+    /*
+        固まったときに最後の画像が
+        居座らないようにする。
+    */
+
+    resetRecognitionState(
+        true
+    );
+
+
+    sampleQueue = [];
+    queueOffset = 0;
+
+
+    try {
+
+        if (
+            audioContext.state ===
+            "suspended"
+        ) {
+
+            try {
+
+                await audioContext.resume();
+
+            }
+
+            catch (error) {}
+
+        }
+
+
+        buildAudioGraph();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+
+    rebuildingGraph = false;
+
+}
+
+
+// ============================================================
+// 安全監視
+// ============================================================
+
+function startWatchdog() {
+
+    if (
+        watchdogTimer
+    ) {
+
+        clearInterval(
+            watchdogTimer
+        );
+
+    }
+
+
+    watchdogTimer =
+        setInterval(
+            async function() {
+
+                if (
+                    !audioContext
+                    ||
+                    !mediaStream
+                ) {
+
+                    return;
+
+                }
+
+
+                /*
+                    AudioContextが一時停止していたら
+                    復帰を試みる。
+                */
+
+                if (
+                    audioContext.state ===
+                    "suspended"
+                ) {
+
+                    try {
+
+                        await audioContext.resume();
+
+                    }
+
+                    catch (error) {}
+
+                }
+
+
+                /*
+                    音声コールバック自体が
+                    1.5秒以上来ていない場合のみ復旧する。
+
+                    普通に「すーーーー」と発音している間には
+                    常にコールバックが来るので、
+                    長いSを途中で切ることはない。
+                */
+
+                const elapsed =
+                    performance.now()
+                    -
+                    lastAudioCallbackTime;
+
+
+                if (
+                    elapsed >
+                    AUDIO_STALL_MS
+                ) {
+
+                    await rebuildAudioGraph();
+
+                }
+
+            },
+            500
+        );
+
+}
+
+
+// ============================================================
+// ページが再び前面に戻ったとき
+// ============================================================
+
+document.addEventListener(
+    "visibilitychange",
+    async function() {
+
+        if (
+            document.visibilityState !==
+            "visible"
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !audioContext
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            if (
+                audioContext.state ===
+                "suspended"
+            ) {
+
+                await audioContext.resume();
+
+            }
+
+        }
+
+        catch (error) {}
+
+
+        /*
+            画面切替後に最後の画像だけ残るのを防止。
+        */
+
+        resetRecognitionState(
+            true
+        );
+
+    }
+);
+
+
+// ============================================================
+// マイク停止
+// ============================================================
+
+function stopExistingMicrophone() {
+
+    if (
+        watchdogTimer
+    ) {
+
+        clearInterval(
+            watchdogTimer
+        );
+
+
+        watchdogTimer = null;
+
+    }
+
+
+    disconnectAudioGraph();
 
 
     try {
@@ -3290,37 +4045,25 @@ async function startMicrophone() {
         "ちょっとだけ　しずかにしてね…";
 
 
-    clearImageElement(
-        mainImage
+    resetRecognitionState(
+        true
     );
 
-
-    normalCount = 0;
-    weakCount = 0;
-
-    releaseCount = 0;
-
-    soundLatched = false;
 
     calibrationVolumes = [];
 
     calibrating = true;
 
+
     normalDynamicMin =
         NORMAL_MIN_VOLUME;
+
 
     weakDynamicMin =
         WEAK_MIN_VOLUME;
 
 
     try {
-
-        /*
-            まずシンプルな条件でマイク取得。
-
-            PC / iPad / Androidで
-            最も互換性を優先。
-        */
 
         mediaStream =
             await navigator
@@ -3355,6 +4098,7 @@ async function startMicrophone() {
 
         frameSize =
             Math.max(
+
                 256,
 
                 Math.round(
@@ -3366,11 +4110,13 @@ async function startMicrophone() {
                         44100
                     )
                 )
+
             );
 
 
         calibrationFramesNeeded =
             Math.max(
+
                 1,
 
                 Math.round(
@@ -3380,20 +4126,52 @@ async function startMicrophone() {
                     /
                     frameSize
                 )
+
             );
+
+
+        let releaseSeconds;
+
+
+        if (
+            IS_ANDROID
+        ) {
+
+            releaseSeconds =
+                ANDROID_RELEASE_SECONDS;
+
+        }
+
+        else if (
+            IS_IOS
+        ) {
+
+            releaseSeconds =
+                IOS_RELEASE_SECONDS;
+
+        }
+
+        else {
+
+            releaseSeconds =
+                PC_RELEASE_SECONDS;
+
+        }
 
 
         releaseFramesNeeded =
             Math.max(
+
                 1,
 
                 Math.round(
-                    S_RELEASE_SECONDS
+                    releaseSeconds
                     *
                     audioContext.sampleRate
                     /
                     frameSize
                 )
+
             );
 
 
@@ -3401,76 +4179,26 @@ async function startMicrophone() {
         queueOffset = 0;
 
 
-        sourceNode =
-            audioContext
-                .createMediaStreamSource(
-                    mediaStream
-                );
+        buildAudioGraph();
 
 
-        processorNode =
-            audioContext
-                .createScriptProcessor(
-                    1024,
-                    1,
-                    1
-                );
-
-
-        processorNode.onaudioprocess =
-            function(event) {
-
-                const input =
-                    event
-                        .inputBuffer
-                        .getChannelData(
-                            0
-                        );
-
-
-                addSamples(
-                    input
-                );
-
-            };
+        startWatchdog();
 
 
         /*
-            Androidを含め、
-            音声処理グラフが動き続けるように
-            destinationまで接続する。
+            再スタートできるよう、
+            ボタンを無効化しない。
 
-            gain=0なので音はスピーカーに出ない。
+            万一調子が悪くなったときも
+            ページ更新なしで再スタート可能。
         */
 
-        muteNode =
-            audioContext
-                .createGain();
-
-
-        muteNode.gain.value = 0;
-
-
-        sourceNode.connect(
-            processorNode
-        );
-
-
-        processorNode.connect(
-            muteNode
-        );
-
-
-        muteNode.connect(
-            audioContext.destination
-        );
-
-
-        startButton.disabled = true;
+        startButton.disabled =
+            false;
 
 
         startButton.textContent =
-            "マイク使用中";
+            "再スタート";
 
     }
 
@@ -3485,7 +4213,8 @@ async function startMicrophone() {
             "";
 
 
-        startButton.disabled = false;
+        startButton.disabled =
+            false;
 
 
         startButton.textContent =
@@ -3521,13 +4250,17 @@ async function initialize() {
 
         await openDatabase();
 
+
         await reloadImages();
+
 
         clearImageElement(
             mainImage
         );
 
+
         showWordImage();
+
 
         drawBar();
 
@@ -3553,7 +4286,5 @@ initialize();
 
 </script>
 
-
 </body>
-
 </html>

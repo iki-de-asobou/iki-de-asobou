@@ -3,7 +3,6 @@
 
 <head>
 <meta charset="utf-8">
-
 <meta
     name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover"
@@ -28,7 +27,6 @@ body {
     margin: 0;
     background: var(--bg);
     color: #111;
-
     font-family:
         "Yu Gothic",
         "Hiragino Kaku Gothic ProN",
@@ -40,13 +38,10 @@ button {
     font-family: inherit;
     font-weight: bold;
     cursor: pointer;
-
     min-height: 50px;
     padding: 8px 15px;
-
     border: 1px solid #888;
     border-radius: 7px;
-
     background: #f7f7f7;
 }
 
@@ -58,22 +53,12 @@ button {
     display: block;
 }
 
-
-/* ==========================================================
-   メイン画面
-========================================================== */
-
 .main-layout {
     max-width: 1100px;
     margin: auto;
     padding: 20px;
-
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        210px;
-
+    grid-template-columns: minmax(0, 1fr) 210px;
     gap: 28px;
 }
 
@@ -83,23 +68,17 @@ button {
 
 .title {
     display: flex;
-
     justify-content: center;
     align-items: baseline;
-
     flex-wrap: wrap;
-
     margin: 5px 0 15px;
-
     font-size: 34px;
     font-weight: bold;
 }
 
 .title-s {
     color: var(--blue);
-
     margin-left: 24px;
-
     font-size: 37px;
 }
 
@@ -110,43 +89,32 @@ button {
 
 .image-box {
     width: min(100%, 650px);
-
     aspect-ratio: 10 / 7;
-
     margin: 10px auto;
-
     background: white;
-
     border: 1px solid #999;
-
     display: flex;
-
     justify-content: center;
     align-items: center;
-
     overflow: hidden;
 }
 
 .image-box img {
     width: 100%;
     height: 100%;
-
     object-fit: contain;
 }
 
 .count {
     margin-top: 12px;
-
     font-size: 19px;
     font-weight: bold;
 }
 
 .side-buttons {
     padding-top: 50px;
-
     display: flex;
     flex-direction: column;
-
     gap: 15px;
 }
 
@@ -154,77 +122,51 @@ button {
     font-size: 18px;
 }
 
-
-/* ==========================================================
-   共通サブ画面
-========================================================== */
-
 .page {
     max-width: 1000px;
-
     margin: auto;
-
     text-align: center;
-
     padding: 30px 18px;
 }
 
 .page h1 {
     font-size: 36px;
-
     margin: 5px 0 18px;
 }
 
 .description {
     font-size: 19px;
     line-height: 1.7;
-
     margin: 5px;
 }
 
-
-/* ==========================================================
-   母音後続
-========================================================== */
-
 .bar-area {
     position: relative;
-
     width: min(92vw, 900px);
     height: 250px;
-
     margin: 25px auto 5px;
-
     touch-action: none;
     user-select: none;
 }
 
 .bar-track {
     position: absolute;
-
     left: 0;
     right: 0;
     top: 80px;
-
     height: 90px;
 }
 
 .segment {
     position: absolute;
-
     height: 90px;
     top: 0;
-
     color: white;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     font-size: 22px;
     font-weight: bold;
-
     overflow: hidden;
 }
 
@@ -238,52 +180,32 @@ button {
 
 .bar-line {
     position: absolute;
-
     top: -18px;
-
     width: 5px;
     height: 126px;
-
     background: #333;
-
     transform: translateX(-2px);
 }
 
 .bar-line.middle {
     top: -22px;
-
     height: 134px;
-
     background: white;
 }
 
 .handle {
     position: absolute;
-
     top: 101px;
-
     width: 30px;
     height: 30px;
-
     min-height: 0;
-
     border-radius: 50%;
-
     border: 2px solid #333;
-
     background: white;
-
     transform: translateX(-15px);
-
     padding: 0;
-
     z-index: 10;
 }
-
-
-/* ==========================================================
-   単語
-========================================================== */
 
 .word-box {
     cursor: pointer;
@@ -292,54 +214,33 @@ button {
 
 #wordPosition {
     min-height: 24px;
-
     color: #555;
 }
 
-
-/* ==========================================================
-   下ボタン
-========================================================== */
-
 .bottom-buttons {
     margin-top: 15px;
-
     display: flex;
-
     justify-content: center;
     flex-wrap: wrap;
-
     gap: 12px;
 }
 
 .bottom-buttons button {
     min-width: 145px;
-
     font-size: 16px;
 }
-
-
-/* ==========================================================
-   スマホ・タブレット
-========================================================== */
 
 @media (max-width: 760px) {
 
     .main-layout {
         grid-template-columns: 1fr;
-
         padding: 12px;
     }
 
     .side-buttons {
         padding-top: 5px;
-
         display: grid;
-
-        grid-template-columns:
-            1fr
-            1fr;
-
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
     }
 
@@ -353,7 +254,6 @@ button {
 
     .title-s {
         margin-left: 10px;
-
         font-size: 29px;
     }
 
@@ -364,64 +264,35 @@ button {
     .description {
         font-size: 17px;
     }
-
 }
 
 </style>
 </head>
 
-
 <body>
 
-
-<!-- ========================================================
-     メイン画面
-======================================================== -->
-
-<section
-    id="mainScreen"
-    class="screen active"
->
+<section id="mainScreen" class="screen active">
 
 <div class="main-layout">
 
 <div class="main-left">
 
 <div class="title">
-
-<span>
-いきで　あそぼう！
-</span>
-
-<span class="title-s">
-すー　すー　すー
-</span>
-
+<span>いきで　あそぼう！</span>
+<span class="title-s">すー　すー　すー</span>
 </div>
-
 
 <div id="status"></div>
 
-
 <div class="image-box">
-
-<img
-    id="mainImage"
-    alt=""
->
-
+<img id="mainImage" alt="">
 </div>
 
-
-<div
-    id="mainCount"
-    class="count"
->
+<div id="mainCount" class="count">
 登録画像：0 / 10
 </div>
 
 </div>
-
 
 <div class="side-buttons">
 
@@ -452,15 +323,7 @@ button {
 </section>
 
 
-
-<!-- ========================================================
-     母音後続
-======================================================== -->
-
-<section
-    id="vowelScreen"
-    class="screen"
->
+<section id="vowelScreen" class="screen">
 
 <div class="page">
 
@@ -468,82 +331,42 @@ button {
 母音後続
 </h1>
 
-
 <p class="description">
 棒の左端・青と赤の境目・右端を動かせます。
 </p>
-
 
 <p class="description">
 息と声をつなげ、音節（さしすせそ）の練習をしましょう。
 </p>
 
-
-<div
-    id="barArea"
-    class="bar-area"
->
+<div id="barArea" class="bar-area">
 
 <div class="bar-track">
 
-<div
-    id="blueSegment"
-    class="segment"
->
+<div id="blueSegment" class="segment">
 いき
 </div>
 
-<div
-    id="redSegment"
-    class="segment"
->
+<div id="redSegment" class="segment">
 こえ
 </div>
 
-<div
-    id="leftLine"
-    class="bar-line"
-></div>
+<div id="leftLine" class="bar-line"></div>
+<div id="middleLine" class="bar-line middle"></div>
+<div id="rightLine" class="bar-line"></div>
 
-<div
-    id="middleLine"
-    class="bar-line middle"
-></div>
-
-<div
-    id="rightLine"
-    class="bar-line"
-></div>
-
-<button
-    id="leftHandle"
-    class="handle"
-    aria-label="左端"
-></button>
-
-<button
-    id="middleHandle"
-    class="handle"
-    aria-label="青と赤の境目"
-></button>
-
-<button
-    id="rightHandle"
-    class="handle"
-    aria-label="右端"
-></button>
+<button id="leftHandle" class="handle" aria-label="左端"></button>
+<button id="middleHandle" class="handle" aria-label="青と赤の境目"></button>
+<button id="rightHandle" class="handle" aria-label="右端"></button>
 
 </div>
 
 </div>
-
 
 <div class="bottom-buttons">
-
 <button id="vowelBackButton">
 もどる
 </button>
-
 </div>
 
 </div>
@@ -551,15 +374,7 @@ button {
 </section>
 
 
-
-<!-- ========================================================
-     単語
-======================================================== -->
-
-<section
-    id="wordScreen"
-    class="screen"
->
+<section id="wordScreen" class="screen">
 
 <div class="page">
 
@@ -567,42 +382,21 @@ button {
 単語
 </h1>
 
-
 <p class="description">
-
 「さしすせそ」を含む単語のイラストや写真を登録してください。
-
 <br>
-
 クリックまたはタップすると順番に表示されます。
-
 </p>
 
-
-<div
-    id="wordImageBox"
-    class="image-box word-box"
-    tabindex="0"
->
-
-<img
-    id="wordImage"
-    alt=""
->
-
+<div id="wordImageBox" class="image-box word-box" tabindex="0">
+<img id="wordImage" alt="">
 </div>
 
-
-<div
-    id="wordCount"
-    class="count"
->
+<div id="wordCount" class="count">
 登録画像：0 / 12
 </div>
 
-
 <div id="wordPosition"></div>
-
 
 <div class="bottom-buttons">
 
@@ -625,7 +419,6 @@ button {
 </section>
 
 
-
 <input
     id="mainFileInput"
     type="file"
@@ -634,7 +427,6 @@ button {
     hidden
 >
 
-
 <input
     id="wordFileInput"
     type="file"
@@ -642,7 +434,6 @@ button {
     multiple
     hidden
 >
-
 
 
 <script>
@@ -660,8 +451,7 @@ const MAX_WORD_IMAGES = 12;
 
 // ============================================================
 // S開始判定
-//
-// ★ここは変更していません。
+// ここは変更しない
 // ============================================================
 
 const HIGH_RATIO_MIN = 0.38;
@@ -685,18 +475,10 @@ const CALIBRATION_SECONDS = 1.0;
 const USER_AGENT =
     navigator.userAgent || "";
 
-
 const IS_ANDROID =
     /Android/i.test(
         USER_AGENT
     );
-
-
-/*
-    最近のiPadでは
-    userAgent上「Macintosh」になることがあるので、
-    maxTouchPointsも併用する。
-*/
 
 const IS_IOS =
     /iPad|iPhone|iPod/i.test(
@@ -711,69 +493,80 @@ const IS_IOS =
 
 
 // ============================================================
-// S継続判定
+// Android
+//
+// 今うまくいっているので基本維持
 // ============================================================
-
-/*
-    Androidは前回うまくいった
-    緩めの条件を維持。
-*/
 
 const ANDROID_HOLD_HIGH_RATIO_MIN = 0.30;
 const ANDROID_HOLD_ZCR_MIN = 0.018;
-
-
-/*
-    iPad/iPhoneはAndroidより少し厳しくする。
-
-    発声終了後の残留ノイズを
-    S継続と誤判定しにくくする。
-*/
-
-const IOS_HOLD_HIGH_RATIO_MIN = 0.35;
-const IOS_HOLD_ZCR_MIN = 0.022;
-
-
-/*
-    PCは開始条件より少しだけ緩い。
-*/
-
-const PC_HOLD_HIGH_RATIO_MIN = 0.34;
-const PC_HOLD_ZCR_MIN = 0.021;
-
-
-/*
-    Sが一時的に揺れても
-    すぐ画像を消さないための猶予。
-*/
-
 const ANDROID_RELEASE_SECONDS = 0.28;
-const IOS_RELEASE_SECONDS = 0.20;
-const PC_RELEASE_SECONDS = 0.22;
 
 
-/*
-    iPad用。
+// ============================================================
+// PC
+//
+// 弱いSの途中で一時的に判定が外れても
+// 同じ画像を保持する
+// ============================================================
 
-    発声終了後に音量が無音近くへ戻ったら、
-    周波数比がSっぽく残っていても
-    発声終了と判断する。
-
-    本物の弱いSは開始時点で0.0035程度以上を
-    要求しているので、それより十分低くしてある。
-*/
-
-const IOS_SILENCE_FLOOR = 0.0023;
-
+const PC_HOLD_HIGH_RATIO_MIN = 0.30;
+const PC_HOLD_ZCR_MIN = 0.017;
 
 /*
-    音声処理そのものが止まった場合の安全監視。
-
-    これは「Sを1.5秒で切る」という意味ではない。
-
-    音声データが届いている限り、
-    何秒でもSを伸ばせる。
+    Sっぽさだけ一時的に抜けた場合は、
+    最大0.50秒まで同じ画像を保持。
 */
+const PC_SOFT_RELEASE_SECONDS = 0.50;
+
+/*
+    音量が明確に無音近くまで落ちた場合は、
+    約0.18秒で終了。
+*/
+const PC_SILENCE_RELEASE_SECONDS = 0.18;
+
+
+// ============================================================
+// iPad / iPhone
+//
+// 開始時のS音量を固定して、
+// その後の音量低下で終了を判断
+// ============================================================
+
+const IOS_HOLD_HIGH_RATIO_MIN = 0.33;
+const IOS_HOLD_ZCR_MIN = 0.020;
+
+/*
+    開始時のS音量に対して、
+    35%以下まで落ちた状態を終了候補にする。
+*/
+const IOS_RELEASE_RATIO = 0.35;
+
+/*
+    絶対的な下限。
+*/
+const IOS_RELEASE_ABSOLUTE = 0.0026;
+
+/*
+    ノイズフロアとの比較。
+*/
+const IOS_RELEASE_NOISE_MULTIPLIER = 1.35;
+const IOS_RELEASE_NOISE_ADD = 0.0007;
+
+/*
+    この状態が約0.16秒続いたら終了。
+*/
+const IOS_RELEASE_SECONDS = 0.16;
+
+/*
+    周波数特徴だけ抜けた場合の保険。
+*/
+const IOS_SOFT_RELEASE_SECONDS = 0.45;
+
+
+// ============================================================
+// 音声処理停止監視
+// ============================================================
 
 const AUDIO_STALL_MS = 1500;
 
@@ -889,7 +682,6 @@ const STORE_MAIN =
 
 const STORE_WORD =
     "wordImages";
-
 
 let database = null;
 
@@ -1182,7 +974,6 @@ function revokeImageURL(imageElement) {
             oldURL
         );
 
-
         delete imageElement.dataset.url;
 
     }
@@ -1195,7 +986,6 @@ function clearImageElement(imageElement) {
     revokeImageURL(
         imageElement
     );
-
 
     imageElement.removeAttribute(
         "src"
@@ -1223,7 +1013,6 @@ function displayBlob(
     imageElement.dataset.url =
         url;
 
-
     imageElement.src =
         url;
 
@@ -1239,7 +1028,6 @@ function showRandomMainImage() {
         clearImageElement(
             mainImage
         );
-
 
         return;
 
@@ -1276,10 +1064,8 @@ function showWordImage() {
             wordImage
         );
 
-
         wordPosition.textContent =
             "";
-
 
         return;
 
@@ -1370,7 +1156,6 @@ document
             mainFileInput.value =
                 "";
 
-
             mainFileInput.click();
 
         }
@@ -1418,7 +1203,6 @@ mainFileInput.addEventListener(
                 STORE_MAIN,
                 file
             );
-
 
             added++;
 
@@ -1516,7 +1300,6 @@ document
 
             wordFileInput.value =
                 "";
-
 
             wordFileInput.click();
 
@@ -1657,7 +1440,6 @@ document
                 vowelScreen
             );
 
-
             requestAnimationFrame(
                 drawBar
             );
@@ -1676,9 +1458,7 @@ document
 
             wordIndex = 0;
 
-
             showWordImage();
-
 
             showScreen(
                 wordScreen
@@ -1792,10 +1572,8 @@ function drawBar() {
     const left =
         barLeft * width;
 
-
     const middle =
         barMiddle * width;
-
 
     const right =
         barRight * width;
@@ -1803,7 +1581,6 @@ function drawBar() {
 
     blueSegment.style.left =
         left + "px";
-
 
     blueSegment.style.width =
         (middle - left)
@@ -1814,7 +1591,6 @@ function drawBar() {
     redSegment.style.left =
         middle + "px";
 
-
     redSegment.style.width =
         (right - middle)
         +
@@ -1824,10 +1600,8 @@ function drawBar() {
     leftLine.style.left =
         left + "px";
 
-
     middleLine.style.left =
         middle + "px";
-
 
     rightLine.style.left =
         right + "px";
@@ -1836,10 +1610,8 @@ function drawBar() {
     leftHandle.style.left =
         left + "px";
 
-
     middleHandle.style.left =
         middle + "px";
-
 
     rightHandle.style.left =
         right + "px";
@@ -2144,7 +1916,7 @@ window.addEventListener(
 
 
 // ============================================================
-// 音声処理
+// 音声状態
 // ============================================================
 
 let audioContext = null;
@@ -2160,7 +1932,13 @@ let queueOffset = 0;
 let frameSize = 735;
 
 let calibrationFramesNeeded = 60;
-let releaseFramesNeeded = 12;
+
+let androidReleaseFramesNeeded = 17;
+let pcSoftReleaseFramesNeeded = 30;
+let pcSilenceFramesNeeded = 11;
+
+let iosReleaseFramesNeeded = 10;
+let iosSoftReleaseFramesNeeded = 27;
 
 let calibrating = false;
 let calibrationVolumes = [];
@@ -2179,27 +1957,27 @@ let weakCount = 0;
 let soundLatched = false;
 
 let releaseCount = 0;
-
+let silenceCount = 0;
 
 /*
-    iPadで「本当に無音近くへ戻った」
-    状態を連続して確認するためのカウンター。
-*/
+    iPadで重要。
 
-let iosSilenceCount = 0;
+    Sを検出した瞬間の音量を固定保存する。
+    後から下げない。
+*/
+let onsetReferenceVolume = 0;
 
 
 /*
     音声処理停止監視。
 */
-
 let lastAudioCallbackTime = 0;
 let watchdogTimer = null;
 let rebuildingGraph = false;
 
 
 // ============================================================
-// 認識状態のリセット
+// 認識リセット
 // ============================================================
 
 function resetRecognitionState(
@@ -2210,7 +1988,9 @@ function resetRecognitionState(
     weakCount = 0;
 
     releaseCount = 0;
-    iosSilenceCount = 0;
+    silenceCount = 0;
+
+    onsetReferenceVolume = 0;
 
     soundLatched = false;
 
@@ -2312,7 +2092,6 @@ function calculateZCR(samples) {
 
         const before =
             samples[i - 1];
-
 
         const now =
             samples[i];
@@ -2421,7 +2200,6 @@ function fftMagnitudes(samples) {
         ) {
 
             j ^= bit;
-
             bit >>= 1;
 
         }
@@ -2437,10 +2215,8 @@ function fftMagnitudes(samples) {
             const tempReal =
                 real[i];
 
-
             real[i] =
                 real[j];
-
 
             real[j] =
                 tempReal;
@@ -2449,10 +2225,8 @@ function fftMagnitudes(samples) {
             const tempImag =
                 imaginary[i];
 
-
             imaginary[i] =
                 imaginary[j];
-
 
             imaginary[j] =
                 tempImag;
@@ -2507,10 +2281,8 @@ function fftMagnitudes(samples) {
                 const firstReal =
                     real[i + k];
 
-
                 const firstImag =
                     imaginary[i + k];
-
 
                 const index2 =
                     i
@@ -2587,7 +2359,6 @@ function fftMagnitudes(samples) {
                 wCos =
                     nextCos;
 
-
                 wSin =
                     nextSin;
 
@@ -2633,7 +2404,7 @@ function fftMagnitudes(samples) {
 
 
 // ============================================================
-// 音分析
+// 分析
 // ============================================================
 
 function analyzeFrame(samples) {
@@ -2727,7 +2498,6 @@ function analyzeFrame(samples) {
 
 // ============================================================
 // S開始条件
-// ★変更なし
 // ============================================================
 
 function commonSFeatures(result) {
@@ -2827,26 +2597,15 @@ function weakS(result) {
 
 // ============================================================
 // Android継続条件
-// 前回うまくいった条件をほぼ維持
 // ============================================================
 
 function holdSAndroid(result) {
 
     const minimumVolume =
         Math.max(
-
-            WEAK_MIN_VOLUME
-            *
-            0.70,
-
-            noiseFloor
-            *
-            1.20,
-
-            noiseFloor
-            +
-            0.0005
-
+            WEAK_MIN_VOLUME * 0.70,
+            noiseFloor * 1.20,
+            noiseFloor + 0.0005
         );
 
 
@@ -2883,9 +2642,7 @@ function holdSAndroid(result) {
     const peakRatio =
         result.volume > 0
         ?
-        result.peak
-        /
-        result.volume
+        result.peak / result.volume
         :
         999;
 
@@ -2914,96 +2671,6 @@ function holdSAndroid(result) {
 
 
 // ============================================================
-// iPad / iPhone継続条件
-// ============================================================
-
-function holdSIOS(result) {
-
-    /*
-        iPadでは無音近辺のノイズを
-        Sの継続とみなさないことを重視。
-    */
-
-    const minimumVolume =
-        Math.max(
-
-            IOS_SILENCE_FLOOR,
-
-            noiseFloor
-            *
-            1.30,
-
-            noiseFloor
-            +
-            0.0007
-
-        );
-
-
-    if (
-        result.volume <
-        minimumVolume
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.highRatio <
-        IOS_HOLD_HIGH_RATIO_MIN
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.zcr <
-        IOS_HOLD_ZCR_MIN
-    ) {
-
-        return false;
-
-    }
-
-
-    const peakRatio =
-        result.volume > 0
-        ?
-        result.peak
-        /
-        result.volume
-        :
-        999;
-
-
-    if (
-        peakRatio > 5.5
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.peak > 0.10
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-// ============================================================
 // PC継続条件
 // ============================================================
 
@@ -3011,19 +2678,9 @@ function holdSPC(result) {
 
     const minimumVolume =
         Math.max(
-
-            WEAK_MIN_VOLUME
-            *
-            0.72,
-
-            noiseFloor
-            *
-            1.22,
-
-            noiseFloor
-            +
-            0.00055
-
+            noiseFloor * 1.15,
+            noiseFloor + 0.0004,
+            0.0022
         );
 
 
@@ -3057,18 +2714,46 @@ function holdSPC(result) {
     }
 
 
-    const peakRatio =
-        result.volume > 0
-        ?
-        result.peak
-        /
-        result.volume
-        :
-        999;
+    return true;
+
+}
+
+
+function pcClearlySilent(result) {
+
+    const threshold =
+        Math.max(
+            0.0023,
+            noiseFloor * 1.25,
+            noiseFloor + 0.00055
+        );
+
+
+    return (
+        result.volume <
+        threshold
+    );
+
+}
+
+
+// ============================================================
+// iPad継続条件
+// ============================================================
+
+function holdSIOS(result) {
+
+    const minimumVolume =
+        Math.max(
+            0.0024,
+            noiseFloor * 1.20,
+            noiseFloor + 0.00045
+        );
 
 
     if (
-        peakRatio > 5.7
+        result.volume <
+        minimumVolume
     ) {
 
         return false;
@@ -3077,7 +2762,18 @@ function holdSPC(result) {
 
 
     if (
-        result.peak > 0.105
+        result.highRatio <
+        IOS_HOLD_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr <
+        IOS_HOLD_ZCR_MIN
     ) {
 
         return false;
@@ -3091,74 +2787,44 @@ function holdSPC(result) {
 
 
 // ============================================================
-// 端末ごとの継続判定
+// iPad終了音量
 // ============================================================
 
-function holdS(result) {
+function iosReleaseVolumeThreshold() {
 
-    if (
-        IS_ANDROID
-    ) {
+    /*
+        S開始時に保存した固定値の35%
+    */
 
-        return holdSAndroid(
-            result
-        );
-
-    }
-
-
-    if (
-        IS_IOS
-    ) {
-
-        return holdSIOS(
-            result
-        );
-
-    }
+    const onsetThreshold =
+        onsetReferenceVolume
+        *
+        IOS_RELEASE_RATIO;
 
 
-    return holdSPC(
-        result
-    );
+    /*
+        キャリブレーションした無音基準
+    */
 
-}
-
-
-// ============================================================
-// iPadで明確に無音へ戻ったか
-// ============================================================
-
-function iosClearlySilent(result) {
-
-    if (
-        !IS_IOS
-    ) {
-
-        return false;
-
-    }
-
-
-    const threshold =
+    const noiseThreshold =
         Math.max(
-
-            IOS_SILENCE_FLOOR,
-
+            IOS_RELEASE_ABSOLUTE,
             noiseFloor
             *
-            1.25,
-
+            IOS_RELEASE_NOISE_MULTIPLIER,
             noiseFloor
             +
-            0.00055
-
+            IOS_RELEASE_NOISE_ADD
         );
 
 
-    return (
-        result.volume <
-        threshold
+    /*
+        どちらか高い方。
+    */
+
+    return Math.max(
+        onsetThreshold,
+        noiseThreshold
     );
 
 }
@@ -3204,17 +2870,9 @@ function finishCalibration() {
 
     normalDynamicMin =
         Math.max(
-
             NORMAL_MIN_VOLUME,
-
-            noiseFloor
-            *
-            1.35,
-
-            noiseFloor
-            +
-            0.0015
-
+            noiseFloor * 1.35,
+            noiseFloor + 0.0015
         );
 
 
@@ -3227,29 +2885,16 @@ function finishCalibration() {
 
     weakDynamicMin =
         Math.max(
-
             WEAK_MIN_VOLUME,
-
-            noiseFloor
-            *
-            1.12,
-
-            noiseFloor
-            +
-            0.0005
-
+            noiseFloor * 1.12,
+            noiseFloor + 0.0005
         );
 
 
     weakDynamicMin =
         Math.max(
-
             weakDynamicMin,
-
-            noiseFloor
-            +
-            0.0004
-
+            noiseFloor + 0.0004
         );
 
 
@@ -3261,7 +2906,6 @@ function finishCalibration() {
 
 
     calibrating = false;
-
 
     statusElement.textContent =
         "";
@@ -3301,10 +2945,8 @@ function processResult(result) {
 
     /*
         ======================================================
-        画像が出ていない状態
+        未表示
         ======================================================
-
-        ここは従来どおり。
     */
 
     if (
@@ -3372,7 +3014,19 @@ function processResult(result) {
             soundLatched = true;
 
             releaseCount = 0;
-            iosSilenceCount = 0;
+            silenceCount = 0;
+
+
+            /*
+                iPad用の固定基準。
+
+                ここで一度だけ保存し、
+                発声中には更新しない。
+            */
+
+            onsetReferenceVolume =
+                result.volume;
+
 
             showRandomMainImage();
 
@@ -3386,71 +3040,180 @@ function processResult(result) {
 
     /*
         ======================================================
-        画像表示中
+        Android
         ======================================================
     */
 
-    const continuing =
-        holdS(
-            result
-        );
+    if (
+        IS_ANDROID
+    ) {
+
+        if (
+            holdSAndroid(
+                result
+            )
+        ) {
+
+            releaseCount = 0;
+
+            return;
+
+        }
+
+
+        releaseCount++;
+
+
+        if (
+            releaseCount >=
+            androidReleaseFramesNeeded
+        ) {
+
+            resetRecognitionState(
+                true
+            );
+
+        }
+
+
+        return;
+
+    }
 
 
     /*
-        iPad専用。
-
-        音量が明確に無音近辺へ戻った状態が
-        続いた場合には、
-        周波数比がSっぽく残っていても終了させる。
+        ======================================================
+        iPad / iPhone
+        ======================================================
     */
 
     if (
         IS_IOS
-        &&
-        iosClearlySilent(
+    ) {
+
+        /*
+            まず一番重要なのは音量低下。
+
+            開始時のS音量を基準にするので、
+            残留ノイズに基準値が引っ張られない。
+        */
+
+        const releaseVolume =
+            iosReleaseVolumeThreshold();
+
+
+        if (
+            result.volume <
+            releaseVolume
+        ) {
+
+            silenceCount++;
+
+        }
+
+        else {
+
+            silenceCount = 0;
+
+        }
+
+
+        /*
+            約0.16秒、
+            開始Sより十分弱い状態が続いたら終了。
+        */
+
+        if (
+            silenceCount >=
+            iosReleaseFramesNeeded
+        ) {
+
+            resetRecognitionState(
+                true
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+            S特徴が普通に続いている間は
+            同じ画像を保持。
+        */
+
+        if (
+            holdSIOS(
+                result
+            )
+        ) {
+
+            releaseCount = 0;
+
+            return;
+
+        }
+
+
+        /*
+            音量がまだあるのに
+            周波数判定だけ一時的に外れた場合。
+
+            すぐには画像を切らない。
+        */
+
+        releaseCount++;
+
+
+        if (
+            releaseCount >=
+            iosSoftReleaseFramesNeeded
+        ) {
+
+            resetRecognitionState(
+                true
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /*
+        ======================================================
+        PC
+        ======================================================
+    */
+
+    /*
+        明確に無音へ戻った場合だけ、
+        比較的早く消す。
+    */
+
+    if (
+        pcClearlySilent(
             result
         )
     ) {
 
-        iosSilenceCount++;
+        silenceCount++;
 
     }
 
     else {
 
-        iosSilenceCount = 0;
+        silenceCount = 0;
 
     }
 
 
-    /*
-        iPadで約0.13秒程度、
-        明確な無音が続いた場合は終了。
-
-        0.20秒より少し早く消せる。
-    */
-
-    const iosSilenceFramesNeeded =
-        Math.max(
-
-            1,
-
-            Math.round(
-                0.13
-                *
-                audioContext.sampleRate
-                /
-                frameSize
-            )
-
-        );
-
-
     if (
-        IS_IOS
-        &&
-        iosSilenceCount >=
-        iosSilenceFramesNeeded
+        silenceCount >=
+        pcSilenceFramesNeeded
     ) {
 
         resetRecognitionState(
@@ -3464,11 +3227,13 @@ function processResult(result) {
 
 
     /*
-        通常の継続判定。
+        弱いSでも継続中なら同じ画像。
     */
 
     if (
-        continuing
+        holdSPC(
+            result
+        )
     ) {
 
         releaseCount = 0;
@@ -3478,12 +3243,20 @@ function processResult(result) {
     }
 
 
+    /*
+        S判定だけ一時的に抜けても、
+        0.5秒は同じ画像を保持。
+
+        これで弱いSの
+        「猫→犬→花→猫」のような切替を防ぐ。
+    */
+
     releaseCount++;
 
 
     if (
         releaseCount >=
-        releaseFramesNeeded
+        pcSoftReleaseFramesNeeded
     ) {
 
         resetRecognitionState(
@@ -3590,7 +3363,6 @@ function disconnectAudioGraph() {
 
             processorNode.onaudioprocess =
                 null;
-
 
             processorNode.disconnect();
 
@@ -3744,11 +3516,6 @@ async function rebuildAudioGraph() {
     rebuildingGraph = true;
 
 
-    /*
-        固まったときに最後の画像が
-        居座らないようにする。
-    */
-
     resetRecognitionState(
         true
     );
@@ -3826,11 +3593,6 @@ function startWatchdog() {
                 }
 
 
-                /*
-                    AudioContextが一時停止していたら
-                    復帰を試みる。
-                */
-
                 if (
                     audioContext.state ===
                     "suspended"
@@ -3846,15 +3608,6 @@ function startWatchdog() {
 
                 }
 
-
-                /*
-                    音声コールバック自体が
-                    1.5秒以上来ていない場合のみ復旧する。
-
-                    普通に「すーーーー」と発音している間には
-                    常にコールバックが来るので、
-                    長いSを途中で切ることはない。
-                */
 
                 const elapsed =
                     performance.now()
@@ -3879,7 +3632,7 @@ function startWatchdog() {
 
 
 // ============================================================
-// ページが再び前面に戻ったとき
+// 画面復帰
 // ============================================================
 
 document.addEventListener(
@@ -3921,10 +3674,6 @@ document.addEventListener(
         catch (error) {}
 
 
-        /*
-            画面切替後に最後の画像だけ残るのを防止。
-        */
-
         resetRecognitionState(
             true
         );
@@ -3946,7 +3695,6 @@ function stopExistingMicrophone() {
         clearInterval(
             watchdogTimer
         );
-
 
         watchdogTimer = null;
 
@@ -3990,7 +3738,6 @@ function stopExistingMicrophone() {
 
             audioContext.close();
 
-
             audioContext = null;
 
         }
@@ -4016,7 +3763,6 @@ async function startMicrophone() {
             "HTTPS接続ではないためマイクを使用できません。"
         );
 
-
         return;
 
     }
@@ -4031,7 +3777,6 @@ async function startMicrophone() {
         alert(
             "このブラウザではマイク機能を利用できません。"
         );
-
 
         return;
 
@@ -4098,9 +3843,7 @@ async function startMicrophone() {
 
         frameSize =
             Math.max(
-
                 256,
-
                 Math.round(
                     audioContext.sampleRate
                     *
@@ -4110,15 +3853,12 @@ async function startMicrophone() {
                         44100
                     )
                 )
-
             );
 
 
         calibrationFramesNeeded =
             Math.max(
-
                 1,
-
                 Math.round(
                     CALIBRATION_SECONDS
                     *
@@ -4126,52 +3866,71 @@ async function startMicrophone() {
                     /
                     frameSize
                 )
-
             );
 
 
-        let releaseSeconds;
-
-
-        if (
-            IS_ANDROID
-        ) {
-
-            releaseSeconds =
-                ANDROID_RELEASE_SECONDS;
-
-        }
-
-        else if (
-            IS_IOS
-        ) {
-
-            releaseSeconds =
-                IOS_RELEASE_SECONDS;
-
-        }
-
-        else {
-
-            releaseSeconds =
-                PC_RELEASE_SECONDS;
-
-        }
-
-
-        releaseFramesNeeded =
+        androidReleaseFramesNeeded =
             Math.max(
-
                 1,
-
                 Math.round(
-                    releaseSeconds
+                    ANDROID_RELEASE_SECONDS
                     *
                     audioContext.sampleRate
                     /
                     frameSize
                 )
+            );
 
+
+        pcSoftReleaseFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    PC_SOFT_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        pcSilenceFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    PC_SILENCE_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosReleaseFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    IOS_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosSoftReleaseFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    IOS_SOFT_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
             );
 
 
@@ -4184,14 +3943,6 @@ async function startMicrophone() {
 
         startWatchdog();
 
-
-        /*
-            再スタートできるよう、
-            ボタンを無効化しない。
-
-            万一調子が悪くなったときも
-            ページ更新なしで再スタート可能。
-        */
 
         startButton.disabled =
             false;

@@ -269,7 +269,9 @@ button {
 </style>
 </head>
 
+
 <body>
+
 
 <section id="mainScreen" class="screen active">
 
@@ -293,6 +295,7 @@ button {
 </div>
 
 </div>
+
 
 <div class="side-buttons">
 
@@ -321,6 +324,7 @@ button {
 </div>
 
 </section>
+
 
 
 <section id="vowelScreen" class="screen">
@@ -360,7 +364,6 @@ button {
 <button id="rightHandle" class="handle" aria-label="右端"></button>
 
 </div>
-
 </div>
 
 <div class="bottom-buttons">
@@ -372,6 +375,7 @@ button {
 </div>
 
 </section>
+
 
 
 <section id="wordScreen" class="screen">
@@ -388,7 +392,11 @@ button {
 クリックまたはタップすると順番に表示されます。
 </p>
 
-<div id="wordImageBox" class="image-box word-box" tabindex="0">
+<div
+    id="wordImageBox"
+    class="image-box word-box"
+    tabindex="0"
+>
 <img id="wordImage" alt="">
 </div>
 
@@ -442,7 +450,7 @@ button {
 
 
 // ============================================================
-// 基本設定
+// 基本
 // ============================================================
 
 const MAX_MAIN_IMAGES = 10;
@@ -451,7 +459,8 @@ const MAX_WORD_IMAGES = 12;
 
 // ============================================================
 // S開始判定
-// ここは変更しない
+//
+// 基準値は変更しない。
 // ============================================================
 
 const HIGH_RATIO_MIN = 0.38;
@@ -469,20 +478,22 @@ const CALIBRATION_SECONDS = 1.0;
 
 
 // ============================================================
-// 端末判定
+// 端末
 // ============================================================
 
 const USER_AGENT =
     navigator.userAgent || "";
 
 const IS_ANDROID =
-    /Android/i.test(
-        USER_AGENT
-    );
+    /Android/i.test(USER_AGENT);
 
 const IS_IOS =
-    /iPad|iPhone|iPod/i.test(
-        USER_AGENT
+    /iPad|iPhone|iPod/i.test(USER_AGENT)
+    ||
+    (
+        navigator.maxTouchPoints > 1
+        &&
+        /Macintosh/i.test(USER_AGENT)
     )
     ||
     (
@@ -495,7 +506,7 @@ const IS_IOS =
 // ============================================================
 // Android
 //
-// 今うまくいっているので基本維持
+// 現在良好なので変更しない。
 // ============================================================
 
 const ANDROID_HOLD_HIGH_RATIO_MIN = 0.30;
@@ -505,63 +516,85 @@ const ANDROID_RELEASE_SECONDS = 0.28;
 
 // ============================================================
 // PC
-//
-// 弱いSの途中で一時的に判定が外れても
-// 同じ画像を保持する
 // ============================================================
 
 const PC_HOLD_HIGH_RATIO_MIN = 0.30;
 const PC_HOLD_ZCR_MIN = 0.017;
 
-/*
-    Sっぽさだけ一時的に抜けた場合は、
-    最大0.50秒まで同じ画像を保持。
-*/
 const PC_SOFT_RELEASE_SECONDS = 0.50;
+const PC_SILENCE_RELEASE_SECONDS = 0.18;
+
 
 /*
-    音量が明確に無音近くまで落ちた場合は、
-    約0.18秒で終了。
+    PCだけに使う追加確認。
+
+    既存のS開始条件に合格しても、
+    さらに約2フレームS系の音が続くことを確認。
+
+    リップノイズ、舌打ち、にちゃ音などの
+    瞬間的な音を弾きやすくする。
 */
-const PC_SILENCE_RELEASE_SECONDS = 0.18;
+
+const PC_ONSET_EXTRA_FRAMES = 2;
 
 
 // ============================================================
 // iPad / iPhone
-//
-// 開始時のS音量を固定して、
-// その後の音量低下で終了を判断
 // ============================================================
 
-const IOS_HOLD_HIGH_RATIO_MIN = 0.33;
-const IOS_HOLD_ZCR_MIN = 0.020;
+const IOS_HOLD_HIGH_RATIO_MIN = 0.30;
+const IOS_HOLD_ZCR_MIN = 0.017;
+
 
 /*
-    開始時のS音量に対して、
-    35%以下まで落ちた状態を終了候補にする。
+    S開始直後の最初の0.25秒で
+    実際のSの音量ピークを測る。
 */
-const IOS_RELEASE_RATIO = 0.35;
+
+const IOS_REFERENCE_BUILD_SECONDS = 0.25;
+
 
 /*
-    絶対的な下限。
+    そのピークから45%以下まで落ちると
+    終了候補。
+
+    前回の35%よりかなり高めにする。
 */
-const IOS_RELEASE_ABSOLUTE = 0.0026;
+
+const IOS_RELEASE_RATIO = 0.45;
+
 
 /*
-    ノイズフロアとの比較。
+    絶対値とキャリブレーション音量も併用。
 */
-const IOS_RELEASE_NOISE_MULTIPLIER = 1.35;
-const IOS_RELEASE_NOISE_ADD = 0.0007;
+
+const IOS_RELEASE_ABSOLUTE = 0.0028;
+
+const IOS_RELEASE_NOISE_MULTIPLIER = 1.45;
+const IOS_RELEASE_NOISE_ADD = 0.0008;
+
 
 /*
-    この状態が約0.16秒続いたら終了。
+    約0.15秒連続で音量が下がれば終了。
 */
-const IOS_RELEASE_SECONDS = 0.16;
+
+const IOS_RELEASE_SECONDS = 0.15;
+
 
 /*
-    周波数特徴だけ抜けた場合の保険。
+    Sらしい特徴までなくなった状態が続いた場合の
+    第二の終了経路。
 */
-const IOS_SOFT_RELEASE_SECONDS = 0.45;
+
+const IOS_SPECTRAL_RELEASE_SECONDS = 0.32;
+
+
+/*
+    S開始からピーク測定終了までの間に
+    一瞬音が弱くなっても画像は消さない。
+*/
+
+const IOS_INITIAL_PROTECTION_SECONDS = 0.30;
 
 
 // ============================================================
@@ -572,116 +605,73 @@ const AUDIO_STALL_MS = 1500;
 
 
 // ============================================================
-// 画面
-// ============================================================
-
-const mainScreen =
-    document.getElementById(
-        "mainScreen"
-    );
-
-const vowelScreen =
-    document.getElementById(
-        "vowelScreen"
-    );
-
-const wordScreen =
-    document.getElementById(
-        "wordScreen"
-    );
-
-
-function showScreen(target) {
-
-    mainScreen.classList.remove(
-        "active"
-    );
-
-    vowelScreen.classList.remove(
-        "active"
-    );
-
-    wordScreen.classList.remove(
-        "active"
-    );
-
-    target.classList.add(
-        "active"
-    );
-
-}
-
-
-// ============================================================
 // DOM
 // ============================================================
 
+const mainScreen =
+    document.getElementById("mainScreen");
+
+const vowelScreen =
+    document.getElementById("vowelScreen");
+
+const wordScreen =
+    document.getElementById("wordScreen");
+
 const statusElement =
-    document.getElementById(
-        "status"
-    );
+    document.getElementById("status");
 
 const startButton =
-    document.getElementById(
-        "startButton"
-    );
+    document.getElementById("startButton");
 
 const mainImage =
-    document.getElementById(
-        "mainImage"
-    );
+    document.getElementById("mainImage");
 
 const mainCount =
-    document.getElementById(
-        "mainCount"
-    );
+    document.getElementById("mainCount");
 
 const mainFileInput =
-    document.getElementById(
-        "mainFileInput"
-    );
+    document.getElementById("mainFileInput");
 
 const wordImage =
-    document.getElementById(
-        "wordImage"
-    );
+    document.getElementById("wordImage");
 
 const wordImageBox =
-    document.getElementById(
-        "wordImageBox"
-    );
+    document.getElementById("wordImageBox");
 
 const wordCount =
-    document.getElementById(
-        "wordCount"
-    );
+    document.getElementById("wordCount");
 
 const wordPosition =
-    document.getElementById(
-        "wordPosition"
-    );
+    document.getElementById("wordPosition");
 
 const wordFileInput =
-    document.getElementById(
-        "wordFileInput"
-    );
+    document.getElementById("wordFileInput");
+
+
+// ============================================================
+// 画面
+// ============================================================
+
+function showScreen(target) {
+
+    mainScreen.classList.remove("active");
+    vowelScreen.classList.remove("active");
+    wordScreen.classList.remove("active");
+
+    target.classList.add("active");
+
+}
 
 
 // ============================================================
 // IndexedDB
 // ============================================================
 
-const DB_NAME =
-    "IkiDeAsobouDB";
+const DB_NAME = "IkiDeAsobouDB";
+const DB_VERSION = 1;
 
-const DB_VERSION =
-    1;
-
-const STORE_MAIN =
-    "mainImages";
-
-const STORE_WORD =
-    "wordImages";
+const STORE_MAIN = "mainImages";
+const STORE_WORD = "wordImages";
 
 let database = null;
 
@@ -693,219 +683,205 @@ let wordIndex = 0;
 
 function openDatabase() {
 
-    return new Promise(
-        function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
-            const request =
-                indexedDB.open(
-                    DB_NAME,
-                    DB_VERSION
-                );
-
-
-            request.onupgradeneeded =
-                function() {
-
-                    const db =
-                        request.result;
+        const request =
+            indexedDB.open(
+                DB_NAME,
+                DB_VERSION
+            );
 
 
-                    if (
-                        !db.objectStoreNames.contains(
-                            STORE_MAIN
-                        )
-                    ) {
+        request.onupgradeneeded =
+            function() {
 
-                        db.createObjectStore(
-                            STORE_MAIN,
-                            {
-                                keyPath: "id",
-                                autoIncrement: true
-                            }
-                        );
-
-                    }
+                const db =
+                    request.result;
 
 
-                    if (
-                        !db.objectStoreNames.contains(
-                            STORE_WORD
-                        )
-                    ) {
+                if (
+                    !db.objectStoreNames.contains(
+                        STORE_MAIN
+                    )
+                ) {
 
-                        db.createObjectStore(
-                            STORE_WORD,
-                            {
-                                keyPath: "id",
-                                autoIncrement: true
-                            }
-                        );
-
-                    }
-
-                };
-
-
-            request.onsuccess =
-                function() {
-
-                    database =
-                        request.result;
-
-                    resolve();
-
-                };
-
-
-            request.onerror =
-                function() {
-
-                    reject(
-                        request.error
+                    db.createObjectStore(
+                        STORE_MAIN,
+                        {
+                            keyPath: "id",
+                            autoIncrement: true
+                        }
                     );
 
-                };
+                }
 
-        }
-    );
+
+                if (
+                    !db.objectStoreNames.contains(
+                        STORE_WORD
+                    )
+                ) {
+
+                    db.createObjectStore(
+                        STORE_WORD,
+                        {
+                            keyPath: "id",
+                            autoIncrement: true
+                        }
+                    );
+
+                }
+
+            };
+
+
+        request.onsuccess =
+            function() {
+
+                database =
+                    request.result;
+
+                resolve();
+
+            };
+
+
+        request.onerror =
+            function() {
+
+                reject(
+                    request.error
+                );
+
+            };
+
+    });
 
 }
 
 
 function getAllImages(storeName) {
 
-    return new Promise(
-        function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
-            const transaction =
-                database.transaction(
-                    storeName,
-                    "readonly"
+        const transaction =
+            database.transaction(
+                storeName,
+                "readonly"
+            );
+
+
+        const request =
+            transaction
+                .objectStore(storeName)
+                .getAll();
+
+
+        request.onsuccess =
+            function() {
+
+                resolve(
+                    request.result || []
                 );
 
-
-            const request =
-                transaction
-                    .objectStore(
-                        storeName
-                    )
-                    .getAll();
+            };
 
 
-            request.onsuccess =
-                function() {
+        request.onerror =
+            function() {
 
-                    resolve(
-                        request.result || []
-                    );
+                reject(
+                    request.error
+                );
 
-                };
+            };
 
-
-            request.onerror =
-                function() {
-
-                    reject(
-                        request.error
-                    );
-
-                };
-
-        }
-    );
+    });
 
 }
 
 
 function addImage(storeName, file) {
 
-    return new Promise(
-        function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
-            const transaction =
-                database.transaction(
-                    storeName,
-                    "readwrite"
+        const transaction =
+            database.transaction(
+                storeName,
+                "readwrite"
+            );
+
+
+        const request =
+            transaction
+                .objectStore(storeName)
+                .add(
+                    {
+                        name: file.name,
+                        type: file.type,
+                        blob: file,
+                        createdAt: Date.now()
+                    }
                 );
 
 
-            const request =
-                transaction
-                    .objectStore(
-                        storeName
-                    )
-                    .add(
-                        {
-                            name: file.name,
-                            type: file.type,
-                            blob: file,
-                            createdAt: Date.now()
-                        }
-                    );
+        request.onsuccess =
+            function() {
+
+                resolve();
+
+            };
 
 
-            request.onsuccess =
-                function() {
+        request.onerror =
+            function() {
 
-                    resolve();
+                reject(
+                    request.error
+                );
 
-                };
+            };
 
-
-            request.onerror =
-                function() {
-
-                    reject(
-                        request.error
-                    );
-
-                };
-
-        }
-    );
+    });
 
 }
 
 
 function clearImages(storeName) {
 
-    return new Promise(
-        function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
 
-            const transaction =
-                database.transaction(
-                    storeName,
-                    "readwrite"
+        const transaction =
+            database.transaction(
+                storeName,
+                "readwrite"
+            );
+
+
+        const request =
+            transaction
+                .objectStore(storeName)
+                .clear();
+
+
+        request.onsuccess =
+            function() {
+
+                resolve();
+
+            };
+
+
+        request.onerror =
+            function() {
+
+                reject(
+                    request.error
                 );
 
+            };
 
-            const request =
-                transaction
-                    .objectStore(
-                        storeName
-                    )
-                    .clear();
-
-
-            request.onsuccess =
-                function() {
-
-                    resolve();
-
-                };
-
-
-            request.onerror =
-                function() {
-
-                    reject(
-                        request.error
-                    );
-
-                };
-
-        }
-    );
+    });
 
 }
 
@@ -919,9 +895,7 @@ async function reloadImages() {
             )
         ).sort(
             function(a, b) {
-
                 return a.id - b.id;
-
             }
         );
 
@@ -933,9 +907,7 @@ async function reloadImages() {
             )
         ).sort(
             function(a, b) {
-
                 return a.id - b.id;
-
             }
         );
 
@@ -1128,13 +1100,11 @@ function nextWordImage() {
 
 
 // ============================================================
-// メイン画像登録
+// 画像登録
 // ============================================================
 
 document
-    .getElementById(
-        "registerMainButton"
-    )
+    .getElementById("registerMainButton")
     .addEventListener(
         "click",
         function() {
@@ -1153,9 +1123,7 @@ document
             }
 
 
-            mainFileInput.value =
-                "";
-
+            mainFileInput.value = "";
             mainFileInput.click();
 
         }
@@ -1229,9 +1197,7 @@ mainFileInput.addEventListener(
 
 
 document
-    .getElementById(
-        "clearMainButton"
-    )
+    .getElementById("clearMainButton")
     .addEventListener(
         "click",
         async function() {
@@ -1260,9 +1226,7 @@ document
                 STORE_MAIN
             );
 
-
             await reloadImages();
-
 
             clearImageElement(
                 mainImage
@@ -1272,14 +1236,8 @@ document
     );
 
 
-// ============================================================
-// 単語画像登録
-// ============================================================
-
 document
-    .getElementById(
-        "registerWordButton"
-    )
+    .getElementById("registerWordButton")
     .addEventListener(
         "click",
         function() {
@@ -1298,9 +1256,7 @@ document
             }
 
 
-            wordFileInput.value =
-                "";
-
+            wordFileInput.value = "";
             wordFileInput.click();
 
         }
@@ -1374,9 +1330,7 @@ wordFileInput.addEventListener(
 
 
 document
-    .getElementById(
-        "clearWordButton"
-    )
+    .getElementById("clearWordButton")
     .addEventListener(
         "click",
         async function() {
@@ -1405,12 +1359,9 @@ document
                 STORE_WORD
             );
 
-
             wordIndex = 0;
 
-
             await reloadImages();
-
 
             showWordImage();
 
@@ -1429,9 +1380,7 @@ wordImageBox.addEventListener(
 // ============================================================
 
 document
-    .getElementById(
-        "vowelButton"
-    )
+    .getElementById("vowelButton")
     .addEventListener(
         "click",
         function() {
@@ -1449,9 +1398,7 @@ document
 
 
 document
-    .getElementById(
-        "wordButton"
-    )
+    .getElementById("wordButton")
     .addEventListener(
         "click",
         function() {
@@ -1469,9 +1416,7 @@ document
 
 
 document
-    .getElementById(
-        "vowelBackButton"
-    )
+    .getElementById("vowelBackButton")
     .addEventListener(
         "click",
         function() {
@@ -1485,9 +1430,7 @@ document
 
 
 document
-    .getElementById(
-        "wordBackButton"
-    )
+    .getElementById("wordBackButton")
     .addEventListener(
         "click",
         function() {
@@ -1505,49 +1448,31 @@ document
 // ============================================================
 
 const barArea =
-    document.getElementById(
-        "barArea"
-    );
+    document.getElementById("barArea");
 
 const blueSegment =
-    document.getElementById(
-        "blueSegment"
-    );
+    document.getElementById("blueSegment");
 
 const redSegment =
-    document.getElementById(
-        "redSegment"
-    );
+    document.getElementById("redSegment");
 
 const leftLine =
-    document.getElementById(
-        "leftLine"
-    );
+    document.getElementById("leftLine");
 
 const middleLine =
-    document.getElementById(
-        "middleLine"
-    );
+    document.getElementById("middleLine");
 
 const rightLine =
-    document.getElementById(
-        "rightLine"
-    );
+    document.getElementById("rightLine");
 
 const leftHandle =
-    document.getElementById(
-        "leftHandle"
-    );
+    document.getElementById("leftHandle");
 
 const middleHandle =
-    document.getElementById(
-        "middleHandle"
-    );
+    document.getElementById("middleHandle");
 
 const rightHandle =
-    document.getElementById(
-        "rightHandle"
-    );
+    document.getElementById("rightHandle");
 
 
 let barLeft = 0.15;
@@ -1676,7 +1601,6 @@ function nearestHandle(clientX) {
 
     const values =
         {
-
             left:
                 Math.abs(
                     x
@@ -1703,19 +1627,14 @@ function nearestHandle(clientX) {
                     *
                     rect.width
                 )
-
         };
 
 
     return Object
-        .entries(
-            values
-        )
+        .entries(values)
         .sort(
             function(a, b) {
-
                 return a[1] - b[1];
-
             }
         )[0][0];
 
@@ -1768,8 +1687,7 @@ function moveBar(clientX) {
 
 
     if (
-        dragging ===
-        "left"
+        dragging === "left"
     ) {
 
         barLeft =
@@ -1787,8 +1705,7 @@ function moveBar(clientX) {
 
 
     else if (
-        dragging ===
-        "middle"
+        dragging === "middle"
     ) {
 
         barMiddle =
@@ -1809,8 +1726,7 @@ function moveBar(clientX) {
 
 
     else if (
-        dragging ===
-        "right"
+        dragging === "right"
     ) {
 
         barRight =
@@ -1882,7 +1798,6 @@ barArea.addEventListener(
             event.clientX
         );
 
-
         event.preventDefault();
 
     }
@@ -1916,7 +1831,7 @@ window.addEventListener(
 
 
 // ============================================================
-// 音声状態
+// Audio状態
 // ============================================================
 
 let audioContext = null;
@@ -1934,13 +1849,18 @@ let frameSize = 735;
 let calibrationFramesNeeded = 60;
 
 let androidReleaseFramesNeeded = 17;
+
 let pcSoftReleaseFramesNeeded = 30;
 let pcSilenceFramesNeeded = 11;
 
-let iosReleaseFramesNeeded = 10;
-let iosSoftReleaseFramesNeeded = 27;
+let iosReferenceBuildFramesNeeded = 15;
+let iosReleaseFramesNeeded = 9;
+let iosSpectralReleaseFramesNeeded = 19;
+let iosInitialProtectionFramesNeeded = 18;
+
 
 let calibrating = false;
+
 let calibrationVolumes = [];
 
 let noiseFloor = 0;
@@ -1951,6 +1871,7 @@ let normalDynamicMin =
 let weakDynamicMin =
     WEAK_MIN_VOLUME;
 
+
 let normalCount = 0;
 let weakCount = 0;
 
@@ -1959,25 +1880,37 @@ let soundLatched = false;
 let releaseCount = 0;
 let silenceCount = 0;
 
-/*
-    iPadで重要。
-
-    Sを検出した瞬間の音量を固定保存する。
-    後から下げない。
-*/
-let onsetReferenceVolume = 0;
-
 
 /*
-    音声処理停止監視。
+    PCの瞬間ノイズ除去用。
 */
+
+let pcPendingOnset = false;
+let pcOnsetConfirmCount = 0;
+
+
+/*
+    iPad用。
+*/
+
+let iosReferenceVolume = 0;
+
+let iosActiveFrameCount = 0;
+
+
+/*
+    Audio停止監視。
+*/
+
 let lastAudioCallbackTime = 0;
+
 let watchdogTimer = null;
+
 let rebuildingGraph = false;
 
 
 // ============================================================
-// 認識リセット
+// リセット
 // ============================================================
 
 function resetRecognitionState(
@@ -1990,7 +1923,11 @@ function resetRecognitionState(
     releaseCount = 0;
     silenceCount = 0;
 
-    onsetReferenceVolume = 0;
+    pcPendingOnset = false;
+    pcOnsetConfirmCount = 0;
+
+    iosReferenceVolume = 0;
+    iosActiveFrameCount = 0;
 
     soundLatched = false;
 
@@ -2200,6 +2137,7 @@ function fftMagnitudes(samples) {
         ) {
 
             j ^= bit;
+
             bit >>= 1;
 
         }
@@ -2391,13 +2329,11 @@ function fftMagnitudes(samples) {
 
 
     return {
-
         magnitudes:
             magnitudes,
 
         fftSize:
             size
-
     };
 
 }
@@ -2478,7 +2414,6 @@ function analyzeFrame(samples) {
 
 
     return {
-
         volume:
             volume,
 
@@ -2490,14 +2425,13 @@ function analyzeFrame(samples) {
 
         highRatio:
             highRatio
-
     };
 
 }
 
 
 // ============================================================
-// S開始条件
+// S開始判定
 // ============================================================
 
 function commonSFeatures(result) {
@@ -2596,7 +2530,93 @@ function weakS(result) {
 
 
 // ============================================================
-// Android継続条件
+// PC追加確認
+// ============================================================
+
+function pcOnsetContinuation(result) {
+
+    /*
+        S開始条件そのものより少しだけ緩い。
+
+        本物の弱いSを落としにくくしつつ、
+        瞬間的な口腔ノイズを除く。
+    */
+
+    const minimumVolume =
+        Math.max(
+            0.0027,
+            noiseFloor * 1.15,
+            noiseFloor + 0.0004
+        );
+
+
+    if (
+        result.volume <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio < 0.32
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr < 0.018
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    /*
+        舌打ちなどの瞬間的なピークへの追加防御。
+    */
+
+    if (
+        peakRatio > 5.0
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak > 0.095
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// Android継続
 // ============================================================
 
 function holdSAndroid(result) {
@@ -2671,7 +2691,7 @@ function holdSAndroid(result) {
 
 
 // ============================================================
-// PC継続条件
+// PC継続
 // ============================================================
 
 function holdSPC(result) {
@@ -2738,16 +2758,16 @@ function pcClearlySilent(result) {
 
 
 // ============================================================
-// iPad継続条件
+// iPad 継続
 // ============================================================
 
 function holdSIOS(result) {
 
     const minimumVolume =
         Math.max(
-            0.0024,
-            noiseFloor * 1.20,
-            noiseFloor + 0.00045
+            0.0023,
+            noiseFloor * 1.15,
+            noiseFloor + 0.0004
         );
 
 
@@ -2787,24 +2807,16 @@ function holdSIOS(result) {
 
 
 // ============================================================
-// iPad終了音量
+// iPad終了しきい値
 // ============================================================
 
 function iosReleaseVolumeThreshold() {
 
-    /*
-        S開始時に保存した固定値の35%
-    */
-
-    const onsetThreshold =
-        onsetReferenceVolume
+    const relativeThreshold =
+        iosReferenceVolume
         *
         IOS_RELEASE_RATIO;
 
-
-    /*
-        キャリブレーションした無音基準
-    */
 
     const noiseThreshold =
         Math.max(
@@ -2818,12 +2830,8 @@ function iosReleaseVolumeThreshold() {
         );
 
 
-    /*
-        どちらか高い方。
-    */
-
     return Math.max(
-        onsetThreshold,
+        relativeThreshold,
         noiseThreshold
     );
 
@@ -2841,9 +2849,7 @@ function finishCalibration() {
             ...calibrationVolumes
         ].sort(
             function(a, b) {
-
                 return a - b;
-
             }
         );
 
@@ -2914,6 +2920,40 @@ function finishCalibration() {
 
 
 // ============================================================
+// S開始確定
+// ============================================================
+
+function latchS(result) {
+
+    soundLatched = true;
+
+    normalCount = 0;
+    weakCount = 0;
+
+    releaseCount = 0;
+    silenceCount = 0;
+
+    pcPendingOnset = false;
+    pcOnsetConfirmCount = 0;
+
+
+    /*
+        iPadでは、まず検出時の音量を仮の基準にする。
+        その後0.25秒だけ上方向に更新する。
+    */
+
+    iosReferenceVolume =
+        result.volume;
+
+    iosActiveFrameCount = 0;
+
+
+    showRandomMainImage();
+
+}
+
+
+// ============================================================
 // 判定
 // ============================================================
 
@@ -2945,13 +2985,65 @@ function processResult(result) {
 
     /*
         ======================================================
-        未表示
+        画像なし
         ======================================================
     */
 
     if (
         !soundLatched
     ) {
+
+        /*
+            PCで既に開始候補が見つかっている場合。
+
+            追加の約2フレームが続けば表示。
+        */
+
+        if (
+            !IS_ANDROID
+            &&
+            !IS_IOS
+            &&
+            pcPendingOnset
+        ) {
+
+            if (
+                pcOnsetContinuation(
+                    result
+                )
+            ) {
+
+                pcOnsetConfirmCount++;
+
+
+                if (
+                    pcOnsetConfirmCount >=
+                    PC_ONSET_EXTRA_FRAMES
+                ) {
+
+                    latchS(
+                        result
+                    );
+
+                }
+
+            }
+
+            else {
+
+                pcPendingOnset = false;
+                pcOnsetConfirmCount = 0;
+
+                normalCount = 0;
+                weakCount = 0;
+
+            }
+
+
+            return;
+
+        }
+
 
         const normalCandidate =
             normalS(
@@ -3011,24 +3103,31 @@ function processResult(result) {
             weakSuccess
         ) {
 
-            soundLatched = true;
+            /*
+                PCだけ一瞬ノイズ除去用の追加確認。
+            */
 
-            releaseCount = 0;
-            silenceCount = 0;
+            if (
+                !IS_ANDROID
+                &&
+                !IS_IOS
+            ) {
+
+                pcPendingOnset = true;
+                pcOnsetConfirmCount = 0;
+
+                return;
+
+            }
 
 
             /*
-                iPad用の固定基準。
-
-                ここで一度だけ保存し、
-                発声中には更新しない。
+                Android/iPadは開始判定を従来どおり。
             */
 
-            onsetReferenceVolume =
-                result.volume;
-
-
-            showRandomMainImage();
+            latchS(
+                result
+            );
 
         }
 
@@ -3083,7 +3182,7 @@ function processResult(result) {
 
     /*
         ======================================================
-        iPad / iPhone
+        iPad
         ======================================================
     */
 
@@ -3091,16 +3190,63 @@ function processResult(result) {
         IS_IOS
     ) {
 
-        /*
-            まず一番重要なのは音量低下。
+        iosActiveFrameCount++;
 
-            開始時のS音量を基準にするので、
-            残留ノイズに基準値が引っ張られない。
+
+        /*
+            最初の約0.25秒だけ、
+            S音量のピークを上方向へ更新する。
+
+            これが今回の重要部分。
+
+            前回のように
+            「検出した瞬間の弱い音量」だけを
+            永久に基準にはしない。
         */
+
+        if (
+            iosActiveFrameCount <=
+            iosReferenceBuildFramesNeeded
+        ) {
+
+            if (
+                result.volume >
+                iosReferenceVolume
+            ) {
+
+                iosReferenceVolume =
+                    result.volume;
+
+            }
+
+        }
+
+
+        /*
+            最初の0.30秒は
+            基準作りのため終了させない。
+
+            ただし表示時間を固定する処理ではない。
+            その後は実際の音声に追従する。
+        */
+
+        if (
+            iosActiveFrameCount <=
+            iosInitialProtectionFramesNeeded
+        ) {
+
+            return;
+
+        }
+
 
         const releaseVolume =
             iosReleaseVolumeThreshold();
 
+
+        /*
+            Sのピークに対して十分音量が下がったか。
+        */
 
         if (
             result.volume <
@@ -3118,11 +3264,6 @@ function processResult(result) {
         }
 
 
-        /*
-            約0.16秒、
-            開始Sより十分弱い状態が続いたら終了。
-        */
-
         if (
             silenceCount >=
             iosReleaseFramesNeeded
@@ -3132,15 +3273,17 @@ function processResult(result) {
                 true
             );
 
-
             return;
 
         }
 
 
         /*
-            S特徴が普通に続いている間は
-            同じ画像を保持。
+            もう一つの終了経路。
+
+            音量だけでなく、
+            Sらしい摩擦音自体がなくなっている状態が
+            約0.32秒続いた場合にも終了する。
         */
 
         if (
@@ -3151,24 +3294,18 @@ function processResult(result) {
 
             releaseCount = 0;
 
-            return;
+        }
+
+        else {
+
+            releaseCount++;
 
         }
 
 
-        /*
-            音量がまだあるのに
-            周波数判定だけ一時的に外れた場合。
-
-            すぐには画像を切らない。
-        */
-
-        releaseCount++;
-
-
         if (
             releaseCount >=
-            iosSoftReleaseFramesNeeded
+            iosSpectralReleaseFramesNeeded
         ) {
 
             resetRecognitionState(
@@ -3187,11 +3324,6 @@ function processResult(result) {
         ======================================================
         PC
         ======================================================
-    */
-
-    /*
-        明確に無音へ戻った場合だけ、
-        比較的早く消す。
     */
 
     if (
@@ -3220,14 +3352,14 @@ function processResult(result) {
             true
         );
 
-
         return;
 
     }
 
 
     /*
-        弱いSでも継続中なら同じ画像。
+        弱いSの保持については
+        前版の改善をそのまま維持。
     */
 
     if (
@@ -3242,14 +3374,6 @@ function processResult(result) {
 
     }
 
-
-    /*
-        S判定だけ一時的に抜けても、
-        0.5秒は同じ画像を保持。
-
-        これで弱いSの
-        「猫→犬→花→猫」のような切替を防ぐ。
-    */
 
     releaseCount++;
 
@@ -3341,7 +3465,6 @@ function addSamples(input) {
                 queueOffset
             );
 
-
         queueOffset = 0;
 
     }
@@ -3409,10 +3532,6 @@ function disconnectAudioGraph() {
 
 }
 
-
-// ============================================================
-// Audio graph作成
-// ============================================================
 
 function buildAudioGraph() {
 
@@ -3488,7 +3607,7 @@ function buildAudioGraph() {
 
 
 // ============================================================
-// 音声処理停止時の復旧
+// Audio復旧
 // ============================================================
 
 async function rebuildAudioGraph() {
@@ -3562,7 +3681,7 @@ async function rebuildAudioGraph() {
 
 
 // ============================================================
-// 安全監視
+// Watchdog
 // ============================================================
 
 function startWatchdog() {
@@ -3632,7 +3751,7 @@ function startWatchdog() {
 
 
 // ============================================================
-// 画面復帰
+// 前面復帰
 // ============================================================
 
 document.addEventListener(
@@ -3750,6 +3869,110 @@ function stopExistingMicrophone() {
 
 
 // ============================================================
+// マイク制約
+//
+// iPadでは可能な場合だけ
+// AGC・ノイズ抑制・エコー除去をOFF。
+// 対応していない項目は要求しない。
+// ============================================================
+
+function createAudioConstraints() {
+
+    const constraints = {};
+
+    let supported = {};
+
+
+    try {
+
+        supported =
+            navigator
+                .mediaDevices
+                .getSupportedConstraints
+            ?
+            navigator
+                .mediaDevices
+                .getSupportedConstraints()
+            :
+            {};
+
+    }
+
+    catch (error) {
+
+        supported = {};
+
+    }
+
+
+    if (
+        IS_IOS
+    ) {
+
+        if (
+            supported.echoCancellation
+        ) {
+
+            constraints.echoCancellation =
+                false;
+
+        }
+
+
+        if (
+            supported.noiseSuppression
+        ) {
+
+            constraints.noiseSuppression =
+                false;
+
+        }
+
+
+        if (
+            supported.autoGainControl
+        ) {
+
+            constraints.autoGainControl =
+                false;
+
+        }
+
+
+        if (
+            supported.channelCount
+        ) {
+
+            constraints.channelCount =
+                1;
+
+        }
+
+    }
+
+
+    /*
+        AndroidとPCは
+        今の音声入力特性を変えない。
+    */
+
+    if (
+        Object.keys(
+            constraints
+        ).length === 0
+    ) {
+
+        return true;
+
+    }
+
+
+    return constraints;
+
+}
+
+
+// ============================================================
 // マイク開始
 // ============================================================
 
@@ -3810,13 +4033,20 @@ async function startMicrophone() {
 
     try {
 
+        const audioConstraints =
+            createAudioConstraints();
+
+
         mediaStream =
             await navigator
                 .mediaDevices
                 .getUserMedia(
                     {
-                        audio: true,
-                        video: false
+                        audio:
+                            audioConstraints,
+
+                        video:
+                            false
                     }
                 );
 
@@ -3844,6 +4074,7 @@ async function startMicrophone() {
         frameSize =
             Math.max(
                 256,
+
                 Math.round(
                     audioContext.sampleRate
                     *
@@ -3859,6 +4090,7 @@ async function startMicrophone() {
         calibrationFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
                     CALIBRATION_SECONDS
                     *
@@ -3872,6 +4104,7 @@ async function startMicrophone() {
         androidReleaseFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
                     ANDROID_RELEASE_SECONDS
                     *
@@ -3885,6 +4118,7 @@ async function startMicrophone() {
         pcSoftReleaseFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
                     PC_SOFT_RELEASE_SECONDS
                     *
@@ -3898,8 +4132,23 @@ async function startMicrophone() {
         pcSilenceFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
                     PC_SILENCE_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosReferenceBuildFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    IOS_REFERENCE_BUILD_SECONDS
                     *
                     audioContext.sampleRate
                     /
@@ -3911,6 +4160,7 @@ async function startMicrophone() {
         iosReleaseFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
                     IOS_RELEASE_SECONDS
                     *
@@ -3921,11 +4171,26 @@ async function startMicrophone() {
             );
 
 
-        iosSoftReleaseFramesNeeded =
+        iosSpectralReleaseFramesNeeded =
             Math.max(
                 1,
+
                 Math.round(
-                    IOS_SOFT_RELEASE_SECONDS
+                    IOS_SPECTRAL_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosInitialProtectionFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    IOS_INITIAL_PROTECTION_SECONDS
                     *
                     audioContext.sampleRate
                     /
@@ -3939,7 +4204,6 @@ async function startMicrophone() {
 
 
         buildAudioGraph();
-
 
         startWatchdog();
 
@@ -4001,17 +4265,13 @@ async function initialize() {
 
         await openDatabase();
 
-
         await reloadImages();
-
 
         clearImageElement(
             mainImage
         );
 
-
         showWordImage();
-
 
         drawBar();
 

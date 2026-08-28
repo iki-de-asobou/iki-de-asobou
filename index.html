@@ -16,78 +16,48 @@
 <style>
 
 :root {
-
     --bg: #DDF3FA;
     --blue: #0057D9;
     --bar-blue: #1677FF;
     --bar-red: #F04444;
-
 }
-
 
 * {
-
     box-sizing: border-box;
-
 }
 
-
 body {
-
     margin: 0;
-
     background: var(--bg);
-
     color: #111;
-
     font-family:
         "Yu Gothic",
         "Hiragino Kaku Gothic ProN",
         "Meiryo",
         sans-serif;
-
 }
-
 
 button {
-
     font-family: inherit;
-
     font-weight: bold;
-
     cursor: pointer;
-
     min-height: 50px;
-
     padding: 8px 15px;
-
     border: 1px solid #888;
-
     border-radius: 7px;
-
     background: #f7f7f7;
-
 }
-
 
 button:disabled {
-
     opacity: 0.55;
-
 }
-
 
 .screen {
-
     display: none;
-
 }
 
-
 .screen.active {
-
     display: block;
-
 }
 
 
@@ -96,197 +66,84 @@ button:disabled {
 ========================================================== */
 
 .main-layout {
-
     max-width: 1100px;
-
     margin: auto;
-
     padding: 20px;
 
     display: grid;
-
     grid-template-columns:
         minmax(0, 1fr)
         210px;
 
     gap: 28px;
-
 }
-
 
 .main-left {
-
     text-align: center;
-
 }
 
-
 .title {
-
     display: flex;
-
     justify-content: center;
-
     align-items: baseline;
-
     flex-wrap: wrap;
 
     margin: 5px 0 15px;
 
     font-size: 34px;
-
     font-weight: bold;
-
 }
-
 
 .title-s {
-
     color: var(--blue);
-
     margin-left: 24px;
-
     font-size: 37px;
-
 }
-
 
 #status {
-
     min-height: 34px;
-
     font-size: 20px;
-
 }
 
-
 .image-box {
-
-    width: min(
-        100%,
-        650px
-    );
-
+    width: min(100%, 650px);
     aspect-ratio: 10 / 7;
 
     margin: 10px auto;
 
     background: white;
-
     border: 1px solid #999;
 
     display: flex;
-
     justify-content: center;
-
     align-items: center;
 
     overflow: hidden;
-
 }
-
 
 .image-box img {
-
     width: 100%;
-
     height: 100%;
-
     object-fit: contain;
-
 }
-
 
 .count {
-
     margin-top: 12px;
-
     font-size: 19px;
-
     font-weight: bold;
-
 }
-
-
-/* ==========================================================
-   診断表示
-========================================================== */
-
-.diagnostic-box {
-
-    width: min(
-        100%,
-        650px
-    );
-
-    margin:
-        10px
-        auto
-        5px;
-
-    padding:
-        10px
-        12px;
-
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.78
-        );
-
-    border:
-        1px solid
-        #9ab6c1;
-
-    border-radius:
-        7px;
-
-    font-size:
-        14px;
-
-    line-height:
-        1.5;
-
-    text-align:
-        left;
-
-    min-height:
-        45px;
-
-    word-break:
-        break-word;
-
-}
-
-
-.diagnostic-title {
-
-    font-weight: bold;
-
-    margin-bottom: 3px;
-
-}
-
 
 .side-buttons {
-
     padding-top: 50px;
 
     display: flex;
-
     flex-direction: column;
 
     gap: 15px;
-
 }
 
-
 .side-buttons button {
-
     font-size: 18px;
-
 }
 
 
@@ -295,38 +152,23 @@ button:disabled {
 ========================================================== */
 
 .page {
-
     max-width: 1000px;
-
     margin: auto;
 
     text-align: center;
 
     padding: 30px 18px;
-
 }
-
 
 .page h1 {
-
     font-size: 36px;
-
-    margin:
-        5px
-        0
-        18px;
-
+    margin: 5px 0 18px;
 }
 
-
 .description {
-
     font-size: 19px;
-
     line-height: 1.7;
-
     margin: 5px;
-
 }
 
 
@@ -335,136 +177,92 @@ button:disabled {
 ========================================================== */
 
 .bar-area {
-
     position: relative;
 
-    width: min(
-        92vw,
-        900px
-    );
-
+    width: min(92vw, 900px);
     height: 250px;
 
-    margin:
-        25px
-        auto
-        5px;
+    margin: 25px auto 5px;
 
     touch-action: none;
-
     user-select: none;
-
 }
 
-
 .bar-track {
-
     position: absolute;
 
     left: 0;
-
     right: 0;
-
     top: 80px;
 
     height: 90px;
-
 }
 
-
 .segment {
-
     position: absolute;
 
     height: 90px;
-
     top: 0;
 
     color: white;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     font-size: 22px;
-
     font-weight: bold;
 
     overflow: hidden;
-
 }
-
 
 #blueSegment {
-
     background: var(--bar-blue);
-
 }
-
 
 #redSegment {
-
     background: var(--bar-red);
-
 }
 
-
 .bar-line {
-
     position: absolute;
 
     top: -18px;
 
     width: 5px;
-
     height: 126px;
 
     background: #333;
 
-    transform:
-        translateX(-2px);
-
+    transform: translateX(-2px);
 }
-
 
 .bar-line.middle {
-
     top: -22px;
-
     height: 134px;
-
     background: white;
-
 }
 
-
 .handle {
-
     position: absolute;
 
     top: 101px;
 
     width: 30px;
-
     height: 30px;
 
     min-height: 0;
 
     border-radius: 50%;
-
     border: 2px solid #333;
 
     background: white;
 
-    transform:
-        translateX(-15px);
+    transform: translateX(-15px);
 
     padding: 0;
 
     z-index: 10;
-
 }
 
 
@@ -473,20 +271,13 @@ button:disabled {
 ========================================================== */
 
 .word-box {
-
     cursor: pointer;
-
     touch-action: manipulation;
-
 }
 
-
 #wordPosition {
-
     min-height: 24px;
-
     color: #555;
-
 }
 
 
@@ -495,26 +286,18 @@ button:disabled {
 ========================================================== */
 
 .bottom-buttons {
-
     margin-top: 15px;
 
     display: flex;
-
     justify-content: center;
-
     flex-wrap: wrap;
 
     gap: 12px;
-
 }
 
-
 .bottom-buttons button {
-
     min-width: 145px;
-
     font-size: 16px;
-
 }
 
 
@@ -522,69 +305,43 @@ button:disabled {
    スマホ・タブレット
 ========================================================== */
 
-@media (
-    max-width: 760px
-) {
+@media (max-width: 760px) {
 
     .main-layout {
-
         grid-template-columns: 1fr;
-
         padding: 12px;
-
     }
 
-
     .side-buttons {
-
         padding-top: 5px;
 
         display: grid;
-
         grid-template-columns:
             1fr
             1fr;
 
         gap: 10px;
-
     }
-
 
     .side-buttons button:last-child {
-
-        grid-column:
-            1 / -1;
-
+        grid-column: 1 / -1;
     }
-
 
     .title {
-
         font-size: 26px;
-
     }
-
 
     .title-s {
-
         margin-left: 10px;
-
         font-size: 29px;
-
     }
-
 
     .page h1 {
-
         font-size: 30px;
-
     }
 
-
     .description {
-
         font-size: 17px;
-
     }
 
 }
@@ -608,9 +365,7 @@ button:disabled {
 
 <div class="main-layout">
 
-
 <div class="main-left">
-
 
 <div class="title">
 
@@ -625,8 +380,7 @@ button:disabled {
 </div>
 
 
-<div id="status">
-</div>
+<div id="status"></div>
 
 
 <div class="image-box">
@@ -647,51 +401,30 @@ button:disabled {
 </div>
 
 
-<div
-    class="diagnostic-box"
->
-
-<div class="diagnostic-title">
-マイク診断
-</div>
-
-<div id="diagnosticText">
-スタートを押すと診断情報が表示されます。
-</div>
-
-</div>
-
-
 </div>
 
 
 <div class="side-buttons">
 
-
 <button id="startButton">
 スタート
 </button>
-
 
 <button id="registerMainButton">
 画像を登録
 </button>
 
-
 <button id="clearMainButton">
 画像をクリア
 </button>
-
 
 <button id="vowelButton">
 母音後続
 </button>
 
-
 <button id="wordButton">
 単語
 </button>
-
 
 </div>
 
@@ -710,9 +443,7 @@ button:disabled {
     class="screen"
 >
 
-
 <div class="page">
-
 
 <h1>
 母音後続
@@ -734,9 +465,7 @@ button:disabled {
     class="bar-area"
 >
 
-
 <div class="bar-track">
-
 
 <div
     id="blueSegment"
@@ -745,7 +474,6 @@ button:disabled {
 いき
 </div>
 
-
 <div
     id="redSegment"
     class="segment"
@@ -753,24 +481,20 @@ button:disabled {
 こえ
 </div>
 
-
 <div
     id="leftLine"
     class="bar-line"
 ></div>
-
 
 <div
     id="middleLine"
     class="bar-line middle"
 ></div>
 
-
 <div
     id="rightLine"
     class="bar-line"
 ></div>
-
 
 <button
     id="leftHandle"
@@ -778,20 +502,17 @@ button:disabled {
     aria-label="左端"
 ></button>
 
-
 <button
     id="middleHandle"
     class="handle"
     aria-label="青と赤の境目"
 ></button>
 
-
 <button
     id="rightHandle"
     class="handle"
     aria-label="右端"
 ></button>
-
 
 </div>
 
@@ -805,7 +526,6 @@ button:disabled {
 </button>
 
 </div>
-
 
 </div>
 
@@ -822,9 +542,7 @@ button:disabled {
     class="screen"
 >
 
-
 <div class="page">
-
 
 <h1>
 単語
@@ -864,30 +582,24 @@ button:disabled {
 </div>
 
 
-<div id="wordPosition">
-</div>
+<div id="wordPosition"></div>
 
 
 <div class="bottom-buttons">
-
 
 <button id="registerWordButton">
 画像を登録
 </button>
 
-
 <button id="clearWordButton">
 画像をクリア
 </button>
-
 
 <button id="wordBackButton">
 もどる
 </button>
 
-
 </div>
-
 
 </div>
 
@@ -923,76 +635,56 @@ button:disabled {
 // 基本設定
 // ============================================================
 
-const MAX_MAIN_IMAGES =
-    10;
-
-
-const MAX_WORD_IMAGES =
-    12;
+const MAX_MAIN_IMAGES = 10;
+const MAX_WORD_IMAGES = 12;
 
 
 // ============================================================
-// S判定
-// 今まで一番良かった値を維持
+// S開始判定
+// ここは今まで一番良かった値を維持
 // ============================================================
 
-const HIGH_RATIO_MIN =
-    0.38;
+const HIGH_RATIO_MIN = 0.38;
+const ZCR_MIN = 0.025;
+const PEAK_RATIO_LIMIT = 4.5;
+const PEAK_LIMIT = 0.085;
 
+const NORMAL_MIN_VOLUME = 0.0045;
+const NORMAL_REQUIRED = 2;
 
-const ZCR_MIN =
-    0.025;
+const WEAK_MIN_VOLUME = 0.0035;
+const WEAK_REQUIRED = 4;
 
-
-const PEAK_RATIO_LIMIT =
-    4.5;
-
-
-const PEAK_LIMIT =
-    0.085;
-
-
-const NORMAL_MIN_VOLUME =
-    0.0045;
-
-
-const NORMAL_REQUIRED =
-    2;
-
-
-const WEAK_MIN_VOLUME =
-    0.0035;
-
-
-const WEAK_REQUIRED =
-    4;
-
-
-const CALIBRATION_SECONDS =
-    1.0;
+const CALIBRATION_SECONDS = 1.0;
 
 
 /*
-    S終了判定。
+    ==========================================================
+    S継続判定
+    ==========================================================
 
-    画像を即座に消すと
-    「すーーーー」の途中でちらつくため、
-    約180ms程度の猶予を持たせる。
+    AndroidではS音を伸ばしていても、
+    途中で音量・高周波比が揺れることがある。
+
+    そのため、画像表示中は開始判定より少し緩くする。
 */
 
-const S_RELEASE_SECONDS =
-    0.18;
+
+// 継続中は開始判定より高周波条件を少し緩める
+const HOLD_HIGH_RATIO_MIN = 0.30;
 
 
-/*
-    発声中の音量に対し、
-    かなり下がったら「発声終了」とみなす。
+// 継続中のZCRも少し緩める
+const HOLD_ZCR_MIN = 0.018;
 
-    iPad対策。
-*/
 
-const RELEASE_VOLUME_RATIO =
-    0.45;
+// Sが一時的に途切れても、これだけ待ってから消す
+const S_RELEASE_SECONDS = 0.28;
+
+
+// 無音にかなり近づいた場合は終了しやすくする
+const RELEASE_NOISE_MULTIPLIER = 1.20;
+const RELEASE_NOISE_ADD = 0.0005;
 
 
 // ============================================================
@@ -1004,12 +696,10 @@ const mainScreen =
         "mainScreen"
     );
 
-
 const vowelScreen =
     document.getElementById(
         "vowelScreen"
     );
-
 
 const wordScreen =
     document.getElementById(
@@ -1017,28 +707,13 @@ const wordScreen =
     );
 
 
-function showScreen(
-    target
-) {
+function showScreen(target) {
 
-    mainScreen.classList.remove(
-        "active"
-    );
+    mainScreen.classList.remove("active");
+    vowelScreen.classList.remove("active");
+    wordScreen.classList.remove("active");
 
-
-    vowelScreen.classList.remove(
-        "active"
-    );
-
-
-    wordScreen.classList.remove(
-        "active"
-    );
-
-
-    target.classList.add(
-        "active"
-    );
+    target.classList.add("active");
 
 }
 
@@ -1052,60 +727,45 @@ const statusElement =
         "status"
     );
 
-
-const diagnosticText =
-    document.getElementById(
-        "diagnosticText"
-    );
-
-
 const startButton =
     document.getElementById(
         "startButton"
     );
-
 
 const mainImage =
     document.getElementById(
         "mainImage"
     );
 
-
 const mainCount =
     document.getElementById(
         "mainCount"
     );
-
 
 const mainFileInput =
     document.getElementById(
         "mainFileInput"
     );
 
-
 const wordImage =
     document.getElementById(
         "wordImage"
     );
-
 
 const wordImageBox =
     document.getElementById(
         "wordImageBox"
     );
 
-
 const wordCount =
     document.getElementById(
         "wordCount"
     );
 
-
 const wordPosition =
     document.getElementById(
         "wordPosition"
     );
-
 
 const wordFileInput =
     document.getElementById(
@@ -1114,122 +774,27 @@ const wordFileInput =
 
 
 // ============================================================
-// 診断
-// ============================================================
-
-let diagnosticLines =
-    [];
-
-
-function clearDiagnostic() {
-
-    diagnosticLines =
-        [];
-
-
-    diagnosticText.textContent =
-        "";
-
-}
-
-
-function addDiagnostic(
-    message
-) {
-
-    diagnosticLines.push(
-        message
-    );
-
-
-    if (
-        diagnosticLines.length >
-        9
-    ) {
-
-        diagnosticLines.shift();
-
-    }
-
-
-    diagnosticText.innerHTML =
-        diagnosticLines
-            .map(
-                escapeHTML
-            )
-            .join(
-                "<br>"
-            );
-
-}
-
-
-function escapeHTML(
-    text
-) {
-
-    return String(
-        text
-    )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        );
-
-}
-
-
-// ============================================================
 // IndexedDB
 // ============================================================
 
-const DB_NAME =
-    "IkiDeAsobouDB";
+const DB_NAME = "IkiDeAsobouDB";
+const DB_VERSION = 1;
 
+const STORE_MAIN = "mainImages";
+const STORE_WORD = "wordImages";
 
-const DB_VERSION =
-    1;
+let database = null;
 
+let mainImages = [];
+let wordImages = [];
 
-const STORE_MAIN =
-    "mainImages";
-
-
-const STORE_WORD =
-    "wordImages";
-
-
-let database =
-    null;
-
-
-let mainImages =
-    [];
-
-
-let wordImages =
-    [];
-
-
-let wordIndex =
-    0;
+let wordIndex = 0;
 
 
 function openDatabase() {
 
     return new Promise(
-        function(
-            resolve,
-            reject
-        ) {
+        function(resolve, reject) {
 
             const request =
                 indexedDB.open(
@@ -1254,11 +819,8 @@ function openDatabase() {
                         db.createObjectStore(
                             STORE_MAIN,
                             {
-                                keyPath:
-                                    "id",
-
-                                autoIncrement:
-                                    true
+                                keyPath: "id",
+                                autoIncrement: true
                             }
                         );
 
@@ -1274,11 +836,8 @@ function openDatabase() {
                         db.createObjectStore(
                             STORE_WORD,
                             {
-                                keyPath:
-                                    "id",
-
-                                autoIncrement:
-                                    true
+                                keyPath: "id",
+                                autoIncrement: true
                             }
                         );
 
@@ -1292,7 +851,6 @@ function openDatabase() {
 
                     database =
                         request.result;
-
 
                     resolve();
 
@@ -1314,19 +872,10 @@ function openDatabase() {
 }
 
 
-// ============================================================
-// DB
-// ============================================================
-
-function getAllImages(
-    storeName
-) {
+function getAllImages(storeName) {
 
     return new Promise(
-        function(
-            resolve,
-            reject
-        ) {
+        function(resolve, reject) {
 
             const transaction =
                 database.transaction(
@@ -1347,9 +896,7 @@ function getAllImages(
                 function() {
 
                     resolve(
-                        request.result
-                        ||
-                        []
+                        request.result || []
                     );
 
                 };
@@ -1370,16 +917,10 @@ function getAllImages(
 }
 
 
-function addImage(
-    storeName,
-    file
-) {
+function addImage(storeName, file) {
 
     return new Promise(
-        function(
-            resolve,
-            reject
-        ) {
+        function(resolve, reject) {
 
             const transaction =
                 database.transaction(
@@ -1433,15 +974,10 @@ function addImage(
 }
 
 
-function clearImages(
-    storeName
-) {
+function clearImages(storeName) {
 
     return new Promise(
-        function(
-            resolve,
-            reject
-        ) {
+        function(resolve, reject) {
 
             const transaction =
                 database.transaction(
@@ -1489,14 +1025,9 @@ async function reloadImages() {
                 STORE_MAIN
             )
         ).sort(
-            function(
-                a,
-                b
-            ) {
+            function(a, b) {
 
-                return (
-                    a.id - b.id
-                );
+                return a.id - b.id;
 
             }
         );
@@ -1508,14 +1039,9 @@ async function reloadImages() {
                 STORE_WORD
             )
         ).sort(
-            function(
-                a,
-                b
-            ) {
+            function(a, b) {
 
-                return (
-                    a.id - b.id
-                );
+                return a.id - b.id;
 
             }
         );
@@ -1543,17 +1069,13 @@ async function reloadImages() {
 // 画像
 // ============================================================
 
-function revokeImageURL(
-    imageElement
-) {
+function revokeImageURL(imageElement) {
 
     const oldURL =
         imageElement.dataset.url;
 
 
-    if (
-        oldURL
-    ) {
+    if (oldURL) {
 
         URL.revokeObjectURL(
             oldURL
@@ -1567,9 +1089,7 @@ function revokeImageURL(
 }
 
 
-function clearImageElement(
-    imageElement
-) {
+function clearImageElement(imageElement) {
 
     revokeImageURL(
         imageElement
@@ -1583,10 +1103,7 @@ function clearImageElement(
 }
 
 
-function displayBlob(
-    imageElement,
-    record
-) {
+function displayBlob(imageElement, record) {
 
     revokeImageURL(
         imageElement
@@ -1612,8 +1129,7 @@ function displayBlob(
 function showRandomMainImage() {
 
     if (
-        mainImages.length ===
-        0
+        mainImages.length === 0
     ) {
 
         clearImageElement(
@@ -1636,9 +1152,7 @@ function showRandomMainImage() {
 
     displayBlob(
         mainImage,
-        mainImages[
-            index
-        ]
+        mainImages[index]
     );
 
 }
@@ -1651,8 +1165,7 @@ function showRandomMainImage() {
 function showWordImage() {
 
     if (
-        wordImages.length ===
-        0
+        wordImages.length === 0
     ) {
 
         clearImageElement(
@@ -1674,26 +1187,19 @@ function showWordImage() {
         wordImages.length
     ) {
 
-        wordIndex =
-            0;
+        wordIndex = 0;
 
     }
 
 
     displayBlob(
         wordImage,
-        wordImages[
-            wordIndex
-        ]
+        wordImages[wordIndex]
     );
 
 
     wordPosition.textContent =
-        (
-            wordIndex
-            +
-            1
-        )
+        (wordIndex + 1)
         +
         " / "
         +
@@ -1705,8 +1211,7 @@ function showWordImage() {
 function nextWordImage() {
 
     if (
-        wordImages.length ===
-        0
+        wordImages.length === 0
     ) {
 
         return;
@@ -1722,8 +1227,7 @@ function nextWordImage() {
         wordImages.length
     ) {
 
-        wordIndex =
-            0;
+        wordIndex = 0;
 
     }
 
@@ -1789,8 +1293,7 @@ mainFileInput.addEventListener(
             );
 
 
-        let added =
-            0;
+        let added = 0;
 
 
         for (
@@ -1848,8 +1351,7 @@ document
         async function() {
 
             if (
-                mainImages.length ===
-                0
+                mainImages.length === 0
             ) {
 
                 return;
@@ -1941,12 +1443,7 @@ wordFileInput.addEventListener(
 
 
         const wasEmpty =
-            wordImages.length ===
-            0;
-
-
-        let added =
-            0;
+            wordImages.length === 0;
 
 
         for (
@@ -1970,9 +1467,6 @@ wordFileInput.addEventListener(
                 file
             );
 
-
-            added++;
-
         }
 
 
@@ -1982,12 +1476,10 @@ wordFileInput.addEventListener(
         if (
             wasEmpty
             &&
-            wordImages.length >
-            0
+            wordImages.length > 0
         ) {
 
-            wordIndex =
-                0;
+            wordIndex = 0;
 
         }
 
@@ -2007,8 +1499,7 @@ document
         async function() {
 
             if (
-                wordImages.length ===
-                0
+                wordImages.length === 0
             ) {
 
                 return;
@@ -2032,8 +1523,7 @@ document
             );
 
 
-            wordIndex =
-                0;
+            wordIndex = 0;
 
 
             await reloadImages();
@@ -2084,8 +1574,7 @@ document
         "click",
         function() {
 
-            wordIndex =
-                0;
+            wordIndex = 0;
 
 
             showWordImage();
@@ -2140,48 +1629,40 @@ const barArea =
         "barArea"
     );
 
-
 const blueSegment =
     document.getElementById(
         "blueSegment"
     );
-
 
 const redSegment =
     document.getElementById(
         "redSegment"
     );
 
-
 const leftLine =
     document.getElementById(
         "leftLine"
     );
-
 
 const middleLine =
     document.getElementById(
         "middleLine"
     );
 
-
 const rightLine =
     document.getElementById(
         "rightLine"
     );
-
 
 const leftHandle =
     document.getElementById(
         "leftHandle"
     );
 
-
 const middleHandle =
     document.getElementById(
         "middleHandle"
     );
-
 
 const rightHandle =
     document.getElementById(
@@ -2189,20 +1670,11 @@ const rightHandle =
     );
 
 
-let barLeft =
-    0.15;
+let barLeft = 0.15;
+let barMiddle = 0.50;
+let barRight = 0.85;
 
-
-let barMiddle =
-    0.50;
-
-
-let barRight =
-    0.85;
-
-
-let dragging =
-    null;
+let dragging = null;
 
 
 function drawBar() {
@@ -2240,9 +1712,7 @@ function drawBar() {
 
 
     blueSegment.style.width =
-        (
-            middle - left
-        )
+        (middle - left)
         +
         "px";
 
@@ -2252,9 +1722,7 @@ function drawBar() {
 
 
     redSegment.style.width =
-        (
-            right - middle
-        )
+        (right - middle)
         +
         "px";
 
@@ -2285,8 +1753,7 @@ function drawBar() {
 
     blueSegment.textContent =
         (
-            middle - left >
-            70
+            middle - left > 70
         )
         ?
         "いき"
@@ -2296,8 +1763,7 @@ function drawBar() {
 
     redSegment.textContent =
         (
-            right - middle >
-            70
+            right - middle > 70
         )
         ?
         "こえ"
@@ -2324,9 +1790,7 @@ function minimumBarWidth() {
 }
 
 
-function nearestHandle(
-    clientX
-) {
+function nearestHandle(clientX) {
 
     const track =
         document.querySelector(
@@ -2378,20 +1842,11 @@ function nearestHandle(
 
 
     return Object
-        .entries(
-            values
-        )
+        .entries(values)
         .sort(
-            function(
-                a,
-                b
-            ) {
+            function(a, b) {
 
-                return (
-                    a[1]
-                    -
-                    b[1]
-                );
+                return a[1] - b[1];
 
             }
         )[0][0];
@@ -2399,13 +1854,10 @@ function nearestHandle(
 }
 
 
-function moveBar(
-    clientX
-) {
+function moveBar(clientX) {
 
     if (
-        dragging ===
-        null
+        dragging === null
     ) {
 
         return;
@@ -2515,9 +1967,7 @@ function moveBar(
 
 barArea.addEventListener(
     "pointerdown",
-    function(
-        event
-    ) {
+    function(event) {
 
         dragging =
             nearestHandle(
@@ -2533,11 +1983,7 @@ barArea.addEventListener(
 
         }
 
-        catch (
-            error
-        ) {
-
-        }
+        catch (error) {}
 
 
         moveBar(
@@ -2553,13 +1999,10 @@ barArea.addEventListener(
 
 barArea.addEventListener(
     "pointermove",
-    function(
-        event
-    ) {
+    function(event) {
 
         if (
-            dragging ===
-            null
+            dragging === null
         ) {
 
             return;
@@ -2582,8 +2025,7 @@ barArea.addEventListener(
     "pointerup",
     function() {
 
-        dragging =
-            null;
+        dragging = null;
 
     }
 );
@@ -2593,8 +2035,7 @@ barArea.addEventListener(
     "pointercancel",
     function() {
 
-        dragging =
-            null;
+        dragging = null;
 
     }
 );
@@ -2610,116 +2051,47 @@ window.addEventListener(
 // 音声処理
 // ============================================================
 
-let audioContext =
-    null;
+let audioContext = null;
+let mediaStream = null;
 
+let sourceNode = null;
+let processorNode = null;
+let muteNode = null;
 
-let mediaStream =
-    null;
+let sampleQueue = [];
+let queueOffset = 0;
 
+let frameSize = 735;
 
-let sourceNode =
-    null;
+let calibrationFramesNeeded = 60;
+let releaseFramesNeeded = 17;
 
+let calibrating = false;
+let calibrationVolumes = [];
 
-let processorNode =
-    null;
-
-
-let muteNode =
-    null;
-
-
-let sampleQueue =
-    [];
-
-
-let queueOffset =
-    0;
-
-
-let frameSize =
-    735;
-
-
-let calibrationFramesNeeded =
-    60;
-
-
-let releaseFramesNeeded =
-    11;
-
-
-let calibrating =
-    false;
-
-
-let calibrationVolumes =
-    [];
-
-
-let noiseFloor =
-    0;
-
+let noiseFloor = 0;
 
 let normalDynamicMin =
     NORMAL_MIN_VOLUME;
 
-
 let weakDynamicMin =
     WEAK_MIN_VOLUME;
 
+let normalCount = 0;
+let weakCount = 0;
 
-let normalCount =
-    0;
+let soundLatched = false;
 
-
-let weakCount =
-    0;
-
-
-/*
-    画像が現在出ているか
-*/
-
-let soundLatched =
-    false;
-
-
-/*
-    発声終了判定用
-*/
-
-let releaseCount =
-    0;
-
-
-/*
-    発声中の平均音量。
-
-    iPadではS終了後の残留ノイズでも
-    S候補になり続ける場合があるため、
-    実際のS発声時の音量からどの程度落ちたかも見る。
-*/
-
-let activeVolumeEMA =
-    0;
-
-
-let lastDiagnosticTime =
-    0;
+let releaseCount = 0;
 
 
 // ============================================================
 // RMS
 // ============================================================
 
-function calculateRMS(
-    samples
-) {
+function calculateRMS(samples) {
 
-    let total =
-        0;
+    let total = 0;
 
 
     for (
@@ -2749,12 +2121,9 @@ function calculateRMS(
 // Peak
 // ============================================================
 
-function calculatePeak(
-    samples
-) {
+function calculatePeak(samples) {
 
-    let peak =
-        0;
+    let peak = 0;
 
 
     for (
@@ -2769,12 +2138,10 @@ function calculatePeak(
 
 
         if (
-            absolute >
-            peak
+            absolute > peak
         ) {
 
-            peak =
-                absolute;
+            peak = absolute;
 
         }
 
@@ -2790,12 +2157,9 @@ function calculatePeak(
 // ZCR
 // ============================================================
 
-function calculateZCR(
-    samples
-) {
+function calculateZCR(samples) {
 
-    let count =
-        0;
+    let count = 0;
 
 
     for (
@@ -2805,9 +2169,7 @@ function calculateZCR(
     ) {
 
         const before =
-            samples[
-                i - 1
-            ];
+            samples[i - 1];
 
 
         const now =
@@ -2848,21 +2210,16 @@ function calculateZCR(
 // FFT
 // ============================================================
 
-function nextPowerOfTwo(
-    number
-) {
+function nextPowerOfTwo(number) {
 
-    let value =
-        1;
+    let value = 1;
 
 
     while (
-        value <
-        number
+        value < number
     ) {
 
-        value *=
-            2;
+        value *= 2;
 
     }
 
@@ -2872,9 +2229,7 @@ function nextPowerOfTwo(
 }
 
 
-function fftMagnitudes(
-    samples
-) {
+function fftMagnitudes(samples) {
 
     const size =
         nextPowerOfTwo(
@@ -2906,8 +2261,7 @@ function fftMagnitudes(
     }
 
 
-    let j =
-        0;
+    let j = 0;
 
 
     for (
@@ -2924,25 +2278,20 @@ function fftMagnitudes(
             j & bit
         ) {
 
-            j ^=
-                bit;
-
-
-            bit >>=
-                1;
+            j ^= bit;
+            bit >>= 1;
 
         }
 
 
-        j ^=
-            bit;
+        j ^= bit;
 
 
         if (
             i < j
         ) {
 
-            const r =
+            const tempReal =
                 real[i];
 
 
@@ -2951,10 +2300,10 @@ function fftMagnitudes(
 
 
             real[j] =
-                r;
+                tempReal;
 
 
-            const im =
+            const tempImag =
                 imaginary[i];
 
 
@@ -2963,7 +2312,7 @@ function fftMagnitudes(
 
 
             imaginary[j] =
-                im;
+                tempImag;
 
         }
 
@@ -3002,12 +2351,8 @@ function fftMagnitudes(
             i += length
         ) {
 
-            let wCos =
-                1;
-
-
-            let wSin =
-                0;
+            let wCos = 1;
+            let wSin = 0;
 
 
             for (
@@ -3017,15 +2362,11 @@ function fftMagnitudes(
             ) {
 
                 const firstReal =
-                    real[
-                        i + k
-                    ];
+                    real[i + k];
 
 
                 const firstImag =
-                    imaginary[
-                        i + k
-                    ];
+                    imaginary[i + k];
 
 
                 const index2 =
@@ -3037,60 +2378,44 @@ function fftMagnitudes(
 
 
                 const secondReal =
-                    real[
-                        index2
-                    ]
+                    real[index2]
                     *
                     wCos
                     -
-                    imaginary[
-                        index2
-                    ]
+                    imaginary[index2]
                     *
                     wSin;
 
 
                 const secondImag =
-                    real[
-                        index2
-                    ]
+                    real[index2]
                     *
                     wSin
                     +
-                    imaginary[
-                        index2
-                    ]
+                    imaginary[index2]
                     *
                     wCos;
 
 
-                real[
-                    i + k
-                ] =
+                real[i + k] =
                     firstReal
                     +
                     secondReal;
 
 
-                imaginary[
-                    i + k
-                ] =
+                imaginary[i + k] =
                     firstImag
                     +
                     secondImag;
 
 
-                real[
-                    index2
-                ] =
+                real[index2] =
                     firstReal
                     -
                     secondReal;
 
 
-                imaginary[
-                    index2
-                ] =
+                imaginary[index2] =
                     firstImag
                     -
                     secondImag;
@@ -3168,9 +2493,7 @@ function fftMagnitudes(
 // 音分析
 // ============================================================
 
-function analyzeFrame(
-    samples
-) {
+function analyzeFrame(samples) {
 
     const volume =
         calculateRMS(
@@ -3196,12 +2519,8 @@ function analyzeFrame(
         );
 
 
-    let total =
-        0;
-
-
-    let high =
-        0;
+    let total = 0;
+    let high = 0;
 
 
     for (
@@ -3227,8 +2546,7 @@ function analyzeFrame(
 
 
         if (
-            frequency >=
-            3000
+            frequency >= 3000
         ) {
 
             high +=
@@ -3267,12 +2585,10 @@ function analyzeFrame(
 
 
 // ============================================================
-// S共通
+// S開始条件
 // ============================================================
 
-function commonSFeatures(
-    result
-) {
+function commonSFeatures(result) {
 
     if (
         result.highRatio <
@@ -3329,9 +2645,7 @@ function commonSFeatures(
 }
 
 
-function normalS(
-    result
-) {
+function normalS(result) {
 
     if (
         result.volume <
@@ -3350,9 +2664,7 @@ function normalS(
 }
 
 
-function weakS(
-    result
-) {
+function weakS(result) {
 
     if (
         result.volume <
@@ -3372,6 +2684,107 @@ function weakS(
 
 
 // ============================================================
+// S継続条件
+//
+// 開始後だけ少し緩くする。
+// Androidの持続Sに強くする。
+// ============================================================
+
+function holdS(result) {
+
+    /*
+        無音付近まで下がった場合は
+        S継続とはしない。
+    */
+
+    const minimumVolume =
+        Math.max(
+
+            WEAK_MIN_VOLUME
+            *
+            0.70,
+
+            noiseFloor
+            *
+            RELEASE_NOISE_MULTIPLIER,
+
+            noiseFloor
+            +
+            RELEASE_NOISE_ADD
+
+        );
+
+
+    if (
+        result.volume <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio <
+        HOLD_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr <
+        HOLD_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    /*
+        継続中だけ若干ゆるくする。
+        リップノイズのような一瞬の衝撃音は
+        それでも除外する。
+    */
+
+    if (
+        peakRatio > 6.0
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak > 0.11
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
 // キャリブレーション
 // ============================================================
 
@@ -3381,30 +2794,22 @@ function finishCalibration() {
         [
             ...calibrationVolumes
         ].sort(
-            function(
-                a,
-                b
-            ) {
+            function(a, b) {
 
-                return (
-                    a - b
-                );
+                return a - b;
 
             }
         );
 
 
     if (
-        values.length >
-        0
+        values.length > 0
     ) {
 
         noiseFloor =
             values[
                 Math.floor(
-                    values.length
-                    /
-                    2
+                    values.length / 2
                 )
             ];
 
@@ -3412,8 +2817,7 @@ function finishCalibration() {
 
     else {
 
-        noiseFloor =
-            0;
+        noiseFloor = 0;
 
     }
 
@@ -3474,94 +2878,11 @@ function finishCalibration() {
         );
 
 
-    calibrating =
-        false;
+    calibrating = false;
 
 
     statusElement.textContent =
         "";
-
-
-    addDiagnostic(
-        "⑤ キャリブレーション完了"
-    );
-
-
-    addDiagnostic(
-        "待機中：すー、と言ってください"
-    );
-
-}
-
-
-// ============================================================
-// S終了判定
-// ============================================================
-
-function isSStillActive(
-    result,
-    candidate
-) {
-
-    /*
-        発声中の基準音量から
-        かなり落ちているかを見る。
-    */
-
-    const relativeThreshold =
-        activeVolumeEMA
-        *
-        RELEASE_VOLUME_RATIO;
-
-
-    /*
-        環境騒音より少し上。
-    */
-
-    const noiseThreshold =
-        Math.max(
-
-            noiseFloor
-            *
-            1.25,
-
-            noiseFloor
-            +
-            0.0006
-
-        );
-
-
-    /*
-        どちらか高い方を使う。
-    */
-
-    const releaseVolumeThreshold =
-        Math.max(
-            relativeThreshold,
-            noiseThreshold
-        );
-
-
-    /*
-        S候補であり、
-        ある程度の音量が残っていれば
-        発声継続。
-    */
-
-    if (
-        candidate
-        &&
-        result.volume >=
-        releaseVolumeThreshold
-    ) {
-
-        return true;
-
-    }
-
-
-    return false;
 
 }
 
@@ -3570,64 +2891,7 @@ function isSStillActive(
 // 判定
 // ============================================================
 
-function processResult(
-    result
-) {
-
-    const now =
-        Date.now();
-
-
-    if (
-        now
-        -
-        lastDiagnosticTime
-        >
-        1200
-    ) {
-
-        lastDiagnosticTime =
-            now;
-
-
-        if (
-            !calibrating
-        ) {
-
-            diagnosticLines =
-                diagnosticLines.filter(
-                    function(
-                        line
-                    ) {
-
-                        return (
-                            !line.startsWith(
-                                "音量="
-                            )
-                        );
-
-                    }
-                );
-
-
-            addDiagnostic(
-                "音量="
-                +
-                result.volume.toFixed(
-                    4
-                )
-                +
-                " / 高周波="
-                +
-                result.highRatio.toFixed(
-                    3
-                )
-            );
-
-        }
-
-    }
-
+function processResult(result) {
 
     if (
         calibrating
@@ -3653,33 +2917,27 @@ function processResult(
     }
 
 
-    const normalCandidate =
-        normalS(
-            result
-        );
-
-
-    const weakCandidate =
-        weakS(
-            result
-        );
-
-
-    const anyCandidate =
-        normalCandidate
-        ||
-        weakCandidate;
-
-
     /*
         ======================================================
-        まだ画像が出ていない状態
+        画像がまだ出ていない
         ======================================================
     */
 
     if (
         !soundLatched
     ) {
+
+        const normalCandidate =
+            normalS(
+                result
+            );
+
+
+        const weakCandidate =
+            weakS(
+                result
+            );
+
 
         if (
             normalCandidate
@@ -3691,8 +2949,7 @@ function processResult(
 
         else {
 
-            normalCount =
-                0;
+            normalCount = 0;
 
         }
 
@@ -3707,8 +2964,7 @@ function processResult(
 
         else {
 
-            weakCount =
-                0;
+            weakCount = 0;
 
         }
 
@@ -3729,17 +2985,9 @@ function processResult(
             weakSuccess
         ) {
 
-            soundLatched =
-                true;
+            soundLatched = true;
 
-
-            releaseCount =
-                0;
-
-
-            activeVolumeEMA =
-                result.volume;
-
+            releaseCount = 0;
 
             showRandomMainImage();
 
@@ -3753,64 +3001,38 @@ function processResult(
 
     /*
         ======================================================
-        画像が出ている状態
+        画像表示中
         ======================================================
 
-        Sが続いている間は
-        activeVolumeEMAを更新し続ける。
+        ここでは開始時より少し緩いholdSを使う。
+
+        Androidで一瞬だけS特徴が弱くなっても、
+        すぐには画像を消さない。
     */
 
-    if (
-        anyCandidate
-    ) {
-
-        activeVolumeEMA =
-            (
-                activeVolumeEMA
-                *
-                0.88
-            )
-            +
-            (
-                result.volume
-                *
-                0.12
-            );
-
-    }
-
-
-    const stillActive =
-        isSStillActive(
-            result,
-            anyCandidate
+    const continuing =
+        holdS(
+            result
         );
 
 
     if (
-        stillActive
+        continuing
     ) {
 
-        releaseCount =
-            0;
-
+        releaseCount = 0;
 
         return;
 
     }
 
 
-    /*
-        Sらしい音がなくなったら
-        終了候補カウント。
-    */
-
     releaseCount++;
 
 
     /*
-        約180ms続いたら
-        発声終了とする。
+        約0.28秒連続して
+        S継続条件を満たさなくなったら終了。
     */
 
     if (
@@ -3818,25 +3040,12 @@ function processResult(
         releaseFramesNeeded
     ) {
 
-        soundLatched =
-            false;
+        soundLatched = false;
 
+        normalCount = 0;
+        weakCount = 0;
 
-        normalCount =
-            0;
-
-
-        weakCount =
-            0;
-
-
-        releaseCount =
-            0;
-
-
-        activeVolumeEMA =
-            0;
-
+        releaseCount = 0;
 
         clearImageElement(
             mainImage
@@ -3851,9 +3060,7 @@ function processResult(
 // 音声フレーム
 // ============================================================
 
-function addSamples(
-    input
-) {
+function addSamples(input) {
 
     for (
         let i = 0;
@@ -3890,9 +3097,7 @@ function addSamples(
 
             frame[i] =
                 sampleQueue[
-                    queueOffset
-                    +
-                    i
+                    queueOffset + i
                 ];
 
         }
@@ -3916,8 +3121,7 @@ function addSamples(
 
 
     if (
-        queueOffset >
-        8192
+        queueOffset > 8192
     ) {
 
         sampleQueue =
@@ -3926,8 +3130,7 @@ function addSamples(
             );
 
 
-        queueOffset =
-            0;
+        queueOffset = 0;
 
     }
 
@@ -3953,18 +3156,13 @@ function stopExistingMicrophone() {
             processorNode.disconnect();
 
 
-            processorNode =
-                null;
+            processorNode = null;
 
         }
 
     }
 
-    catch (
-        error
-    ) {
-
-    }
+    catch (error) {}
 
 
     try {
@@ -3976,18 +3174,13 @@ function stopExistingMicrophone() {
             sourceNode.disconnect();
 
 
-            sourceNode =
-                null;
+            sourceNode = null;
 
         }
 
     }
 
-    catch (
-        error
-    ) {
-
-    }
+    catch (error) {}
 
 
     try {
@@ -3999,18 +3192,13 @@ function stopExistingMicrophone() {
             muteNode.disconnect();
 
 
-            muteNode =
-                null;
+            muteNode = null;
 
         }
 
     }
 
-    catch (
-        error
-    ) {
-
-    }
+    catch (error) {}
 
 
     try {
@@ -4022,9 +3210,7 @@ function stopExistingMicrophone() {
             mediaStream
                 .getTracks()
                 .forEach(
-                    function(
-                        track
-                    ) {
+                    function(track) {
 
                         track.stop();
 
@@ -4032,18 +3218,13 @@ function stopExistingMicrophone() {
                 );
 
 
-            mediaStream =
-                null;
+            mediaStream = null;
 
         }
 
     }
 
-    catch (
-        error
-    ) {
-
-    }
+    catch (error) {}
 
 
     try {
@@ -4055,18 +3236,13 @@ function stopExistingMicrophone() {
             audioContext.close();
 
 
-            audioContext =
-                null;
+            audioContext = null;
 
         }
 
     }
 
-    catch (
-        error
-    ) {
-
-    }
+    catch (error) {}
 
 }
 
@@ -4077,33 +3253,9 @@ function stopExistingMicrophone() {
 
 async function startMicrophone() {
 
-    clearDiagnostic();
-
-
-    addDiagnostic(
-        "① スタートボタンが押されました"
-    );
-
-
-    addDiagnostic(
-        "URL: "
-        +
-        location.protocol
-        +
-        "//"
-        +
-        location.host
-    );
-
-
     if (
         !window.isSecureContext
     ) {
-
-        addDiagnostic(
-            "エラー：HTTPSではありません"
-        );
-
 
         alert(
             "HTTPS接続ではないためマイクを使用できません。"
@@ -4115,21 +3267,11 @@ async function startMicrophone() {
     }
 
 
-    addDiagnostic(
-        "② HTTPS確認 OK"
-    );
-
-
     if (
         !navigator.mediaDevices
         ||
         !navigator.mediaDevices.getUserMedia
     ) {
-
-        addDiagnostic(
-            "エラー：マイクAPIがありません"
-        );
-
 
         alert(
             "このブラウザではマイク機能を利用できません。"
@@ -4139,11 +3281,6 @@ async function startMicrophone() {
         return;
 
     }
-
-
-    addDiagnostic(
-        "③ マイクAPI確認 OK"
-    );
 
 
     stopExistingMicrophone();
@@ -4158,37 +3295,19 @@ async function startMicrophone() {
     );
 
 
-    normalCount =
-        0;
+    normalCount = 0;
+    weakCount = 0;
 
+    releaseCount = 0;
 
-    weakCount =
-        0;
+    soundLatched = false;
 
+    calibrationVolumes = [];
 
-    releaseCount =
-        0;
-
-
-    soundLatched =
-        false;
-
-
-    activeVolumeEMA =
-        0;
-
-
-    calibrationVolumes =
-        [];
-
-
-    calibrating =
-        true;
-
+    calibrating = true;
 
     normalDynamicMin =
         NORMAL_MIN_VOLUME;
-
 
     weakDynamicMin =
         WEAK_MIN_VOLUME;
@@ -4196,65 +3315,32 @@ async function startMicrophone() {
 
     try {
 
+        /*
+            まずシンプルな条件でマイク取得。
 
-        addDiagnostic(
-            "④ マイク使用を要求しています…"
-        );
-
+            PC / iPad / Androidで
+            最も互換性を優先。
+        */
 
         mediaStream =
             await navigator
                 .mediaDevices
                 .getUserMedia(
                     {
-                        audio:
-                            true,
-
-                        video:
-                            false
+                        audio: true,
+                        video: false
                     }
                 );
 
 
-        addDiagnostic(
-            "④ マイク取得成功"
-        );
-
-
-        const tracks =
-            mediaStream
-                .getAudioTracks();
-
-
-        if (
-            tracks.length >
-            0
-        ) {
-
-            addDiagnostic(
-                "マイク: "
-                +
-                (
-                    tracks[0].label
-                    ||
-                    "名称取得不可"
-                )
-            );
-
-        }
+        const AudioContextClass =
+            window.AudioContext
+            ||
+            window.webkitAudioContext;
 
 
         audioContext =
-            new (
-                window.AudioContext
-                ||
-                window.webkitAudioContext
-            )();
-
-
-        addDiagnostic(
-            "AudioContext作成成功"
-        );
+            new AudioContextClass();
 
 
         if (
@@ -4265,19 +3351,6 @@ async function startMicrophone() {
             await audioContext.resume();
 
         }
-
-
-        addDiagnostic(
-            "AudioContext="
-            +
-            audioContext.state
-            +
-            " / "
-            +
-            audioContext.sampleRate
-            +
-            "Hz"
-        );
 
 
         frameSize =
@@ -4324,12 +3397,8 @@ async function startMicrophone() {
             );
 
 
-        sampleQueue =
-            [];
-
-
-        queueOffset =
-            0;
+        sampleQueue = [];
+        queueOffset = 0;
 
 
         sourceNode =
@@ -4337,11 +3406,6 @@ async function startMicrophone() {
                 .createMediaStreamSource(
                     mediaStream
                 );
-
-
-        addDiagnostic(
-            "音声ストリーム接続成功"
-        );
 
 
         processorNode =
@@ -4353,29 +3417,8 @@ async function startMicrophone() {
                 );
 
 
-        let firstAudioBlock =
-            true;
-
-
         processorNode.onaudioprocess =
-            function(
-                event
-            ) {
-
-                if (
-                    firstAudioBlock
-                ) {
-
-                    firstAudioBlock =
-                        false;
-
-
-                    addDiagnostic(
-                        "音声データ受信成功"
-                    );
-
-                }
-
+            function(event) {
 
                 const input =
                     event
@@ -4392,13 +3435,20 @@ async function startMicrophone() {
             };
 
 
+        /*
+            Androidを含め、
+            音声処理グラフが動き続けるように
+            destinationまで接続する。
+
+            gain=0なので音はスピーカーに出ない。
+        */
+
         muteNode =
             audioContext
                 .createGain();
 
 
-        muteNode.gain.value =
-            0;
+        muteNode.gain.value = 0;
 
 
         sourceNode.connect(
@@ -4416,20 +3466,15 @@ async function startMicrophone() {
         );
 
 
-        startButton.disabled =
-            true;
+        startButton.disabled = true;
 
 
         startButton.textContent =
             "マイク使用中";
 
-
     }
 
-    catch (
-        error
-    ) {
-
+    catch (error) {
 
         console.error(
             error
@@ -4440,38 +3485,15 @@ async function startMicrophone() {
             "";
 
 
-        startButton.disabled =
-            false;
+        startButton.disabled = false;
 
 
         startButton.textContent =
             "スタート";
 
 
-        addDiagnostic(
-            "エラー名: "
-            +
-            (
-                error.name
-                ||
-                "不明"
-            )
-        );
-
-
-        addDiagnostic(
-            "内容: "
-            +
-            (
-                error.message
-                ||
-                "詳細なし"
-            )
-        );
-
-
         alert(
-            "マイクを開始できませんでした。\n診断欄の内容を教えてください。"
+            "マイクを開始できませんでした。"
         );
 
     }
@@ -4499,25 +3521,19 @@ async function initialize() {
 
         await openDatabase();
 
-
         await reloadImages();
-
 
         clearImageElement(
             mainImage
         );
 
-
         showWordImage();
-
 
         drawBar();
 
     }
 
-    catch (
-        error
-    ) {
+    catch (error) {
 
         console.error(
             error

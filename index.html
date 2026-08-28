@@ -1,0 +1,4037 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+<meta charset="utf-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>いきで　あそぼう！</title>
+
+
+<style>
+
+:root {
+
+    --bg: #DDF3FA;
+
+    --blue: #0057D9;
+
+    --bar-blue: #1677FF;
+
+    --bar-red: #F04444;
+
+}
+
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    background: var(--bg);
+
+    color: #111;
+
+    font-family:
+        "Yu Gothic",
+        "Hiragino Kaku Gothic ProN",
+        "Meiryo",
+        sans-serif;
+
+}
+
+
+button {
+
+    font-family: inherit;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    min-height: 50px;
+
+    padding: 8px 15px;
+
+    border: 1px solid #888;
+
+    border-radius: 7px;
+
+    background: #f7f7f7;
+
+}
+
+
+button:disabled {
+
+    opacity: 0.55;
+
+}
+
+
+.screen {
+
+    display: none;
+
+}
+
+
+.screen.active {
+
+    display: block;
+
+}
+
+
+/* ==========================================================
+   メイン画面
+========================================================== */
+
+.main-layout {
+
+    max-width: 1100px;
+
+    margin: auto;
+
+    padding: 20px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        210px;
+
+    gap: 28px;
+
+}
+
+
+.main-left {
+
+    text-align: center;
+
+}
+
+
+.title {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    margin: 5px 0 15px;
+
+    font-size: 34px;
+
+    font-weight: bold;
+
+}
+
+
+.title-s {
+
+    color: var(--blue);
+
+    margin-left: 24px;
+
+    font-size: 37px;
+
+}
+
+
+#status {
+
+    min-height: 34px;
+
+    font-size: 20px;
+
+}
+
+
+.image-box {
+
+    width: min(
+        100%,
+        650px
+    );
+
+    aspect-ratio: 10 / 7;
+
+    margin: 10px auto;
+
+    background: white;
+
+    border: 1px solid #999;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    overflow: hidden;
+
+}
+
+
+.image-box img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+
+}
+
+
+.count {
+
+    margin-top: 12px;
+
+    font-size: 19px;
+
+    font-weight: bold;
+
+}
+
+
+.side-buttons {
+
+    padding-top: 50px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
+
+.side-buttons button {
+
+    font-size: 18px;
+
+}
+
+
+/* ==========================================================
+   共通サブ画面
+========================================================== */
+
+.page {
+
+    max-width: 1000px;
+
+    margin: auto;
+
+    text-align: center;
+
+    padding: 30px 18px;
+
+}
+
+
+.page h1 {
+
+    font-size: 36px;
+
+    margin:
+        5px
+        0
+        18px;
+
+}
+
+
+.description {
+
+    font-size: 19px;
+
+    line-height: 1.7;
+
+    margin: 5px;
+
+}
+
+
+/* ==========================================================
+   母音後続
+========================================================== */
+
+.bar-area {
+
+    position: relative;
+
+    width: min(
+        92vw,
+        900px
+    );
+
+    height: 250px;
+
+    margin:
+        25px
+        auto
+        5px;
+
+    touch-action: none;
+
+    user-select: none;
+
+}
+
+
+.bar-track {
+
+    position: absolute;
+
+    left: 0;
+
+    right: 0;
+
+    top: 80px;
+
+    height: 90px;
+
+}
+
+
+.segment {
+
+    position: absolute;
+
+    height: 90px;
+
+    top: 0;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    overflow: hidden;
+
+}
+
+
+#blueSegment {
+
+    background: var(--bar-blue);
+
+}
+
+
+#redSegment {
+
+    background: var(--bar-red);
+
+}
+
+
+.bar-line {
+
+    position: absolute;
+
+    top: -18px;
+
+    width: 5px;
+
+    height: 126px;
+
+    background: #333;
+
+    transform:
+        translateX(-2px);
+
+}
+
+
+.bar-line.middle {
+
+    top: -22px;
+
+    height: 134px;
+
+    background: white;
+
+}
+
+
+.handle {
+
+    position: absolute;
+
+    top: 101px;
+
+    width: 30px;
+
+    height: 30px;
+
+    min-height: 0;
+
+    border-radius: 50%;
+
+    border: 2px solid #333;
+
+    background: white;
+
+    transform:
+        translateX(-15px);
+
+    padding: 0;
+
+    z-index: 10;
+
+}
+
+
+/* ==========================================================
+   単語
+========================================================== */
+
+.word-box {
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+
+}
+
+
+#wordPosition {
+
+    min-height: 24px;
+
+    color: #555;
+
+}
+
+
+/* ==========================================================
+   下ボタン
+========================================================== */
+
+.bottom-buttons {
+
+    margin-top: 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+}
+
+
+.bottom-buttons button {
+
+    min-width: 145px;
+
+    font-size: 16px;
+
+}
+
+
+/* ==========================================================
+   スマホ・タブレット
+========================================================== */
+
+@media (
+    max-width: 760px
+) {
+
+    .main-layout {
+
+        grid-template-columns: 1fr;
+
+        padding: 12px;
+
+    }
+
+
+    .side-buttons {
+
+        padding-top: 5px;
+
+        display: grid;
+
+        grid-template-columns:
+            1fr
+            1fr;
+
+        gap: 10px;
+
+    }
+
+
+    .side-buttons button:last-child {
+
+        grid-column:
+            1 / -1;
+
+    }
+
+
+    .title {
+
+        font-size: 26px;
+
+    }
+
+
+    .title-s {
+
+        margin-left: 10px;
+
+        font-size: 29px;
+
+    }
+
+
+    .page h1 {
+
+        font-size: 30px;
+
+    }
+
+
+    .description {
+
+        font-size: 17px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================================
+     メイン画面
+======================================================== -->
+
+<section
+    id="mainScreen"
+    class="screen active"
+>
+
+<div class="main-layout">
+
+
+<div class="main-left">
+
+
+<div class="title">
+
+<span>
+いきで　あそぼう！
+</span>
+
+<span class="title-s">
+すー　すー　すー
+</span>
+
+</div>
+
+
+<div id="status">
+</div>
+
+
+<div class="image-box">
+
+<img
+    id="mainImage"
+    alt=""
+>
+
+</div>
+
+
+<div
+    id="mainCount"
+    class="count"
+>
+登録画像：0 / 10
+</div>
+
+
+</div>
+
+
+<div class="side-buttons">
+
+
+<button
+    id="startButton"
+>
+スタート
+</button>
+
+
+<button
+    id="registerMainButton"
+>
+画像を登録
+</button>
+
+
+<button
+    id="clearMainButton"
+>
+画像をクリア
+</button>
+
+
+<button
+    id="vowelButton"
+>
+母音後続
+</button>
+
+
+<button
+    id="wordButton"
+>
+単語
+</button>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ========================================================
+     母音後続画面
+======================================================== -->
+
+<section
+    id="vowelScreen"
+    class="screen"
+>
+
+
+<div class="page">
+
+
+<h1>
+母音後続
+</h1>
+
+
+<p class="description">
+
+棒の左端・青と赤の境目・右端を動かせます。
+
+</p>
+
+
+<p class="description">
+
+息と声をつなげ、音節（さしすせそ）の練習をしましょう。
+
+</p>
+
+
+<div
+    id="barArea"
+    class="bar-area"
+>
+
+
+<div class="bar-track">
+
+
+<div
+    id="blueSegment"
+    class="segment"
+>
+いき
+</div>
+
+
+<div
+    id="redSegment"
+    class="segment"
+>
+こえ
+</div>
+
+
+<div
+    id="leftLine"
+    class="bar-line"
+>
+</div>
+
+
+<div
+    id="middleLine"
+    class="bar-line middle"
+>
+</div>
+
+
+<div
+    id="rightLine"
+    class="bar-line"
+>
+</div>
+
+
+<button
+    id="leftHandle"
+    class="handle"
+    aria-label="左端"
+>
+</button>
+
+
+<button
+    id="middleHandle"
+    class="handle"
+    aria-label="青と赤の境目"
+>
+</button>
+
+
+<button
+    id="rightHandle"
+    class="handle"
+    aria-label="右端"
+>
+</button>
+
+
+</div>
+
+</div>
+
+
+<div class="bottom-buttons">
+
+<button id="vowelBackButton">
+
+もどる
+
+</button>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- ========================================================
+     単語画面
+======================================================== -->
+
+<section
+    id="wordScreen"
+    class="screen"
+>
+
+
+<div class="page">
+
+
+<h1>
+単語
+</h1>
+
+
+<p class="description">
+
+「さしすせそ」を含む単語のイラストや写真を登録してください。
+
+<br>
+
+クリックまたはタップすると順番に表示されます。
+
+</p>
+
+
+<div
+    id="wordImageBox"
+    class="image-box word-box"
+    tabindex="0"
+>
+
+
+<img
+    id="wordImage"
+    alt=""
+>
+
+
+</div>
+
+
+<div
+    id="wordCount"
+    class="count"
+>
+登録画像：0 / 12
+</div>
+
+
+<div id="wordPosition">
+</div>
+
+
+<div class="bottom-buttons">
+
+
+<button id="registerWordButton">
+
+画像を登録
+
+</button>
+
+
+<button id="clearWordButton">
+
+画像をクリア
+
+</button>
+
+
+<button id="wordBackButton">
+
+もどる
+
+</button>
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- ========================================================
+     ファイル選択
+======================================================== -->
+
+<input
+    id="mainFileInput"
+    type="file"
+    accept="image/*"
+    multiple
+    hidden
+>
+
+
+<input
+    id="wordFileInput"
+    type="file"
+    accept="image/*"
+    multiple
+    hidden
+>
+
+
+
+<script>
+
+"use strict";
+
+
+// ============================================================
+// 基本設定
+// ============================================================
+
+const MAX_MAIN_IMAGES = 10;
+
+const MAX_WORD_IMAGES = 12;
+
+
+// ============================================================
+// 「す」判定
+// Python版で一番良かった値
+// ============================================================
+
+const HIGH_RATIO_MIN = 0.38;
+
+const ZCR_MIN = 0.025;
+
+const PEAK_RATIO_LIMIT = 4.5;
+
+const PEAK_LIMIT = 0.085;
+
+
+const NORMAL_MIN_VOLUME = 0.0045;
+
+const NORMAL_REQUIRED = 2;
+
+
+const WEAK_MIN_VOLUME = 0.0035;
+
+const WEAK_REQUIRED = 4;
+
+
+const CALIBRATION_SECONDS = 1.0;
+
+const RESET_SECONDS = 0.20;
+
+
+// ============================================================
+// 画面
+// ============================================================
+
+const mainScreen =
+    document.getElementById(
+        "mainScreen"
+    );
+
+
+const vowelScreen =
+    document.getElementById(
+        "vowelScreen"
+    );
+
+
+const wordScreen =
+    document.getElementById(
+        "wordScreen"
+    );
+
+
+function showScreen(
+    target
+) {
+
+    mainScreen.classList.remove(
+        "active"
+    );
+
+    vowelScreen.classList.remove(
+        "active"
+    );
+
+    wordScreen.classList.remove(
+        "active"
+    );
+
+
+    target.classList.add(
+        "active"
+    );
+
+}
+
+
+// ============================================================
+// DOM
+// ============================================================
+
+const statusElement =
+    document.getElementById(
+        "status"
+    );
+
+
+const startButton =
+    document.getElementById(
+        "startButton"
+    );
+
+
+const mainImage =
+    document.getElementById(
+        "mainImage"
+    );
+
+
+const mainCount =
+    document.getElementById(
+        "mainCount"
+    );
+
+
+const mainFileInput =
+    document.getElementById(
+        "mainFileInput"
+    );
+
+
+const wordImage =
+    document.getElementById(
+        "wordImage"
+    );
+
+
+const wordImageBox =
+    document.getElementById(
+        "wordImageBox"
+    );
+
+
+const wordCount =
+    document.getElementById(
+        "wordCount"
+    );
+
+
+const wordPosition =
+    document.getElementById(
+        "wordPosition"
+    );
+
+
+const wordFileInput =
+    document.getElementById(
+        "wordFileInput"
+    );
+
+
+// ============================================================
+// IndexedDB
+// 画像はサーバーではなく利用者の端末に保存
+// ============================================================
+
+const DB_NAME =
+    "IkiDeAsobouDB";
+
+
+const DB_VERSION = 1;
+
+
+const STORE_MAIN =
+    "mainImages";
+
+
+const STORE_WORD =
+    "wordImages";
+
+
+let database = null;
+
+
+let mainImages = [];
+
+let wordImages = [];
+
+let wordIndex = 0;
+
+
+// ============================================================
+// IndexedDBを開く
+// ============================================================
+
+function openDatabase() {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const request =
+                indexedDB.open(
+                    DB_NAME,
+                    DB_VERSION
+                );
+
+
+            request.onupgradeneeded =
+                function() {
+
+                    const db =
+                        request.result;
+
+
+                    if (
+                        !db.objectStoreNames
+                            .contains(
+                                STORE_MAIN
+                            )
+                    ) {
+
+                        db.createObjectStore(
+                            STORE_MAIN,
+                            {
+                                keyPath: "id",
+                                autoIncrement: true
+                            }
+                        );
+
+                    }
+
+
+                    if (
+                        !db.objectStoreNames
+                            .contains(
+                                STORE_WORD
+                            )
+                    ) {
+
+                        db.createObjectStore(
+                            STORE_WORD,
+                            {
+                                keyPath: "id",
+                                autoIncrement: true
+                            }
+                        );
+
+                    }
+
+                };
+
+
+            request.onsuccess =
+                function() {
+
+                    database =
+                        request.result;
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// 全画像取得
+// ============================================================
+
+function getAllImages(
+    storeName
+) {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readonly"
+                );
+
+
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .getAll();
+
+
+            request.onsuccess =
+                function() {
+
+                    resolve(
+                        request.result || []
+                    );
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// 画像追加
+// ============================================================
+
+function addImage(
+    storeName,
+    file
+) {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .add(
+                        {
+
+                            name:
+                                file.name,
+
+                            type:
+                                file.type,
+
+                            blob:
+                                file,
+
+                            createdAt:
+                                Date.now()
+
+                        }
+                    );
+
+
+            request.onsuccess =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// 全削除
+// ============================================================
+
+function clearImages(
+    storeName
+) {
+
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .clear();
+
+
+            request.onsuccess =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// 画像一覧更新
+// ============================================================
+
+async function reloadImages() {
+
+    mainImages =
+        (
+            await getAllImages(
+                STORE_MAIN
+            )
+        ).sort(
+            (
+                a,
+                b
+            ) =>
+                a.id - b.id
+        );
+
+
+    wordImages =
+        (
+            await getAllImages(
+                STORE_WORD
+            )
+        ).sort(
+            (
+                a,
+                b
+            ) =>
+                a.id - b.id
+        );
+
+
+    mainCount.textContent =
+        "登録画像：" +
+        mainImages.length +
+        " / 10";
+
+
+    wordCount.textContent =
+        "登録画像：" +
+        wordImages.length +
+        " / 12";
+
+}
+
+
+// ============================================================
+// ObjectURL管理
+// ============================================================
+
+function revokeImageURL(
+    imageElement
+) {
+
+    const oldURL =
+        imageElement.dataset.url;
+
+
+    if (
+        oldURL
+    ) {
+
+        URL.revokeObjectURL(
+            oldURL
+        );
+
+        delete imageElement.dataset.url;
+
+    }
+
+}
+
+
+// ============================================================
+// 画像を消す
+// ============================================================
+
+function clearImageElement(
+    imageElement
+) {
+
+    revokeImageURL(
+        imageElement
+    );
+
+
+    imageElement.removeAttribute(
+        "src"
+    );
+
+}
+
+
+// ============================================================
+// Blob画像を表示
+// ============================================================
+
+function displayBlob(
+    imageElement,
+    record
+) {
+
+    revokeImageURL(
+        imageElement
+    );
+
+
+    const url =
+        URL.createObjectURL(
+            record.blob
+        );
+
+
+    imageElement.dataset.url =
+        url;
+
+
+    imageElement.src =
+        url;
+
+}
+
+
+// ============================================================
+// メインランダム画像
+// ============================================================
+
+function showRandomMainImage() {
+
+    if (
+        mainImages.length === 0
+    ) {
+
+        clearImageElement(
+            mainImage
+        );
+
+        return;
+
+    }
+
+
+    const index =
+        Math.floor(
+            Math.random()
+            *
+            mainImages.length
+        );
+
+
+    displayBlob(
+        mainImage,
+        mainImages[
+            index
+        ]
+    );
+
+}
+
+
+// ============================================================
+// 単語画像表示
+// ============================================================
+
+function showWordImage() {
+
+    if (
+        wordImages.length === 0
+    ) {
+
+        clearImageElement(
+            wordImage
+        );
+
+        wordPosition.textContent =
+            "";
+
+        return;
+
+    }
+
+
+    if (
+        wordIndex >=
+        wordImages.length
+    ) {
+
+        wordIndex = 0;
+
+    }
+
+
+    displayBlob(
+        wordImage,
+        wordImages[
+            wordIndex
+        ]
+    );
+
+
+    wordPosition.textContent =
+        (
+            wordIndex + 1
+        )
+        +
+        " / "
+        +
+        wordImages.length;
+
+}
+
+
+// ============================================================
+// 単語 次へ
+// ============================================================
+
+function nextWordImage() {
+
+    if (
+        wordImages.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    wordIndex++;
+
+
+    if (
+        wordIndex >=
+        wordImages.length
+    ) {
+
+        wordIndex = 0;
+
+    }
+
+
+    showWordImage();
+
+}
+
+
+// ============================================================
+// メイン画像登録
+// ============================================================
+
+document
+    .getElementById(
+        "registerMainButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            if (
+                mainImages.length
+                >=
+                MAX_MAIN_IMAGES
+            ) {
+
+                alert(
+                    "画像は10枚まで登録できます。"
+                );
+
+                return;
+
+            }
+
+
+            mainFileInput.value =
+                "";
+
+            mainFileInput.click();
+
+        }
+    );
+
+
+// ============================================================
+// メイン画像 選択後
+// ============================================================
+
+mainFileInput.addEventListener(
+    "change",
+    async function() {
+
+        const remaining =
+            MAX_MAIN_IMAGES
+            -
+            mainImages.length;
+
+
+        const files =
+            Array.from(
+                mainFileInput.files
+            ).slice(
+                0,
+                remaining
+            );
+
+
+        if (
+            files.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        for (
+            const file
+            of files
+        ) {
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            await addImage(
+                STORE_MAIN,
+                file
+            );
+
+        }
+
+
+        await reloadImages();
+
+
+        alert(
+            files.length
+            +
+            "枚の画像を登録しました。\n"
+            +
+            "現在："
+            +
+            mainImages.length
+            +
+            " / 10枚"
+        );
+
+    }
+);
+
+
+// ============================================================
+// メイン画像削除
+// ============================================================
+
+document
+    .getElementById(
+        "clearMainButton"
+    )
+    .addEventListener(
+        "click",
+        async function() {
+
+            if (
+                mainImages.length === 0
+            ) {
+
+                alert(
+                    "登録されている画像はありません。"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !confirm(
+                    "登録した画像をすべて削除しますか？"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            await clearImages(
+                STORE_MAIN
+            );
+
+
+            await reloadImages();
+
+
+            clearImageElement(
+                mainImage
+            );
+
+        }
+    );
+
+
+// ============================================================
+// 単語画像登録
+// ============================================================
+
+document
+    .getElementById(
+        "registerWordButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            if (
+                wordImages.length
+                >=
+                MAX_WORD_IMAGES
+            ) {
+
+                alert(
+                    "画像は12枚まで登録できます。"
+                );
+
+                return;
+
+            }
+
+
+            wordFileInput.value =
+                "";
+
+            wordFileInput.click();
+
+        }
+    );
+
+
+// ============================================================
+// 単語画像 選択後
+// ============================================================
+
+wordFileInput.addEventListener(
+    "change",
+    async function() {
+
+        const remaining =
+            MAX_WORD_IMAGES
+            -
+            wordImages.length;
+
+
+        const files =
+            Array.from(
+                wordFileInput.files
+            ).slice(
+                0,
+                remaining
+            );
+
+
+        if (
+            files.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        const wasEmpty =
+            wordImages.length === 0;
+
+
+        for (
+            const file
+            of files
+        ) {
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            await addImage(
+                STORE_WORD,
+                file
+            );
+
+        }
+
+
+        await reloadImages();
+
+
+        if (
+            wasEmpty
+        ) {
+
+            wordIndex = 0;
+
+        }
+
+
+        showWordImage();
+
+
+        alert(
+            files.length
+            +
+            "枚の画像を登録しました。\n"
+            +
+            "現在："
+            +
+            wordImages.length
+            +
+            " / 12枚"
+        );
+
+    }
+);
+
+
+// ============================================================
+// 単語画像削除
+// ============================================================
+
+document
+    .getElementById(
+        "clearWordButton"
+    )
+    .addEventListener(
+        "click",
+        async function() {
+
+            if (
+                wordImages.length === 0
+            ) {
+
+                alert(
+                    "登録されている画像はありません。"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !confirm(
+                    "登録した単語画像をすべて削除しますか？"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            await clearImages(
+                STORE_WORD
+            );
+
+
+            wordIndex = 0;
+
+
+            await reloadImages();
+
+
+            showWordImage();
+
+        }
+    );
+
+
+// ============================================================
+// 単語画像クリック・タップ
+// ============================================================
+
+wordImageBox.addEventListener(
+    "click",
+    nextWordImage
+);
+
+
+wordImageBox.addEventListener(
+    "keydown",
+    function(
+        event
+    ) {
+
+        if (
+            event.key ===
+            "Enter"
+            ||
+            event.key ===
+            " "
+        ) {
+
+            event.preventDefault();
+
+            nextWordImage();
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// 画面切り替え
+// ============================================================
+
+document
+    .getElementById(
+        "vowelButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            showScreen(
+                vowelScreen
+            );
+
+
+            requestAnimationFrame(
+                drawBar
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "wordButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            wordIndex = 0;
+
+            showWordImage();
+
+            showScreen(
+                wordScreen
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "vowelBackButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            showScreen(
+                mainScreen
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "wordBackButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            showScreen(
+                mainScreen
+            );
+
+        }
+    );
+
+
+// ============================================================
+// 母音後続バー
+// ============================================================
+
+const barArea =
+    document.getElementById(
+        "barArea"
+    );
+
+
+const blueSegment =
+    document.getElementById(
+        "blueSegment"
+    );
+
+
+const redSegment =
+    document.getElementById(
+        "redSegment"
+    );
+
+
+const leftLine =
+    document.getElementById(
+        "leftLine"
+    );
+
+
+const middleLine =
+    document.getElementById(
+        "middleLine"
+    );
+
+
+const rightLine =
+    document.getElementById(
+        "rightLine"
+    );
+
+
+const leftHandle =
+    document.getElementById(
+        "leftHandle"
+    );
+
+
+const middleHandle =
+    document.getElementById(
+        "middleHandle"
+    );
+
+
+const rightHandle =
+    document.getElementById(
+        "rightHandle"
+    );
+
+
+let barLeft =
+    0.15;
+
+
+let barMiddle =
+    0.50;
+
+
+let barRight =
+    0.85;
+
+
+let dragging =
+    null;
+
+
+// ============================================================
+// バー描画
+// ============================================================
+
+function drawBar() {
+
+    const track =
+        document.querySelector(
+            ".bar-track"
+        );
+
+
+    const width =
+        track.clientWidth;
+
+
+    const left =
+        barLeft
+        *
+        width;
+
+
+    const middle =
+        barMiddle
+        *
+        width;
+
+
+    const right =
+        barRight
+        *
+        width;
+
+
+    blueSegment.style.left =
+        left + "px";
+
+
+    blueSegment.style.width =
+        (
+            middle - left
+        )
+        +
+        "px";
+
+
+    redSegment.style.left =
+        middle + "px";
+
+
+    redSegment.style.width =
+        (
+            right - middle
+        )
+        +
+        "px";
+
+
+    leftLine.style.left =
+        left + "px";
+
+
+    middleLine.style.left =
+        middle + "px";
+
+
+    rightLine.style.left =
+        right + "px";
+
+
+    leftHandle.style.left =
+        left + "px";
+
+
+    middleHandle.style.left =
+        middle + "px";
+
+
+    rightHandle.style.left =
+        right + "px";
+
+
+    blueSegment.textContent =
+        (
+            middle - left
+            >
+            70
+        )
+        ?
+        "いき"
+        :
+        "";
+
+
+    redSegment.textContent =
+        (
+            right - middle
+            >
+            70
+        )
+        ?
+        "こえ"
+        :
+        "";
+
+}
+
+
+// ============================================================
+// 最小幅
+// ============================================================
+
+function minimumBarWidth() {
+
+    const width =
+        barArea.clientWidth;
+
+
+    return Math.max(
+        20 / width,
+        0.02
+    );
+
+}
+
+
+// ============================================================
+// 一番近い点
+// ============================================================
+
+function nearestHandle(
+    clientX
+) {
+
+    const track =
+        document.querySelector(
+            ".bar-track"
+        );
+
+
+    const rectangle =
+        track.getBoundingClientRect();
+
+
+    const x =
+        clientX
+        -
+        rectangle.left;
+
+
+    const positions =
+        {
+
+            left:
+                barLeft
+                *
+                rectangle.width,
+
+            middle:
+                barMiddle
+                *
+                rectangle.width,
+
+            right:
+                barRight
+                *
+                rectangle.width
+
+        };
+
+
+    let answer =
+        "left";
+
+
+    let distance =
+        Math.abs(
+            x
+            -
+            positions.left
+        );
+
+
+    for (
+        const name
+        of [
+            "middle",
+            "right"
+        ]
+    ) {
+
+        const newDistance =
+            Math.abs(
+                x
+                -
+                positions[
+                    name
+                ]
+            );
+
+
+        if (
+            newDistance
+            <
+            distance
+        ) {
+
+            answer =
+                name;
+
+            distance =
+                newDistance;
+
+        }
+
+    }
+
+
+    return answer;
+
+}
+
+
+// ============================================================
+// バーを動かす
+// ============================================================
+
+function moveBar(
+    clientX
+) {
+
+    if (
+        dragging === null
+    ) {
+
+        return;
+
+    }
+
+
+    const track =
+        document.querySelector(
+            ".bar-track"
+        );
+
+
+    const rectangle =
+        track.getBoundingClientRect();
+
+
+    let x =
+        (
+            clientX
+            -
+            rectangle.left
+        )
+        /
+        rectangle.width;
+
+
+    x =
+        Math.max(
+            0.02,
+            Math.min(
+                0.98,
+                x
+            )
+        );
+
+
+    const minimum =
+        minimumBarWidth();
+
+
+    if (
+        dragging ===
+        "left"
+    ) {
+
+        barLeft =
+            Math.max(
+                0.02,
+                Math.min(
+                    x,
+                    barMiddle
+                    -
+                    minimum
+                )
+            );
+
+    }
+
+
+    else if (
+        dragging ===
+        "middle"
+    ) {
+
+        barMiddle =
+            Math.max(
+                barLeft
+                +
+                minimum,
+
+                Math.min(
+                    x,
+                    barRight
+                    -
+                    minimum
+                )
+            );
+
+    }
+
+
+    else if (
+        dragging ===
+        "right"
+    ) {
+
+        barRight =
+            Math.min(
+                0.98,
+
+                Math.max(
+                    x,
+                    barMiddle
+                    +
+                    minimum
+                )
+            );
+
+    }
+
+
+    drawBar();
+
+}
+
+
+// ============================================================
+// マウス・タップ
+// ============================================================
+
+barArea.addEventListener(
+    "pointerdown",
+    function(
+        event
+    ) {
+
+        dragging =
+            nearestHandle(
+                event.clientX
+            );
+
+
+        barArea.setPointerCapture(
+            event.pointerId
+        );
+
+
+        moveBar(
+            event.clientX
+        );
+
+
+        event.preventDefault();
+
+    }
+);
+
+
+barArea.addEventListener(
+    "pointermove",
+    function(
+        event
+    ) {
+
+        if (
+            dragging === null
+        ) {
+
+            return;
+
+        }
+
+
+        moveBar(
+            event.clientX
+        );
+
+
+        event.preventDefault();
+
+    }
+);
+
+
+barArea.addEventListener(
+    "pointerup",
+    function() {
+
+        dragging =
+            null;
+
+    }
+);
+
+
+barArea.addEventListener(
+    "pointercancel",
+    function() {
+
+        dragging =
+            null;
+
+    }
+);
+
+
+window.addEventListener(
+    "resize",
+    drawBar
+);
+
+
+// ============================================================
+// 音声処理
+// ============================================================
+
+let audioContext = null;
+
+let mediaStream = null;
+
+let sourceNode = null;
+
+let processorNode = null;
+
+let muteNode = null;
+
+
+let sampleQueue = [];
+
+let queueOffset = 0;
+
+let frameSize = 735;
+
+
+let calibrationFramesNeeded =
+    60;
+
+
+let resetFramesNeeded =
+    12;
+
+
+let calibrating =
+    false;
+
+
+let calibrationVolumes =
+    [];
+
+
+let noiseFloor = 0;
+
+
+let normalDynamicMin =
+    NORMAL_MIN_VOLUME;
+
+
+let weakDynamicMin =
+    WEAK_MIN_VOLUME;
+
+
+let normalCount = 0;
+
+let weakCount = 0;
+
+let nonSCount = 0;
+
+let soundLatched =
+    false;
+
+
+// ============================================================
+// RMS
+// ============================================================
+
+function calculateRMS(
+    samples
+) {
+
+    let total = 0;
+
+
+    for (
+        let i = 0;
+        i < samples.length;
+        i++
+    ) {
+
+        total +=
+            samples[i]
+            *
+            samples[i];
+
+    }
+
+
+    return Math.sqrt(
+        total
+        /
+        samples.length
+    );
+
+}
+
+
+// ============================================================
+// Peak
+// ============================================================
+
+function calculatePeak(
+    samples
+) {
+
+    let peak = 0;
+
+
+    for (
+        const value
+        of samples
+    ) {
+
+        const absolute =
+            Math.abs(
+                value
+            );
+
+
+        if (
+            absolute >
+            peak
+        ) {
+
+            peak =
+                absolute;
+
+        }
+
+    }
+
+
+    return peak;
+
+}
+
+
+// ============================================================
+// ZCR
+// ============================================================
+
+function calculateZCR(
+    samples
+) {
+
+    let count = 0;
+
+
+    for (
+        let i = 1;
+        i < samples.length;
+        i++
+    ) {
+
+        const before =
+            samples[
+                i - 1
+            ];
+
+
+        const now =
+            samples[
+                i
+            ];
+
+
+        if (
+            (
+                before < 0
+                &&
+                now >= 0
+            )
+            ||
+            (
+                before >= 0
+                &&
+                now < 0
+            )
+        ) {
+
+            count++;
+
+        }
+
+    }
+
+
+    return (
+        count
+        /
+        samples.length
+    );
+
+}
+
+
+// ============================================================
+// 2のべき乗
+// ============================================================
+
+function nextPowerOfTwo(
+    number
+) {
+
+    let value = 1;
+
+
+    while (
+        value <
+        number
+    ) {
+
+        value *= 2;
+
+    }
+
+
+    return value;
+
+}
+
+
+// ============================================================
+// FFT
+// ============================================================
+
+function fftMagnitudes(
+    samples
+) {
+
+    const size =
+        nextPowerOfTwo(
+            samples.length
+        );
+
+
+    const real =
+        new Float64Array(
+            size
+        );
+
+
+    const imaginary =
+        new Float64Array(
+            size
+        );
+
+
+    for (
+        let i = 0;
+        i < samples.length;
+        i++
+    ) {
+
+        real[i] =
+            samples[i];
+
+    }
+
+
+    let j = 0;
+
+
+    for (
+        let i = 1;
+        i < size;
+        i++
+    ) {
+
+        let bit =
+            size >> 1;
+
+
+        while (
+            j & bit
+        ) {
+
+            j ^=
+                bit;
+
+            bit >>=
+                1;
+
+        }
+
+
+        j ^=
+            bit;
+
+
+        if (
+            i < j
+        ) {
+
+            [
+                real[i],
+                real[j]
+            ] =
+            [
+                real[j],
+                real[i]
+            ];
+
+
+            [
+                imaginary[i],
+                imaginary[j]
+            ] =
+            [
+                imaginary[j],
+                imaginary[i]
+            ];
+
+        }
+
+    }
+
+
+    for (
+        let length = 2;
+        length <= size;
+        length *= 2
+    ) {
+
+        const angle =
+            -2
+            *
+            Math.PI
+            /
+            length;
+
+
+        const baseCos =
+            Math.cos(
+                angle
+            );
+
+
+        const baseSin =
+            Math.sin(
+                angle
+            );
+
+
+        for (
+            let i = 0;
+            i < size;
+            i += length
+        ) {
+
+            let wCos = 1;
+
+            let wSin = 0;
+
+
+            for (
+                let k = 0;
+                k < length / 2;
+                k++
+            ) {
+
+                const firstReal =
+                    real[
+                        i + k
+                    ];
+
+
+                const firstImag =
+                    imaginary[
+                        i + k
+                    ];
+
+
+                const secondReal =
+                    real[
+                        i
+                        +
+                        k
+                        +
+                        length / 2
+                    ]
+                    *
+                    wCos
+                    -
+                    imaginary[
+                        i
+                        +
+                        k
+                        +
+                        length / 2
+                    ]
+                    *
+                    wSin;
+
+
+                const secondImag =
+                    real[
+                        i
+                        +
+                        k
+                        +
+                        length / 2
+                    ]
+                    *
+                    wSin
+                    +
+                    imaginary[
+                        i
+                        +
+                        k
+                        +
+                        length / 2
+                    ]
+                    *
+                    wCos;
+
+
+                real[
+                    i + k
+                ] =
+                    firstReal
+                    +
+                    secondReal;
+
+
+                imaginary[
+                    i + k
+                ] =
+                    firstImag
+                    +
+                    secondImag;
+
+
+                real[
+                    i
+                    +
+                    k
+                    +
+                    length / 2
+                ] =
+                    firstReal
+                    -
+                    secondReal;
+
+
+                imaginary[
+                    i
+                    +
+                    k
+                    +
+                    length / 2
+                ] =
+                    firstImag
+                    -
+                    secondImag;
+
+
+                const newCos =
+                    wCos
+                    *
+                    baseCos
+                    -
+                    wSin
+                    *
+                    baseSin;
+
+
+                const newSin =
+                    wCos
+                    *
+                    baseSin
+                    +
+                    wSin
+                    *
+                    baseCos;
+
+
+                wCos =
+                    newCos;
+
+
+                wSin =
+                    newSin;
+
+            }
+
+        }
+
+    }
+
+
+    const magnitudes =
+        new Float64Array(
+            size / 2 + 1
+        );
+
+
+    for (
+        let i = 0;
+        i < magnitudes.length;
+        i++
+    ) {
+
+        magnitudes[i] =
+            Math.hypot(
+                real[i],
+                imaginary[i]
+            );
+
+    }
+
+
+    return {
+
+        magnitudes:
+            magnitudes,
+
+        fftSize:
+            size
+
+    };
+
+}
+
+
+// ============================================================
+// 音分析
+// ============================================================
+
+function analyzeFrame(
+    samples
+) {
+
+    const volume =
+        calculateRMS(
+            samples
+        );
+
+
+    const peak =
+        calculatePeak(
+            samples
+        );
+
+
+    const zcr =
+        calculateZCR(
+            samples
+        );
+
+
+    const fft =
+        fftMagnitudes(
+            samples
+        );
+
+
+    let total = 0;
+
+    let high = 0;
+
+
+    for (
+        let i = 0;
+        i < fft.magnitudes.length;
+        i++
+    ) {
+
+        const magnitude =
+            fft.magnitudes[
+                i
+            ];
+
+
+        total +=
+            magnitude;
+
+
+        const frequency =
+            i
+            *
+            audioContext.sampleRate
+            /
+            fft.fftSize;
+
+
+        if (
+            frequency >=
+            3000
+        ) {
+
+            high +=
+                magnitude;
+
+        }
+
+    }
+
+
+    const highRatio =
+        total > 0
+        ?
+        high / total
+        :
+        0;
+
+
+    return {
+
+        volume:
+            volume,
+
+        peak:
+            peak,
+
+        zcr:
+            zcr,
+
+        highRatio:
+            highRatio
+
+    };
+
+}
+
+
+// ============================================================
+// S共通条件
+// ============================================================
+
+function commonSFeatures(
+    result
+) {
+
+    if (
+        result.highRatio
+        <
+        HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio >
+        PEAK_RATIO_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak >
+        PEAK_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// 通常S
+// ============================================================
+
+function normalS(
+    result
+) {
+
+    if (
+        result.volume
+        <
+        normalDynamicMin
+    ) {
+
+        return false;
+
+    }
+
+
+    return commonSFeatures(
+        result
+    );
+
+}
+
+
+// ============================================================
+// 弱いS
+// ============================================================
+
+function weakS(
+    result
+) {
+
+    if (
+        result.volume
+        <
+        weakDynamicMin
+    ) {
+
+        return false;
+
+    }
+
+
+    return commonSFeatures(
+        result
+    );
+
+}
+
+
+// ============================================================
+// キャリブレーション終了
+// ============================================================
+
+function finishCalibration() {
+
+    const values =
+        [
+            ...calibrationVolumes
+        ].sort(
+            (
+                a,
+                b
+            ) =>
+                a - b
+        );
+
+
+    if (
+        values.length > 0
+    ) {
+
+        noiseFloor =
+            values[
+                Math.floor(
+                    values.length
+                    /
+                    2
+                )
+            ];
+
+    }
+
+    else {
+
+        noiseFloor = 0;
+
+    }
+
+
+    normalDynamicMin =
+        Math.max(
+
+            NORMAL_MIN_VOLUME,
+
+            noiseFloor
+            *
+            1.35,
+
+            noiseFloor
+            +
+            0.0015
+
+        );
+
+
+    normalDynamicMin =
+        Math.min(
+            normalDynamicMin,
+            0.0100
+        );
+
+
+    weakDynamicMin =
+        Math.max(
+
+            WEAK_MIN_VOLUME,
+
+            noiseFloor
+            *
+            1.12,
+
+            noiseFloor
+            +
+            0.0005
+
+        );
+
+
+    weakDynamicMin =
+        Math.max(
+            weakDynamicMin,
+            noiseFloor
+            +
+            0.0004
+        );
+
+
+    weakDynamicMin =
+        Math.min(
+            weakDynamicMin,
+            0.0065
+        );
+
+
+    calibrating =
+        false;
+
+
+    statusElement.textContent =
+        "";
+
+}
+
+
+// ============================================================
+// 判定処理
+// ============================================================
+
+function processResult(
+    result
+) {
+
+    if (
+        calibrating
+    ) {
+
+        calibrationVolumes.push(
+            result.volume
+        );
+
+
+        if (
+            calibrationVolumes.length
+            >=
+            calibrationFramesNeeded
+        ) {
+
+            finishCalibration();
+
+        }
+
+
+        return;
+
+    }
+
+
+    const normalCandidate =
+        normalS(
+            result
+        );
+
+
+    const weakCandidate =
+        weakS(
+            result
+        );
+
+
+    if (
+        normalCandidate
+    ) {
+
+        normalCount++;
+
+    }
+
+    else {
+
+        normalCount = 0;
+
+    }
+
+
+    if (
+        weakCandidate
+    ) {
+
+        weakCount++;
+
+    }
+
+    else {
+
+        weakCount = 0;
+
+    }
+
+
+    const normalSuccess =
+        normalCount
+        >=
+        NORMAL_REQUIRED;
+
+
+    const weakSuccess =
+        weakCount
+        >=
+        WEAK_REQUIRED;
+
+
+    if (
+        normalSuccess
+        ||
+        weakSuccess
+    ) {
+
+        nonSCount = 0;
+
+
+        if (
+            !soundLatched
+        ) {
+
+            soundLatched =
+                true;
+
+
+            showRandomMainImage();
+
+        }
+
+    }
+
+    else {
+
+        if (
+            normalCandidate
+            ||
+            weakCandidate
+        ) {
+
+            nonSCount =
+                0;
+
+        }
+
+        else {
+
+            nonSCount++;
+
+        }
+
+
+        if (
+            nonSCount
+            >=
+            resetFramesNeeded
+        ) {
+
+            normalCount =
+                0;
+
+
+            weakCount =
+                0;
+
+
+            if (
+                soundLatched
+            ) {
+
+                soundLatched =
+                    false;
+
+
+                clearImageElement(
+                    mainImage
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// 音声サンプルを約16.7msごとに処理
+// ============================================================
+
+function addSamples(
+    input
+) {
+
+    for (
+        let i = 0;
+        i < input.length;
+        i++
+    ) {
+
+        sampleQueue.push(
+            input[i]
+        );
+
+    }
+
+
+    while (
+        sampleQueue.length
+        -
+        queueOffset
+        >=
+        frameSize
+    ) {
+
+        const frame =
+            new Float32Array(
+                frameSize
+            );
+
+
+        for (
+            let i = 0;
+            i < frameSize;
+            i++
+        ) {
+
+            frame[i] =
+                sampleQueue[
+                    queueOffset
+                    +
+                    i
+                ];
+
+        }
+
+
+        queueOffset +=
+            frameSize;
+
+
+        const result =
+            analyzeFrame(
+                frame
+            );
+
+
+        processResult(
+            result
+        );
+
+    }
+
+
+    if (
+        queueOffset >
+        8192
+    ) {
+
+        sampleQueue =
+            sampleQueue.slice(
+                queueOffset
+            );
+
+
+        queueOffset =
+            0;
+
+    }
+
+}
+
+
+// ============================================================
+// マイク停止
+// ============================================================
+
+async function stopMicrophone() {
+
+    if (
+        processorNode
+    ) {
+
+        processorNode.disconnect();
+
+        processorNode.onaudioprocess =
+            null;
+
+        processorNode =
+            null;
+
+    }
+
+
+    if (
+        sourceNode
+    ) {
+
+        sourceNode.disconnect();
+
+        sourceNode =
+            null;
+
+    }
+
+
+    if (
+        muteNode
+    ) {
+
+        muteNode.disconnect();
+
+        muteNode =
+            null;
+
+    }
+
+
+    if (
+        mediaStream
+    ) {
+
+        mediaStream
+            .getTracks()
+            .forEach(
+                function(
+                    track
+                ) {
+
+                    track.stop();
+
+                }
+            );
+
+
+        mediaStream =
+            null;
+
+    }
+
+
+    if (
+        audioContext
+    ) {
+
+        await audioContext.close();
+
+        audioContext =
+            null;
+
+    }
+
+}
+
+
+// ============================================================
+// マイク開始
+// ============================================================
+
+async function startMicrophone() {
+
+    if (
+        !navigator.mediaDevices
+        ||
+        !navigator.mediaDevices.getUserMedia
+    ) {
+
+        alert(
+            "このブラウザではマイクを利用できません。HTTPSで公開したページを開いてください。"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+
+        await stopMicrophone();
+
+
+        statusElement.textContent =
+            "ちょっとだけ　しずかにしてね…";
+
+
+        clearImageElement(
+            mainImage
+        );
+
+
+        normalCount = 0;
+
+        weakCount = 0;
+
+        nonSCount = 0;
+
+        soundLatched =
+            false;
+
+
+        calibrationVolumes =
+            [];
+
+
+        calibrating =
+            true;
+
+
+        normalDynamicMin =
+            NORMAL_MIN_VOLUME;
+
+
+        weakDynamicMin =
+            WEAK_MIN_VOLUME;
+
+
+        mediaStream =
+            await navigator
+                .mediaDevices
+                .getUserMedia(
+                    {
+
+                        audio: {
+
+                            echoCancellation:
+                                false,
+
+                            noiseSuppression:
+                                false,
+
+                            autoGainControl:
+                                false
+
+                        },
+
+                        video:
+                            false
+
+                    }
+                );
+
+
+        audioContext =
+            new (
+                window.AudioContext
+                ||
+                window.webkitAudioContext
+            )();
+
+
+        if (
+            audioContext.state
+            ===
+            "suspended"
+        ) {
+
+            await audioContext.resume();
+
+        }
+
+
+        /* 約16.7ms */
+
+        frameSize =
+            Math.round(
+                audioContext.sampleRate
+                *
+                (
+                    735
+                    /
+                    44100
+                )
+            );
+
+
+        calibrationFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    CALIBRATION_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        resetFramesNeeded =
+            Math.max(
+                1,
+                Math.round(
+                    RESET_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        sampleQueue = [];
+
+        queueOffset = 0;
+
+
+        sourceNode =
+            audioContext
+                .createMediaStreamSource(
+                    mediaStream
+                );
+
+
+        processorNode =
+            audioContext
+                .createScriptProcessor(
+                    1024,
+                    1,
+                    1
+                );
+
+
+        processorNode.onaudioprocess =
+            function(
+                event
+            ) {
+
+                const input =
+                    event
+                        .inputBuffer
+                        .getChannelData(
+                            0
+                        );
+
+
+                addSamples(
+                    input
+                );
+
+            };
+
+
+        /*
+            出力は完全無音。
+            processorを動作させるため接続する。
+        */
+
+        muteNode =
+            audioContext
+                .createGain();
+
+
+        muteNode.gain.value =
+            0;
+
+
+        sourceNode.connect(
+            processorNode
+        );
+
+
+        processorNode.connect(
+            muteNode
+        );
+
+
+        muteNode.connect(
+            audioContext.destination
+        );
+
+
+        startButton.disabled =
+            true;
+
+
+        startButton.textContent =
+            "マイク使用中";
+
+
+    }
+
+    catch (
+        error
+    ) {
+
+
+        console.error(
+            error
+        );
+
+
+        statusElement.textContent =
+            "";
+
+
+        startButton.disabled =
+            false;
+
+
+        startButton.textContent =
+            "スタート";
+
+
+        if (
+            error.name
+            ===
+            "NotAllowedError"
+        ) {
+
+            alert(
+                "マイクが許可されませんでした。\nブラウザのサイト設定からマイクを許可してください。"
+            );
+
+        }
+
+        else {
+
+            alert(
+                "マイクを開始できませんでした。別のブラウザでも試してください。"
+            );
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// スタートボタン
+// ============================================================
+
+startButton.addEventListener(
+    "click",
+    startMicrophone
+);
+
+
+// ============================================================
+// 起動
+// ============================================================
+
+async function initialize() {
+
+    try {
+
+        await openDatabase();
+
+        await reloadImages();
+
+
+        clearImageElement(
+            mainImage
+        );
+
+
+        showWordImage();
+
+
+        drawBar();
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "画像保存機能を開始できませんでした。通常のブラウザで開いてください。"
+        );
+
+    }
+
+}
+
+
+initialize();
+
+</script>
+
+
+</body>
+
+</html>

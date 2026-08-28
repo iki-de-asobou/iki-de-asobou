@@ -3,6 +3,7 @@
 
 <head>
 <meta charset="utf-8">
+
 <meta
     name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover"
@@ -27,6 +28,7 @@ body {
     margin: 0;
     background: var(--bg);
     color: #111;
+
     font-family:
         "Yu Gothic",
         "Hiragino Kaku Gothic ProN",
@@ -38,10 +40,14 @@ button {
     font-family: inherit;
     font-weight: bold;
     cursor: pointer;
+
     min-height: 50px;
+
     padding: 8px 15px;
+
     border: 1px solid #888;
     border-radius: 7px;
+
     background: #f7f7f7;
 }
 
@@ -55,10 +61,16 @@ button {
 
 .main-layout {
     max-width: 1100px;
+
     margin: auto;
     padding: 20px;
+
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 210px;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        210px;
+
     gap: 28px;
 }
 
@@ -68,53 +80,72 @@ button {
 
 .title {
     display: flex;
+
     justify-content: center;
     align-items: baseline;
+
     flex-wrap: wrap;
+
     margin: 5px 0 15px;
+
     font-size: 34px;
     font-weight: bold;
 }
 
 .title-s {
     color: var(--blue);
+
     margin-left: 24px;
+
     font-size: 37px;
 }
 
 #status {
     min-height: 34px;
+
     font-size: 20px;
 }
 
 .image-box {
     width: min(100%, 650px);
+
     aspect-ratio: 10 / 7;
+
     margin: 10px auto;
+
     background: white;
+
     border: 1px solid #999;
+
     display: flex;
+
     justify-content: center;
     align-items: center;
+
     overflow: hidden;
 }
 
 .image-box img {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
 .count {
     margin-top: 12px;
+
     font-size: 19px;
     font-weight: bold;
 }
 
 .side-buttons {
     padding-top: 50px;
+
     display: flex;
+
     flex-direction: column;
+
     gap: 15px;
 }
 
@@ -122,51 +153,75 @@ button {
     font-size: 18px;
 }
 
+#displayModeButton {
+    line-height: 1.4;
+}
+
 .page {
     max-width: 1000px;
+
     margin: auto;
+
     text-align: center;
+
     padding: 30px 18px;
 }
 
 .page h1 {
     font-size: 36px;
+
     margin: 5px 0 18px;
 }
 
 .description {
     font-size: 19px;
+
     line-height: 1.7;
+
     margin: 5px;
 }
 
 .bar-area {
     position: relative;
+
     width: min(92vw, 900px);
+
     height: 250px;
+
     margin: 25px auto 5px;
+
     touch-action: none;
+
     user-select: none;
 }
 
 .bar-track {
     position: absolute;
+
     left: 0;
     right: 0;
     top: 80px;
+
     height: 90px;
 }
 
 .segment {
     position: absolute;
+
     height: 90px;
+
     top: 0;
+
     color: white;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     font-size: 22px;
     font-weight: bold;
+
     overflow: hidden;
 }
 
@@ -180,53 +235,75 @@ button {
 
 .bar-line {
     position: absolute;
+
     top: -18px;
+
     width: 5px;
     height: 126px;
+
     background: #333;
+
     transform: translateX(-2px);
 }
 
 .bar-line.middle {
     top: -22px;
+
     height: 134px;
+
     background: white;
 }
 
 .handle {
     position: absolute;
+
     top: 101px;
+
     width: 30px;
     height: 30px;
+
     min-height: 0;
+
     border-radius: 50%;
+
     border: 2px solid #333;
+
     background: white;
+
     transform: translateX(-15px);
+
     padding: 0;
+
     z-index: 10;
 }
 
 .word-box {
     cursor: pointer;
+
     touch-action: manipulation;
 }
 
 #wordPosition {
     min-height: 24px;
+
     color: #555;
 }
 
 .bottom-buttons {
     margin-top: 15px;
+
     display: flex;
+
     justify-content: center;
+
     flex-wrap: wrap;
+
     gap: 12px;
 }
 
 .bottom-buttons button {
     min-width: 145px;
+
     font-size: 16px;
 }
 
@@ -234,17 +311,22 @@ button {
 
     .main-layout {
         grid-template-columns: 1fr;
+
         padding: 12px;
     }
 
     .side-buttons {
         padding-top: 5px;
+
         display: grid;
-        grid-template-columns: 1fr 1fr;
+
+        grid-template-columns:
+            1fr 1fr;
+
         gap: 10px;
     }
 
-    .side-buttons button:last-child {
+    #displayModeButton {
         grid-column: 1 / -1;
     }
 
@@ -254,6 +336,7 @@ button {
 
     .title-s {
         margin-left: 10px;
+
         font-size: 29px;
     }
 
@@ -267,30 +350,57 @@ button {
 }
 
 </style>
+
 </head>
 
 
 <body>
 
 
-<section id="mainScreen" class="screen active">
+<!-- =========================================================
+     メイン
+========================================================= -->
+
+<section
+    id="mainScreen"
+    class="screen active"
+>
 
 <div class="main-layout">
+
 
 <div class="main-left">
 
 <div class="title">
-<span>いきで　あそぼう！</span>
-<span class="title-s">すー　すー　すー</span>
+
+<span>
+いきで　あそぼう！
+</span>
+
+<span class="title-s">
+すー　すー　すー
+</span>
+
 </div>
+
 
 <div id="status"></div>
 
+
 <div class="image-box">
-<img id="mainImage" alt="">
+
+<img
+    id="mainImage"
+    alt=""
+>
+
 </div>
 
-<div id="mainCount" class="count">
+
+<div
+    id="mainCount"
+    class="count"
+>
 登録画像：0 / 10
 </div>
 
@@ -319,7 +429,12 @@ button {
 単語
 </button>
 
+<button id="displayModeButton">
+表示モード：S音の間だけ
+</button>
+
 </div>
+
 
 </div>
 
@@ -327,7 +442,14 @@ button {
 
 
 
-<section id="vowelScreen" class="screen">
+<!-- =========================================================
+     母音後続
+========================================================= -->
+
+<section
+    id="vowelScreen"
+    class="screen"
+>
 
 <div class="page">
 
@@ -335,42 +457,92 @@ button {
 母音後続
 </h1>
 
+
 <p class="description">
 棒の左端・青と赤の境目・右端を動かせます。
 </p>
+
 
 <p class="description">
 息と声をつなげ、音節（さしすせそ）の練習をしましょう。
 </p>
 
-<div id="barArea" class="bar-area">
+
+<div
+    id="barArea"
+    class="bar-area"
+>
+
 
 <div class="bar-track">
 
-<div id="blueSegment" class="segment">
+
+<div
+    id="blueSegment"
+    class="segment"
+>
 いき
 </div>
 
-<div id="redSegment" class="segment">
+
+<div
+    id="redSegment"
+    class="segment"
+>
 こえ
 </div>
 
-<div id="leftLine" class="bar-line"></div>
-<div id="middleLine" class="bar-line middle"></div>
-<div id="rightLine" class="bar-line"></div>
 
-<button id="leftHandle" class="handle" aria-label="左端"></button>
-<button id="middleHandle" class="handle" aria-label="青と赤の境目"></button>
-<button id="rightHandle" class="handle" aria-label="右端"></button>
+<div
+    id="leftLine"
+    class="bar-line"
+></div>
+
+<div
+    id="middleLine"
+    class="bar-line middle"
+></div>
+
+<div
+    id="rightLine"
+    class="bar-line"
+></div>
+
+
+<button
+    id="leftHandle"
+    class="handle"
+    aria-label="左端"
+></button>
+
+
+<button
+    id="middleHandle"
+    class="handle"
+    aria-label="青と赤の境目"
+></button>
+
+
+<button
+    id="rightHandle"
+    class="handle"
+    aria-label="右端"
+></button>
+
 
 </div>
+
 </div>
+
 
 <div class="bottom-buttons">
+
 <button id="vowelBackButton">
 もどる
 </button>
+
 </div>
+
 
 </div>
 
@@ -378,7 +550,14 @@ button {
 
 
 
-<section id="wordScreen" class="screen">
+<!-- =========================================================
+     単語
+========================================================= -->
+
+<section
+    id="wordScreen"
+    class="screen"
+>
 
 <div class="page">
 
@@ -386,25 +565,38 @@ button {
 単語
 </h1>
 
+
 <p class="description">
 「さしすせそ」を含む単語のイラストや写真を登録してください。
 <br>
 クリックまたはタップすると順番に表示されます。
 </p>
 
+
 <div
     id="wordImageBox"
     class="image-box word-box"
     tabindex="0"
 >
-<img id="wordImage" alt="">
+
+<img
+    id="wordImage"
+    alt=""
+>
+
 </div>
 
-<div id="wordCount" class="count">
+
+<div
+    id="wordCount"
+    class="count"
+>
 登録画像：0 / 12
 </div>
 
+
 <div id="wordPosition"></div>
+
 
 <div class="bottom-buttons">
 
@@ -422,9 +614,11 @@ button {
 
 </div>
 
+
 </div>
 
 </section>
+
 
 
 <input
@@ -435,6 +629,7 @@ button {
     hidden
 >
 
+
 <input
     id="wordFileInput"
     type="file"
@@ -442,6 +637,7 @@ button {
     multiple
     hidden
 >
+
 
 
 <script>
@@ -458,19 +654,62 @@ const MAX_WORD_IMAGES = 12;
 
 
 // ============================================================
+// 表示モード
+//
+// during
+//     S音が出ている間だけ画像を表示
+//
+// untilNext
+//     S音終了後も画像を残し、
+//     次のS音で新しい画像に切り替える
+// ============================================================
+
+const DISPLAY_MODE_STORAGE_KEY =
+    "IkiDeAsobouDisplayMode";
+
+
+let displayMode =
+    localStorage.getItem(
+        DISPLAY_MODE_STORAGE_KEY
+    );
+
+
+if (
+    displayMode !== "during"
+    &&
+    displayMode !== "untilNext"
+) {
+
+    displayMode =
+        "during";
+
+}
+
+
+// ============================================================
 // S開始判定
+//
+// 完成している値は変更しない。
 // ============================================================
 
 const HIGH_RATIO_MIN = 0.38;
+
 const ZCR_MIN = 0.025;
+
 const PEAK_RATIO_LIMIT = 4.5;
+
 const PEAK_LIMIT = 0.085;
 
+
 const NORMAL_MIN_VOLUME = 0.0045;
+
 const NORMAL_REQUIRED = 2;
 
+
 const WEAK_MIN_VOLUME = 0.0035;
+
 const WEAK_REQUIRED = 4;
+
 
 const CALIBRATION_SECONDS = 1.0;
 
@@ -482,16 +721,24 @@ const CALIBRATION_SECONDS = 1.0;
 const USER_AGENT =
     navigator.userAgent || "";
 
+
 const IS_ANDROID =
-    /Android/i.test(USER_AGENT);
+    /Android/i.test(
+        USER_AGENT
+    );
+
 
 const IS_IOS =
-    /iPad|iPhone|iPod/i.test(USER_AGENT)
+    /iPad|iPhone|iPod/i.test(
+        USER_AGENT
+    )
     ||
     (
         navigator.maxTouchPoints > 1
         &&
-        /Macintosh/i.test(USER_AGENT)
+        /Macintosh/i.test(
+            USER_AGENT
+        )
     )
     ||
     (
@@ -503,53 +750,100 @@ const IS_IOS =
 
 // ============================================================
 // Android
+//
+// 現在良好なので変更しない。
 // ============================================================
 
-const ANDROID_HOLD_HIGH_RATIO_MIN = 0.30;
-const ANDROID_HOLD_ZCR_MIN = 0.018;
-const ANDROID_RELEASE_SECONDS = 0.28;
+const ANDROID_HOLD_HIGH_RATIO_MIN =
+    0.30;
+
+
+const ANDROID_HOLD_ZCR_MIN =
+    0.018;
+
+
+const ANDROID_RELEASE_SECONDS =
+    0.28;
 
 
 // ============================================================
 // PC
+//
+// 現在良好なので変更しない。
 // ============================================================
 
-const PC_HOLD_HIGH_RATIO_MIN = 0.30;
-const PC_HOLD_ZCR_MIN = 0.017;
+const PC_HOLD_HIGH_RATIO_MIN =
+    0.30;
 
-const PC_SOFT_RELEASE_SECONDS = 0.50;
-const PC_SILENCE_RELEASE_SECONDS = 0.18;
 
-const PC_ONSET_EXTRA_FRAMES = 2;
+const PC_HOLD_ZCR_MIN =
+    0.017;
+
+
+const PC_SOFT_RELEASE_SECONDS =
+    0.50;
+
+
+const PC_SILENCE_RELEASE_SECONDS =
+    0.18;
+
+
+const PC_ONSET_EXTRA_FRAMES =
+    2;
 
 
 // ============================================================
 // iPad / iPhone
+//
+// 現在良好なので変更しない。
 // ============================================================
 
-const IOS_HOLD_HIGH_RATIO_MIN = 0.30;
-const IOS_HOLD_ZCR_MIN = 0.017;
+const IOS_HOLD_HIGH_RATIO_MIN =
+    0.30;
 
-const IOS_REFERENCE_BUILD_SECONDS = 0.25;
-const IOS_RELEASE_RATIO = 0.45;
 
-const IOS_RELEASE_ABSOLUTE = 0.0028;
+const IOS_HOLD_ZCR_MIN =
+    0.017;
 
-const IOS_RELEASE_NOISE_MULTIPLIER = 1.45;
-const IOS_RELEASE_NOISE_ADD = 0.0008;
 
-const IOS_RELEASE_SECONDS = 0.15;
+const IOS_REFERENCE_BUILD_SECONDS =
+    0.25;
 
-const IOS_SPECTRAL_RELEASE_SECONDS = 0.32;
 
-const IOS_INITIAL_PROTECTION_SECONDS = 0.30;
+const IOS_RELEASE_RATIO =
+    0.45;
+
+
+const IOS_RELEASE_ABSOLUTE =
+    0.0028;
+
+
+const IOS_RELEASE_NOISE_MULTIPLIER =
+    1.45;
+
+
+const IOS_RELEASE_NOISE_ADD =
+    0.0008;
+
+
+const IOS_RELEASE_SECONDS =
+    0.15;
+
+
+const IOS_SPECTRAL_RELEASE_SECONDS =
+    0.32;
+
+
+const IOS_INITIAL_PROTECTION_SECONDS =
+    0.30;
 
 
 // ============================================================
 // 音声処理停止監視
 // ============================================================
 
-const AUDIO_STALL_MS = 1500;
+const AUDIO_STALL_MS =
+    1500;
 
 
 // ============================================================
@@ -557,43 +851,164 @@ const AUDIO_STALL_MS = 1500;
 // ============================================================
 
 const mainScreen =
-    document.getElementById("mainScreen");
+    document.getElementById(
+        "mainScreen"
+    );
+
 
 const vowelScreen =
-    document.getElementById("vowelScreen");
+    document.getElementById(
+        "vowelScreen"
+    );
+
 
 const wordScreen =
-    document.getElementById("wordScreen");
+    document.getElementById(
+        "wordScreen"
+    );
+
 
 const statusElement =
-    document.getElementById("status");
+    document.getElementById(
+        "status"
+    );
+
 
 const startButton =
-    document.getElementById("startButton");
+    document.getElementById(
+        "startButton"
+    );
+
+
+const displayModeButton =
+    document.getElementById(
+        "displayModeButton"
+    );
+
 
 const mainImage =
-    document.getElementById("mainImage");
+    document.getElementById(
+        "mainImage"
+    );
+
 
 const mainCount =
-    document.getElementById("mainCount");
+    document.getElementById(
+        "mainCount"
+    );
+
 
 const mainFileInput =
-    document.getElementById("mainFileInput");
+    document.getElementById(
+        "mainFileInput"
+    );
+
 
 const wordImage =
-    document.getElementById("wordImage");
+    document.getElementById(
+        "wordImage"
+    );
+
 
 const wordImageBox =
-    document.getElementById("wordImageBox");
+    document.getElementById(
+        "wordImageBox"
+    );
+
 
 const wordCount =
-    document.getElementById("wordCount");
+    document.getElementById(
+        "wordCount"
+    );
+
 
 const wordPosition =
-    document.getElementById("wordPosition");
+    document.getElementById(
+        "wordPosition"
+    );
+
 
 const wordFileInput =
-    document.getElementById("wordFileInput");
+    document.getElementById(
+        "wordFileInput"
+    );
+
+
+// ============================================================
+// 表示モードボタン
+// ============================================================
+
+function updateDisplayModeButton() {
+
+    if (
+        displayMode === "during"
+    ) {
+
+        displayModeButton.textContent =
+            "表示モード：S音の間だけ";
+
+    }
+
+    else {
+
+        displayModeButton.textContent =
+            "表示モード：次のS音まで";
+
+    }
+
+}
+
+
+displayModeButton.addEventListener(
+    "click",
+    function() {
+
+        if (
+            displayMode === "during"
+        ) {
+
+            displayMode =
+                "untilNext";
+
+        }
+
+        else {
+
+            displayMode =
+                "during";
+
+        }
+
+
+        localStorage.setItem(
+            DISPLAY_MODE_STORAGE_KEY,
+            displayMode
+        );
+
+
+        updateDisplayModeButton();
+
+
+        /*
+            「S音の間だけ」に切り替えた時点で
+            現在Sを出していなければ、
+            残っている画像を消す。
+        */
+
+        if (
+            displayMode === "during"
+            &&
+            !soundLatched
+        ) {
+
+            clearImageElement(
+                mainImage
+            );
+
+        }
+
+    }
+);
 
 
 // ============================================================
@@ -602,11 +1017,22 @@ const wordFileInput =
 
 function showScreen(target) {
 
-    mainScreen.classList.remove("active");
-    vowelScreen.classList.remove("active");
-    wordScreen.classList.remove("active");
+    mainScreen.classList.remove(
+        "active"
+    );
 
-    target.classList.add("active");
+    vowelScreen.classList.remove(
+        "active"
+    );
+
+    wordScreen.classList.remove(
+        "active"
+    );
+
+
+    target.classList.add(
+        "active"
+    );
 
 }
 
@@ -615,224 +1041,292 @@ function showScreen(target) {
 // IndexedDB
 // ============================================================
 
-const DB_NAME = "IkiDeAsobouDB";
-const DB_VERSION = 1;
+const DB_NAME =
+    "IkiDeAsobouDB";
 
-const STORE_MAIN = "mainImages";
-const STORE_WORD = "wordImages";
 
-let database = null;
+const DB_VERSION =
+    1;
 
-let mainImages = [];
-let wordImages = [];
 
-let wordIndex = 0;
+const STORE_MAIN =
+    "mainImages";
 
+
+const STORE_WORD =
+    "wordImages";
+
+
+let database =
+    null;
+
+
+let mainImages =
+    [];
+
+
+let wordImages =
+    [];
+
+
+let wordIndex =
+    0;
+
+
+// ============================================================
+// DBを開く
+// ============================================================
 
 function openDatabase() {
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(
+        function(resolve, reject) {
 
-        const request =
-            indexedDB.open(
-                DB_NAME,
-                DB_VERSION
-            );
-
-
-        request.onupgradeneeded =
-            function() {
-
-                const db =
-                    request.result;
-
-
-                if (
-                    !db.objectStoreNames.contains(
-                        STORE_MAIN
-                    )
-                ) {
-
-                    db.createObjectStore(
-                        STORE_MAIN,
-                        {
-                            keyPath: "id",
-                            autoIncrement: true
-                        }
-                    );
-
-                }
-
-
-                if (
-                    !db.objectStoreNames.contains(
-                        STORE_WORD
-                    )
-                ) {
-
-                    db.createObjectStore(
-                        STORE_WORD,
-                        {
-                            keyPath: "id",
-                            autoIncrement: true
-                        }
-                    );
-
-                }
-
-            };
-
-
-        request.onsuccess =
-            function() {
-
-                database =
-                    request.result;
-
-                resolve();
-
-            };
-
-
-        request.onerror =
-            function() {
-
-                reject(
-                    request.error
+            const request =
+                indexedDB.open(
+                    DB_NAME,
+                    DB_VERSION
                 );
 
-            };
 
-    });
+            request.onupgradeneeded =
+                function() {
 
-}
-
-
-function getAllImages(storeName) {
-
-    return new Promise(function(resolve, reject) {
-
-        const transaction =
-            database.transaction(
-                storeName,
-                "readonly"
-            );
+                    const db =
+                        request.result;
 
 
-        const request =
-            transaction
-                .objectStore(storeName)
-                .getAll();
+                    if (
+                        !db.objectStoreNames.contains(
+                            STORE_MAIN
+                        )
+                    ) {
 
+                        db.createObjectStore(
+                            STORE_MAIN,
+                            {
+                                keyPath: "id",
+                                autoIncrement: true
+                            }
+                        );
 
-        request.onsuccess =
-            function() {
-
-                resolve(
-                    request.result || []
-                );
-
-            };
-
-
-        request.onerror =
-            function() {
-
-                reject(
-                    request.error
-                );
-
-            };
-
-    });
-
-}
-
-
-function addImage(storeName, file) {
-
-    return new Promise(function(resolve, reject) {
-
-        const transaction =
-            database.transaction(
-                storeName,
-                "readwrite"
-            );
-
-
-        const request =
-            transaction
-                .objectStore(storeName)
-                .add(
-                    {
-                        name: file.name,
-                        type: file.type,
-                        blob: file,
-                        createdAt: Date.now()
                     }
+
+
+                    if (
+                        !db.objectStoreNames.contains(
+                            STORE_WORD
+                        )
+                    ) {
+
+                        db.createObjectStore(
+                            STORE_WORD,
+                            {
+                                keyPath: "id",
+                                autoIncrement: true
+                            }
+                        );
+
+                    }
+
+                };
+
+
+            request.onsuccess =
+                function() {
+
+                    database =
+                        request.result;
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// DB 全取得
+// ============================================================
+
+function getAllImages(
+    storeName
+) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readonly"
                 );
 
 
-        request.onsuccess =
-            function() {
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .getAll();
 
-                resolve();
 
-            };
+            request.onsuccess =
+                function() {
+
+                    resolve(
+                        request.result
+                        ||
+                        []
+                    );
+
+                };
 
 
-        request.onerror =
-            function() {
+            request.onerror =
+                function() {
 
-                reject(
-                    request.error
-                );
+                    reject(
+                        request.error
+                    );
 
-            };
+                };
 
-    });
+        }
+    );
 
 }
 
 
-function clearImages(storeName) {
+// ============================================================
+// DB 追加
+// ============================================================
 
-    return new Promise(function(resolve, reject) {
+function addImage(
+    storeName,
+    file
+) {
 
-        const transaction =
-            database.transaction(
-                storeName,
-                "readwrite"
-            );
+    return new Promise(
+        function(resolve, reject) {
 
-
-        const request =
-            transaction
-                .objectStore(storeName)
-                .clear();
-
-
-        request.onsuccess =
-            function() {
-
-                resolve();
-
-            };
-
-
-        request.onerror =
-            function() {
-
-                reject(
-                    request.error
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
                 );
 
-            };
 
-    });
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .add(
+                        {
+                            name:
+                                file.name,
+
+                            type:
+                                file.type,
+
+                            blob:
+                                file,
+
+                            createdAt:
+                                Date.now()
+                        }
+                    );
+
+
+            request.onsuccess =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
 
 }
 
+
+// ============================================================
+// DB 全削除
+// ============================================================
+
+function clearImages(
+    storeName
+) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const request =
+                transaction
+                    .objectStore(
+                        storeName
+                    )
+                    .clear();
+
+
+            request.onsuccess =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            request.onerror =
+                function() {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// 画像一覧再読込
+// ============================================================
 
 async function reloadImages() {
 
@@ -843,7 +1337,13 @@ async function reloadImages() {
             )
         ).sort(
             function(a, b) {
-                return a.id - b.id;
+
+                return (
+                    a.id
+                    -
+                    b.id
+                );
+
             }
         );
 
@@ -855,7 +1355,13 @@ async function reloadImages() {
             )
         ).sort(
             function(a, b) {
-                return a.id - b.id;
+
+                return (
+                    a.id
+                    -
+                    b.id
+                );
+
             }
         );
 
@@ -879,20 +1385,25 @@ async function reloadImages() {
 
 
 // ============================================================
-// 画像
+// 画像URL解放
 // ============================================================
 
-function revokeImageURL(imageElement) {
+function revokeImageURL(
+    imageElement
+) {
 
     const oldURL =
         imageElement.dataset.url;
 
 
-    if (oldURL) {
+    if (
+        oldURL
+    ) {
 
         URL.revokeObjectURL(
             oldURL
         );
+
 
         delete imageElement.dataset.url;
 
@@ -901,17 +1412,20 @@ function revokeImageURL(imageElement) {
 }
 
 
-function clearImageElement(imageElement) {
+// ============================================================
+// 画像消去
+//
+// iPad Safari対策として
+// src削除＋CSS非表示の両方を使う。
+// ============================================================
 
-    /*
-        iPad Safari対策。
-
-        src削除だけに頼らず、
-        CSSでも強制的に非表示にする。
-    */
+function clearImageElement(
+    imageElement
+) {
 
     imageElement.style.visibility =
         "hidden";
+
 
     imageElement.style.opacity =
         "0";
@@ -929,18 +1443,18 @@ function clearImageElement(imageElement) {
 }
 
 
+// ============================================================
+// 画像表示
+// ============================================================
+
 function displayBlob(
     imageElement,
     record
 ) {
 
-    /*
-        いったん確実に非表示にしてから
-        新しい画像を読み込む。
-    */
-
     imageElement.style.visibility =
         "hidden";
+
 
     imageElement.style.opacity =
         "0";
@@ -967,6 +1481,7 @@ function displayBlob(
             imageElement.style.visibility =
                 "visible";
 
+
             imageElement.style.opacity =
                 "1";
 
@@ -979,6 +1494,10 @@ function displayBlob(
 }
 
 
+// ============================================================
+// ランダム画像
+// ============================================================
+
 function showRandomMainImage() {
 
     if (
@@ -988,6 +1507,7 @@ function showRandomMainImage() {
         clearImageElement(
             mainImage
         );
+
 
         return;
 
@@ -1024,8 +1544,10 @@ function showWordImage() {
             wordImage
         );
 
+
         wordPosition.textContent =
             "";
+
 
         return;
 
@@ -1037,19 +1559,24 @@ function showWordImage() {
         wordImages.length
     ) {
 
-        wordIndex = 0;
+        wordIndex =
+            0;
 
     }
 
 
     displayBlob(
         wordImage,
-        wordImages[wordIndex]
+        wordImages[
+            wordIndex
+        ]
     );
 
 
     wordPosition.textContent =
-        (wordIndex + 1)
+        (
+            wordIndex + 1
+        )
         +
         " / "
         +
@@ -1057,6 +1584,10 @@ function showWordImage() {
 
 }
 
+
+// ============================================================
+// 単語 次へ
+// ============================================================
 
 function nextWordImage() {
 
@@ -1077,7 +1608,8 @@ function nextWordImage() {
         wordImages.length
     ) {
 
-        wordIndex = 0;
+        wordIndex =
+            0;
 
     }
 
@@ -1088,17 +1620,20 @@ function nextWordImage() {
 
 
 // ============================================================
-// 画像登録
+// メイン画像登録
 // ============================================================
 
 document
-    .getElementById("registerMainButton")
+    .getElementById(
+        "registerMainButton"
+    )
     .addEventListener(
         "click",
         function() {
 
             if (
-                mainImages.length >=
+                mainImages.length
+                >=
                 MAX_MAIN_IMAGES
             ) {
 
@@ -1106,17 +1641,25 @@ document
                     "画像は10枚まで登録できます。"
                 );
 
+
                 return;
 
             }
 
 
-            mainFileInput.value = "";
+            mainFileInput.value =
+                "";
+
+
             mainFileInput.click();
 
         }
     );
 
+
+// ============================================================
+// メイン画像ファイル選択
+// ============================================================
 
 mainFileInput.addEventListener(
     "change",
@@ -1137,11 +1680,13 @@ mainFileInput.addEventListener(
             );
 
 
-        let added = 0;
+        let added =
+            0;
 
 
         for (
-            const file of files
+            const file
+            of files
         ) {
 
             if (
@@ -1159,6 +1704,7 @@ mainFileInput.addEventListener(
                 STORE_MAIN,
                 file
             );
+
 
             added++;
 
@@ -1184,8 +1730,14 @@ mainFileInput.addEventListener(
 );
 
 
+// ============================================================
+// メイン画像クリア
+// ============================================================
+
 document
-    .getElementById("clearMainButton")
+    .getElementById(
+        "clearMainButton"
+    )
     .addEventListener(
         "click",
         async function() {
@@ -1214,7 +1766,9 @@ document
                 STORE_MAIN
             );
 
+
             await reloadImages();
+
 
             clearImageElement(
                 mainImage
@@ -1224,14 +1778,21 @@ document
     );
 
 
+// ============================================================
+// 単語画像登録
+// ============================================================
+
 document
-    .getElementById("registerWordButton")
+    .getElementById(
+        "registerWordButton"
+    )
     .addEventListener(
         "click",
         function() {
 
             if (
-                wordImages.length >=
+                wordImages.length
+                >=
                 MAX_WORD_IMAGES
             ) {
 
@@ -1239,17 +1800,25 @@ document
                     "画像は12枚まで登録できます。"
                 );
 
+
                 return;
 
             }
 
 
-            wordFileInput.value = "";
+            wordFileInput.value =
+                "";
+
+
             wordFileInput.click();
 
         }
     );
 
+
+// ============================================================
+// 単語ファイル選択
+// ============================================================
 
 wordFileInput.addEventListener(
     "change",
@@ -1275,7 +1844,8 @@ wordFileInput.addEventListener(
 
 
         for (
-            const file of files
+            const file
+            of files
         ) {
 
             if (
@@ -1306,7 +1876,8 @@ wordFileInput.addEventListener(
             wordImages.length > 0
         ) {
 
-            wordIndex = 0;
+            wordIndex =
+                0;
 
         }
 
@@ -1317,8 +1888,14 @@ wordFileInput.addEventListener(
 );
 
 
+// ============================================================
+// 単語画像クリア
+// ============================================================
+
 document
-    .getElementById("clearWordButton")
+    .getElementById(
+        "clearWordButton"
+    )
     .addEventListener(
         "click",
         async function() {
@@ -1347,15 +1924,23 @@ document
                 STORE_WORD
             );
 
-            wordIndex = 0;
+
+            wordIndex =
+                0;
+
 
             await reloadImages();
+
 
             showWordImage();
 
         }
     );
 
+
+// ============================================================
+// 単語クリック
+// ============================================================
 
 wordImageBox.addEventListener(
     "click",
@@ -1368,7 +1953,9 @@ wordImageBox.addEventListener(
 // ============================================================
 
 document
-    .getElementById("vowelButton")
+    .getElementById(
+        "vowelButton"
+    )
     .addEventListener(
         "click",
         function() {
@@ -1376,6 +1963,7 @@ document
             showScreen(
                 vowelScreen
             );
+
 
             requestAnimationFrame(
                 drawBar
@@ -1386,14 +1974,19 @@ document
 
 
 document
-    .getElementById("wordButton")
+    .getElementById(
+        "wordButton"
+    )
     .addEventListener(
         "click",
         function() {
 
-            wordIndex = 0;
+            wordIndex =
+                0;
+
 
             showWordImage();
+
 
             showScreen(
                 wordScreen
@@ -1404,7 +1997,9 @@ document
 
 
 document
-    .getElementById("vowelBackButton")
+    .getElementById(
+        "vowelBackButton"
+    )
     .addEventListener(
         "click",
         function() {
@@ -1418,7 +2013,9 @@ document
 
 
 document
-    .getElementById("wordBackButton")
+    .getElementById(
+        "wordBackButton"
+    )
     .addEventListener(
         "click",
         function() {
@@ -1436,39 +2033,78 @@ document
 // ============================================================
 
 const barArea =
-    document.getElementById("barArea");
+    document.getElementById(
+        "barArea"
+    );
+
 
 const blueSegment =
-    document.getElementById("blueSegment");
+    document.getElementById(
+        "blueSegment"
+    );
+
 
 const redSegment =
-    document.getElementById("redSegment");
+    document.getElementById(
+        "redSegment"
+    );
+
 
 const leftLine =
-    document.getElementById("leftLine");
+    document.getElementById(
+        "leftLine"
+    );
+
 
 const middleLine =
-    document.getElementById("middleLine");
+    document.getElementById(
+        "middleLine"
+    );
+
 
 const rightLine =
-    document.getElementById("rightLine");
+    document.getElementById(
+        "rightLine"
+    );
+
 
 const leftHandle =
-    document.getElementById("leftHandle");
+    document.getElementById(
+        "leftHandle"
+    );
+
 
 const middleHandle =
-    document.getElementById("middleHandle");
+    document.getElementById(
+        "middleHandle"
+    );
+
 
 const rightHandle =
-    document.getElementById("rightHandle");
+    document.getElementById(
+        "rightHandle"
+    );
 
 
-let barLeft = 0.15;
-let barMiddle = 0.50;
-let barRight = 0.85;
+let barLeft =
+    0.15;
 
-let dragging = null;
 
+let barMiddle =
+    0.50;
+
+
+let barRight =
+    0.85;
+
+
+let dragging =
+    null;
+
+
+// ============================================================
+// バー描画
+// ============================================================
 
 function drawBar() {
 
@@ -1483,51 +2119,89 @@ function drawBar() {
 
 
     const left =
-        barLeft * width;
+        barLeft
+        *
+        width;
+
 
     const middle =
-        barMiddle * width;
+        barMiddle
+        *
+        width;
+
 
     const right =
-        barRight * width;
+        barRight
+        *
+        width;
 
 
     blueSegment.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     blueSegment.style.width =
-        (middle - left)
+        (
+            middle
+            -
+            left
+        )
         +
         "px";
 
 
     redSegment.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     redSegment.style.width =
-        (right - middle)
+        (
+            right
+            -
+            middle
+        )
         +
         "px";
 
 
     leftLine.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     middleLine.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     rightLine.style.left =
-        right + "px";
+        right
+        +
+        "px";
 
 
     leftHandle.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     middleHandle.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     rightHandle.style.left =
-        right + "px";
+        right
+        +
+        "px";
 
 
     blueSegment.textContent =
@@ -1552,6 +2226,10 @@ function drawBar() {
 }
 
 
+// ============================================================
+// バー最小幅
+// ============================================================
+
 function minimumBarWidth() {
 
     const width =
@@ -1569,7 +2247,13 @@ function minimumBarWidth() {
 }
 
 
-function nearestHandle(clientX) {
+// ============================================================
+// 最寄りハンドル
+// ============================================================
+
+function nearestHandle(
+    clientX
+) {
 
     const track =
         document.querySelector(
@@ -1589,6 +2273,7 @@ function nearestHandle(clientX) {
 
     const values =
         {
+
             left:
                 Math.abs(
                     x
@@ -1615,21 +2300,36 @@ function nearestHandle(clientX) {
                     *
                     rect.width
                 )
+
         };
 
 
     return Object
-        .entries(values)
+        .entries(
+            values
+        )
         .sort(
             function(a, b) {
-                return a[1] - b[1];
+
+                return (
+                    a[1]
+                    -
+                    b[1]
+                );
+
             }
         )[0][0];
 
 }
 
 
-function moveBar(clientX) {
+// ============================================================
+// バー移動
+// ============================================================
+
+function moveBar(
+    clientX
+) {
 
     if (
         dragging === null
@@ -1681,8 +2381,10 @@ function moveBar(clientX) {
         barLeft =
             Math.max(
                 0.02,
+
                 Math.min(
                     x,
+
                     barMiddle
                     -
                     minimum
@@ -1704,6 +2406,7 @@ function moveBar(clientX) {
 
                 Math.min(
                     x,
+
                     barRight
                     -
                     minimum
@@ -1723,6 +2426,7 @@ function moveBar(clientX) {
 
                 Math.max(
                     x,
+
                     barMiddle
                     +
                     minimum
@@ -1736,6 +2440,10 @@ function moveBar(clientX) {
 
 }
 
+
+// ============================================================
+// バー Pointer
+// ============================================================
 
 barArea.addEventListener(
     "pointerdown",
@@ -1786,6 +2494,7 @@ barArea.addEventListener(
             event.clientX
         );
 
+
         event.preventDefault();
 
     }
@@ -1796,7 +2505,8 @@ barArea.addEventListener(
     "pointerup",
     function() {
 
-        dragging = null;
+        dragging =
+            null;
 
     }
 );
@@ -1806,7 +2516,8 @@ barArea.addEventListener(
     "pointercancel",
     function() {
 
-        dragging = null;
+        dragging =
+            null;
 
     }
 );
@@ -1822,89 +2533,192 @@ window.addEventListener(
 // Audio状態
 // ============================================================
 
-let audioContext = null;
-let mediaStream = null;
-
-let sourceNode = null;
-let processorNode = null;
-let muteNode = null;
-
-let sampleQueue = [];
-let queueOffset = 0;
-
-let frameSize = 735;
-
-let calibrationFramesNeeded = 60;
-
-let androidReleaseFramesNeeded = 17;
-
-let pcSoftReleaseFramesNeeded = 30;
-let pcSilenceFramesNeeded = 11;
-
-let iosReferenceBuildFramesNeeded = 15;
-let iosReleaseFramesNeeded = 9;
-let iosSpectralReleaseFramesNeeded = 19;
-let iosInitialProtectionFramesNeeded = 18;
+let audioContext =
+    null;
 
 
-let calibrating = false;
+let mediaStream =
+    null;
 
-let calibrationVolumes = [];
 
-let noiseFloor = 0;
+let sourceNode =
+    null;
+
+
+let processorNode =
+    null;
+
+
+let muteNode =
+    null;
+
+
+let sampleQueue =
+    [];
+
+
+let queueOffset =
+    0;
+
+
+let frameSize =
+    735;
+
+
+let calibrationFramesNeeded =
+    60;
+
+
+let androidReleaseFramesNeeded =
+    17;
+
+
+let pcSoftReleaseFramesNeeded =
+    30;
+
+
+let pcSilenceFramesNeeded =
+    11;
+
+
+let iosReferenceBuildFramesNeeded =
+    15;
+
+
+let iosReleaseFramesNeeded =
+    9;
+
+
+let iosSpectralReleaseFramesNeeded =
+    19;
+
+
+let iosInitialProtectionFramesNeeded =
+    18;
+
+
+let calibrating =
+    false;
+
+
+let calibrationVolumes =
+    [];
+
+
+let noiseFloor =
+    0;
+
 
 let normalDynamicMin =
     NORMAL_MIN_VOLUME;
+
 
 let weakDynamicMin =
     WEAK_MIN_VOLUME;
 
 
-let normalCount = 0;
-let weakCount = 0;
-
-let soundLatched = false;
-
-let releaseCount = 0;
-let silenceCount = 0;
+let normalCount =
+    0;
 
 
-let pcPendingOnset = false;
-let pcOnsetConfirmCount = 0;
+let weakCount =
+    0;
 
 
-let iosReferenceVolume = 0;
-let iosActiveFrameCount = 0;
+let soundLatched =
+    false;
 
 
-let lastAudioCallbackTime = 0;
+let releaseCount =
+    0;
 
-let watchdogTimer = null;
 
-let rebuildingGraph = false;
+let silenceCount =
+    0;
+
+
+// PC
+
+let pcPendingOnset =
+    false;
+
+
+let pcOnsetConfirmCount =
+    0;
+
+
+// iPad
+
+let iosReferenceVolume =
+    0;
+
+
+let iosActiveFrameCount =
+    0;
+
+
+// Watchdog
+
+let lastAudioCallbackTime =
+    0;
+
+
+let watchdogTimer =
+    null;
+
+
+let rebuildingGraph =
+    false;
 
 
 // ============================================================
-// リセット
+// 認識状態だけリセット
+//
+// hideImage = true
+//     画像も消す
+//
+// hideImage = false
+//     音声認識状態だけ戻して画像を残す
 // ============================================================
 
 function resetRecognitionState(
     hideImage = true
 ) {
 
-    normalCount = 0;
-    weakCount = 0;
+    normalCount =
+        0;
 
-    releaseCount = 0;
-    silenceCount = 0;
 
-    pcPendingOnset = false;
-    pcOnsetConfirmCount = 0;
+    weakCount =
+        0;
 
-    iosReferenceVolume = 0;
-    iosActiveFrameCount = 0;
 
-    soundLatched = false;
+    releaseCount =
+        0;
+
+
+    silenceCount =
+        0;
+
+
+    pcPendingOnset =
+        false;
+
+
+    pcOnsetConfirmCount =
+        0;
+
+
+    iosReferenceVolume =
+        0;
+
+
+    iosActiveFrameCount =
+        0;
+
+
+    soundLatched =
+        false;
 
 
     if (
@@ -1921,12 +2735,42 @@ function resetRecognitionState(
 
 
 // ============================================================
+// 1回のS発声が終了した時
+//
+// ★今回のモード切替の中心部分
+//
+// 「S音の間だけ」
+//     →画像を消す
+//
+// 「次のS音まで」
+//     →認識だけリセットして画像を残す
+// ============================================================
+
+function finishCurrentS() {
+
+    const hideImage =
+        (
+            displayMode === "during"
+        );
+
+
+    resetRecognitionState(
+        hideImage
+    );
+
+}
+
+
+// ============================================================
 // RMS
 // ============================================================
 
-function calculateRMS(samples) {
+function calculateRMS(
+    samples
+) {
 
-    let total = 0;
+    let total =
+        0;
 
 
     for (
@@ -1956,13 +2800,17 @@ function calculateRMS(samples) {
 // Peak
 // ============================================================
 
-function calculatePeak(samples) {
+function calculatePeak(
+    samples
+) {
 
-    let peak = 0;
+    let peak =
+        0;
 
 
     for (
-        const value of samples
+        const value
+        of samples
     ) {
 
         const absolute =
@@ -1975,7 +2823,8 @@ function calculatePeak(samples) {
             absolute > peak
         ) {
 
-            peak = absolute;
+            peak =
+                absolute;
 
         }
 
@@ -1991,9 +2840,12 @@ function calculatePeak(samples) {
 // ZCR
 // ============================================================
 
-function calculateZCR(samples) {
+function calculateZCR(
+    samples
+) {
 
-    let count = 0;
+    let count =
+        0;
 
 
     for (
@@ -2003,10 +2855,15 @@ function calculateZCR(samples) {
     ) {
 
         const before =
-            samples[i - 1];
+            samples[
+                i - 1
+            ];
+
 
         const now =
-            samples[i];
+            samples[
+                i
+            ];
 
 
         if (
@@ -2043,16 +2900,20 @@ function calculateZCR(samples) {
 // FFT
 // ============================================================
 
-function nextPowerOfTwo(number) {
+function nextPowerOfTwo(
+    number
+) {
 
-    let value = 1;
+    let value =
+        1;
 
 
     while (
         value < number
     ) {
 
-        value *= 2;
+        value *=
+            2;
 
     }
 
@@ -2062,7 +2923,13 @@ function nextPowerOfTwo(number) {
 }
 
 
-function fftMagnitudes(samples) {
+// ============================================================
+// FFT Magnitude
+// ============================================================
+
+function fftMagnitudes(
+    samples
+) {
 
     const size =
         nextPowerOfTwo(
@@ -2094,7 +2961,8 @@ function fftMagnitudes(samples) {
     }
 
 
-    let j = 0;
+    let j =
+        0;
 
 
     for (
@@ -2111,14 +2979,18 @@ function fftMagnitudes(samples) {
             j & bit
         ) {
 
-            j ^= bit;
+            j ^=
+                bit;
 
-            bit >>= 1;
+
+            bit >>=
+                1;
 
         }
 
 
-        j ^= bit;
+        j ^=
+            bit;
 
 
         if (
@@ -2128,8 +3000,10 @@ function fftMagnitudes(samples) {
             const tempReal =
                 real[i];
 
+
             real[i] =
                 real[j];
+
 
             real[j] =
                 tempReal;
@@ -2138,8 +3012,10 @@ function fftMagnitudes(samples) {
             const tempImag =
                 imaginary[i];
 
+
             imaginary[i] =
                 imaginary[j];
+
 
             imaginary[j] =
                 tempImag;
@@ -2181,8 +3057,12 @@ function fftMagnitudes(samples) {
             i += length
         ) {
 
-            let wCos = 1;
-            let wSin = 0;
+            let wCos =
+                1;
+
+
+            let wSin =
+                0;
 
 
             for (
@@ -2192,10 +3072,16 @@ function fftMagnitudes(samples) {
             ) {
 
                 const firstReal =
-                    real[i + k];
+                    real[
+                        i + k
+                    ];
+
 
                 const firstImag =
-                    imaginary[i + k];
+                    imaginary[
+                        i + k
+                    ];
+
 
                 const index2 =
                     i
@@ -2206,44 +3092,60 @@ function fftMagnitudes(samples) {
 
 
                 const secondReal =
-                    real[index2]
+                    real[
+                        index2
+                    ]
                     *
                     wCos
                     -
-                    imaginary[index2]
+                    imaginary[
+                        index2
+                    ]
                     *
                     wSin;
 
 
                 const secondImag =
-                    real[index2]
+                    real[
+                        index2
+                    ]
                     *
                     wSin
                     +
-                    imaginary[index2]
+                    imaginary[
+                        index2
+                    ]
                     *
                     wCos;
 
 
-                real[i + k] =
+                real[
+                    i + k
+                ] =
                     firstReal
                     +
                     secondReal;
 
 
-                imaginary[i + k] =
+                imaginary[
+                    i + k
+                ] =
                     firstImag
                     +
                     secondImag;
 
 
-                real[index2] =
+                real[
+                    index2
+                ] =
                     firstReal
                     -
                     secondReal;
 
 
-                imaginary[index2] =
+                imaginary[
+                    index2
+                ] =
                     firstImag
                     -
                     secondImag;
@@ -2271,6 +3173,7 @@ function fftMagnitudes(samples) {
 
                 wCos =
                     nextCos;
+
 
                 wSin =
                     nextSin;
@@ -2304,11 +3207,13 @@ function fftMagnitudes(samples) {
 
 
     return {
+
         magnitudes:
             magnitudes,
 
         fftSize:
             size
+
     };
 
 }
@@ -2318,7 +3223,9 @@ function fftMagnitudes(samples) {
 // 分析
 // ============================================================
 
-function analyzeFrame(samples) {
+function analyzeFrame(
+    samples
+) {
 
     const volume =
         calculateRMS(
@@ -2344,8 +3251,12 @@ function analyzeFrame(samples) {
         );
 
 
-    let total = 0;
-    let high = 0;
+    let total =
+        0;
+
+
+    let high =
+        0;
 
 
     for (
@@ -2355,10 +3266,13 @@ function analyzeFrame(samples) {
     ) {
 
         const magnitude =
-            fft.magnitudes[i];
+            fft.magnitudes[
+                i
+            ];
 
 
-        total += magnitude;
+        total +=
+            magnitude;
 
 
         const frequency =
@@ -2373,7 +3287,8 @@ function analyzeFrame(samples) {
             frequency >= 3000
         ) {
 
-            high += magnitude;
+            high +=
+                magnitude;
 
         }
 
@@ -2389,6 +3304,7 @@ function analyzeFrame(samples) {
 
 
     return {
+
         volume:
             volume,
 
@@ -2400,19 +3316,23 @@ function analyzeFrame(samples) {
 
         highRatio:
             highRatio
+
     };
 
 }
 
 
 // ============================================================
-// S開始判定
+// S共通判定
 // ============================================================
 
-function commonSFeatures(result) {
+function commonSFeatures(
+    result
+) {
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         HIGH_RATIO_MIN
     ) {
 
@@ -2422,7 +3342,8 @@ function commonSFeatures(result) {
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         ZCR_MIN
     ) {
 
@@ -2442,7 +3363,8 @@ function commonSFeatures(result) {
 
 
     if (
-        peakRatio >
+        peakRatio
+        >
         PEAK_RATIO_LIMIT
     ) {
 
@@ -2452,7 +3374,8 @@ function commonSFeatures(result) {
 
 
     if (
-        result.peak >
+        result.peak
+        >
         PEAK_LIMIT
     ) {
 
@@ -2466,10 +3389,17 @@ function commonSFeatures(result) {
 }
 
 
-function normalS(result) {
+// ============================================================
+// 通常S
+// ============================================================
+
+function normalS(
+    result
+) {
 
     if (
-        result.volume <
+        result.volume
+        <
         normalDynamicMin
     ) {
 
@@ -2485,10 +3415,17 @@ function normalS(result) {
 }
 
 
-function weakS(result) {
+// ============================================================
+// 弱いS
+// ============================================================
+
+function weakS(
+    result
+) {
 
     if (
-        result.volume <
+        result.volume
+        <
         weakDynamicMin
     ) {
 
@@ -2508,7 +3445,9 @@ function weakS(result) {
 // PC追加確認
 // ============================================================
 
-function pcOnsetContinuation(result) {
+function pcOnsetContinuation(
+    result
+) {
 
     const minimumVolume =
         Math.max(
@@ -2519,7 +3458,8 @@ function pcOnsetContinuation(result) {
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -2529,7 +3469,9 @@ function pcOnsetContinuation(result) {
 
 
     if (
-        result.highRatio < 0.32
+        result.highRatio
+        <
+        0.32
     ) {
 
         return false;
@@ -2538,7 +3480,9 @@ function pcOnsetContinuation(result) {
 
 
     if (
-        result.zcr < 0.018
+        result.zcr
+        <
+        0.018
     ) {
 
         return false;
@@ -2583,7 +3527,9 @@ function pcOnsetContinuation(result) {
 // Android継続
 // ============================================================
 
-function holdSAndroid(result) {
+function holdSAndroid(
+    result
+) {
 
     const minimumVolume =
         Math.max(
@@ -2594,7 +3540,8 @@ function holdSAndroid(result) {
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -2604,7 +3551,8 @@ function holdSAndroid(result) {
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         ANDROID_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -2614,7 +3562,8 @@ function holdSAndroid(result) {
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         ANDROID_HOLD_ZCR_MIN
     ) {
 
@@ -2626,7 +3575,9 @@ function holdSAndroid(result) {
     const peakRatio =
         result.volume > 0
         ?
-        result.peak / result.volume
+        result.peak
+        /
+        result.volume
         :
         999;
 
@@ -2658,7 +3609,9 @@ function holdSAndroid(result) {
 // PC継続
 // ============================================================
 
-function holdSPC(result) {
+function holdSPC(
+    result
+) {
 
     const minimumVolume =
         Math.max(
@@ -2669,7 +3622,8 @@ function holdSPC(result) {
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -2679,7 +3633,8 @@ function holdSPC(result) {
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         PC_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -2689,7 +3644,8 @@ function holdSPC(result) {
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         PC_HOLD_ZCR_MIN
     ) {
 
@@ -2703,7 +3659,13 @@ function holdSPC(result) {
 }
 
 
-function pcClearlySilent(result) {
+// ============================================================
+// PC明確な無音
+// ============================================================
+
+function pcClearlySilent(
+    result
+) {
 
     const threshold =
         Math.max(
@@ -2714,7 +3676,8 @@ function pcClearlySilent(result) {
 
 
     return (
-        result.volume <
+        result.volume
+        <
         threshold
     );
 
@@ -2722,10 +3685,12 @@ function pcClearlySilent(result) {
 
 
 // ============================================================
-// iPad 継続
+// iPad継続
 // ============================================================
 
-function holdSIOS(result) {
+function holdSIOS(
+    result
+) {
 
     const minimumVolume =
         Math.max(
@@ -2736,7 +3701,8 @@ function holdSIOS(result) {
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -2746,7 +3712,8 @@ function holdSIOS(result) {
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         IOS_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -2756,7 +3723,8 @@ function holdSIOS(result) {
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         IOS_HOLD_ZCR_MIN
     ) {
 
@@ -2803,7 +3771,7 @@ function iosReleaseVolumeThreshold() {
 
 
 // ============================================================
-// キャリブレーション
+// キャリブレーション終了
 // ============================================================
 
 function finishCalibration() {
@@ -2813,7 +3781,13 @@ function finishCalibration() {
             ...calibrationVolumes
         ].sort(
             function(a, b) {
-                return a - b;
+
+                return (
+                    a
+                    -
+                    b
+                );
+
             }
         );
 
@@ -2825,7 +3799,9 @@ function finishCalibration() {
         noiseFloor =
             values[
                 Math.floor(
-                    values.length / 2
+                    values.length
+                    /
+                    2
                 )
             ];
 
@@ -2833,7 +3809,8 @@ function finishCalibration() {
 
     else {
 
-        noiseFloor = 0;
+        noiseFloor =
+            0;
 
     }
 
@@ -2875,7 +3852,9 @@ function finishCalibration() {
         );
 
 
-    calibrating = false;
+    calibrating =
+        false;
+
 
     statusElement.textContent =
         "";
@@ -2885,27 +3864,55 @@ function finishCalibration() {
 
 // ============================================================
 // S開始確定
+//
+// 「次のS音まで」モードでも、
+// ここで新しい画像に切り替わる。
 // ============================================================
 
-function latchS(result) {
+function latchS(
+    result
+) {
 
-    soundLatched = true;
+    soundLatched =
+        true;
 
-    normalCount = 0;
-    weakCount = 0;
 
-    releaseCount = 0;
-    silenceCount = 0;
+    normalCount =
+        0;
 
-    pcPendingOnset = false;
-    pcOnsetConfirmCount = 0;
+
+    weakCount =
+        0;
+
+
+    releaseCount =
+        0;
+
+
+    silenceCount =
+        0;
+
+
+    pcPendingOnset =
+        false;
+
+
+    pcOnsetConfirmCount =
+        0;
 
 
     iosReferenceVolume =
         result.volume;
 
-    iosActiveFrameCount = 0;
 
+    iosActiveFrameCount =
+        0;
+
+
+    /*
+        新しいSを検出するたび、
+        新しいランダム画像を表示。
+    */
 
     showRandomMainImage();
 
@@ -2913,10 +3920,16 @@ function latchS(result) {
 
 
 // ============================================================
-// 判定
+// 音声判定
 // ============================================================
 
-function processResult(result) {
+function processResult(
+    result
+) {
+
+    // --------------------------------------------------------
+    // キャリブレーション
+    // --------------------------------------------------------
 
     if (
         calibrating
@@ -2928,7 +3941,8 @@ function processResult(result) {
 
 
         if (
-            calibrationVolumes.length >=
+            calibrationVolumes.length
+            >=
             calibrationFramesNeeded
         ) {
 
@@ -2943,12 +3957,16 @@ function processResult(result) {
 
 
     // ========================================================
-    // 画像なし
+    // 現在Sを検出していない
     // ========================================================
 
     if (
         !soundLatched
     ) {
+
+        // ----------------------------------------------------
+        // PC追加確認
+        // ----------------------------------------------------
 
         if (
             !IS_ANDROID
@@ -2968,7 +3986,8 @@ function processResult(result) {
 
 
                 if (
-                    pcOnsetConfirmCount >=
+                    pcOnsetConfirmCount
+                    >=
                     PC_ONSET_EXTRA_FRAMES
                 ) {
 
@@ -2982,11 +4001,20 @@ function processResult(result) {
 
             else {
 
-                pcPendingOnset = false;
-                pcOnsetConfirmCount = 0;
+                pcPendingOnset =
+                    false;
 
-                normalCount = 0;
-                weakCount = 0;
+
+                pcOnsetConfirmCount =
+                    0;
+
+
+                normalCount =
+                    0;
+
+
+                weakCount =
+                    0;
 
             }
 
@@ -3018,7 +4046,8 @@ function processResult(result) {
 
         else {
 
-            normalCount = 0;
+            normalCount =
+                0;
 
         }
 
@@ -3033,18 +4062,21 @@ function processResult(result) {
 
         else {
 
-            weakCount = 0;
+            weakCount =
+                0;
 
         }
 
 
         const normalSuccess =
-            normalCount >=
+            normalCount
+            >=
             NORMAL_REQUIRED;
 
 
         const weakSuccess =
-            weakCount >=
+            weakCount
+            >=
             WEAK_REQUIRED;
 
 
@@ -3054,19 +4086,32 @@ function processResult(result) {
             weakSuccess
         ) {
 
+            // ------------------------------------------------
+            // PCだけ追加確認
+            // ------------------------------------------------
+
             if (
                 !IS_ANDROID
                 &&
                 !IS_IOS
             ) {
 
-                pcPendingOnset = true;
-                pcOnsetConfirmCount = 0;
+                pcPendingOnset =
+                    true;
+
+
+                pcOnsetConfirmCount =
+                    0;
+
 
                 return;
 
             }
 
+
+            // ------------------------------------------------
+            // Android / iPad
+            // ------------------------------------------------
 
             latchS(
                 result
@@ -3094,7 +4139,9 @@ function processResult(result) {
             )
         ) {
 
-            releaseCount = 0;
+            releaseCount =
+                0;
+
 
             return;
 
@@ -3105,13 +4152,17 @@ function processResult(result) {
 
 
         if (
-            releaseCount >=
+            releaseCount
+            >=
             androidReleaseFramesNeeded
         ) {
 
-            resetRecognitionState(
-                true
-            );
+            /*
+                ★表示モードに応じて
+                画像を消す／残す。
+            */
+
+            finishCurrentS();
 
         }
 
@@ -3132,13 +4183,20 @@ function processResult(result) {
         iosActiveFrameCount++;
 
 
+        /*
+            S開始後最初の0.25秒だけ
+            基準音量を上方向へ更新。
+        */
+
         if (
-            iosActiveFrameCount <=
+            iosActiveFrameCount
+            <=
             iosReferenceBuildFramesNeeded
         ) {
 
             if (
-                result.volume >
+                result.volume
+                >
                 iosReferenceVolume
             ) {
 
@@ -3150,8 +4208,13 @@ function processResult(result) {
         }
 
 
+        /*
+            初期保護。
+        */
+
         if (
-            iosActiveFrameCount <=
+            iosActiveFrameCount
+            <=
             iosInitialProtectionFramesNeeded
         ) {
 
@@ -3165,7 +4228,8 @@ function processResult(result) {
 
 
         if (
-            result.volume <
+            result.volume
+            <
             releaseVolume
         ) {
 
@@ -3175,19 +4239,24 @@ function processResult(result) {
 
         else {
 
-            silenceCount = 0;
+            silenceCount =
+                0;
 
         }
 
 
         if (
-            silenceCount >=
+            silenceCount
+            >=
             iosReleaseFramesNeeded
         ) {
 
-            resetRecognitionState(
-                true
-            );
+            /*
+                ★iPadも同じモード切替。
+            */
+
+            finishCurrentS();
+
 
             return;
 
@@ -3200,7 +4269,8 @@ function processResult(result) {
             )
         ) {
 
-            releaseCount = 0;
+            releaseCount =
+                0;
 
         }
 
@@ -3212,13 +4282,17 @@ function processResult(result) {
 
 
         if (
-            releaseCount >=
+            releaseCount
+            >=
             iosSpectralReleaseFramesNeeded
         ) {
 
-            resetRecognitionState(
-                true
-            );
+            /*
+                ★こちらの終了経路でも
+                同じモード切替。
+            */
+
+            finishCurrentS();
 
         }
 
@@ -3244,19 +4318,24 @@ function processResult(result) {
 
     else {
 
-        silenceCount = 0;
+        silenceCount =
+            0;
 
     }
 
 
     if (
-        silenceCount >=
+        silenceCount
+        >=
         pcSilenceFramesNeeded
     ) {
 
-        resetRecognitionState(
-            true
-        );
+        /*
+            ★PCも同じモード切替。
+        */
+
+        finishCurrentS();
+
 
         return;
 
@@ -3269,7 +4348,9 @@ function processResult(result) {
         )
     ) {
 
-        releaseCount = 0;
+        releaseCount =
+            0;
+
 
         return;
 
@@ -3280,13 +4361,17 @@ function processResult(result) {
 
 
     if (
-        releaseCount >=
+        releaseCount
+        >=
         pcSoftReleaseFramesNeeded
     ) {
 
-        resetRecognitionState(
-            true
-        );
+        /*
+            ★PCの弱いS保持後の終了でも
+            同じモード切替。
+        */
+
+        finishCurrentS();
 
     }
 
@@ -3294,10 +4379,12 @@ function processResult(result) {
 
 
 // ============================================================
-// 音声フレーム
+// 音声サンプル追加
 // ============================================================
 
-function addSamples(input) {
+function addSamples(
+    input
+) {
 
     for (
         let i = 0;
@@ -3334,7 +4421,9 @@ function addSamples(input) {
 
             frame[i] =
                 sampleQueue[
-                    queueOffset + i
+                    queueOffset
+                    +
+                    i
                 ];
 
         }
@@ -3366,7 +4455,9 @@ function addSamples(input) {
                 queueOffset
             );
 
-        queueOffset = 0;
+
+        queueOffset =
+            0;
 
     }
 
@@ -3374,7 +4465,7 @@ function addSamples(input) {
 
 
 // ============================================================
-// Audio graph
+// Audio Graph切断
 // ============================================================
 
 function disconnectAudioGraph() {
@@ -3387,6 +4478,7 @@ function disconnectAudioGraph() {
 
             processorNode.onaudioprocess =
                 null;
+
 
             processorNode.disconnect();
 
@@ -3427,12 +4519,23 @@ function disconnectAudioGraph() {
     catch (error) {}
 
 
-    processorNode = null;
-    sourceNode = null;
-    muteNode = null;
+    processorNode =
+        null;
+
+
+    sourceNode =
+        null;
+
+
+    muteNode =
+        null;
 
 }
 
+
+// ============================================================
+// Audio Graph作成
+// ============================================================
 
 function buildAudioGraph() {
 
@@ -3533,22 +4636,33 @@ async function rebuildAudioGraph() {
     }
 
 
-    rebuildingGraph = true;
+    rebuildingGraph =
+        true;
 
+
+    /*
+        Audio自体の異常なので、
+        モードに関係なく画像も一度消す。
+    */
 
     resetRecognitionState(
         true
     );
 
 
-    sampleQueue = [];
-    queueOffset = 0;
+    sampleQueue =
+        [];
+
+
+    queueOffset =
+        0;
 
 
     try {
 
         if (
-            audioContext.state ===
+            audioContext.state
+            ===
             "suspended"
         ) {
 
@@ -3576,7 +4690,8 @@ async function rebuildAudioGraph() {
     }
 
 
-    rebuildingGraph = false;
+    rebuildingGraph =
+        false;
 
 }
 
@@ -3614,7 +4729,8 @@ function startWatchdog() {
 
 
                 if (
-                    audioContext.state ===
+                    audioContext.state
+                    ===
                     "suspended"
                 ) {
 
@@ -3636,7 +4752,8 @@ function startWatchdog() {
 
 
                 if (
-                    elapsed >
+                    elapsed
+                    >
                     AUDIO_STALL_MS
                 ) {
 
@@ -3660,7 +4777,8 @@ document.addEventListener(
     async function() {
 
         if (
-            document.visibilityState !==
+            document.visibilityState
+            !==
             "visible"
         ) {
 
@@ -3681,7 +4799,8 @@ document.addEventListener(
         try {
 
             if (
-                audioContext.state ===
+                audioContext.state
+                ===
                 "suspended"
             ) {
 
@@ -3693,6 +4812,11 @@ document.addEventListener(
 
         catch (error) {}
 
+
+        /*
+            タブ復帰時は安全のため
+            モードに関係なく一度画像を消す。
+        */
 
         resetRecognitionState(
             true
@@ -3716,7 +4840,9 @@ function stopExistingMicrophone() {
             watchdogTimer
         );
 
-        watchdogTimer = null;
+
+        watchdogTimer =
+            null;
 
     }
 
@@ -3741,7 +4867,8 @@ function stopExistingMicrophone() {
                 );
 
 
-            mediaStream = null;
+            mediaStream =
+                null;
 
         }
 
@@ -3758,7 +4885,9 @@ function stopExistingMicrophone() {
 
             audioContext.close();
 
-            audioContext = null;
+
+            audioContext =
+                null;
 
         }
 
@@ -3775,9 +4904,12 @@ function stopExistingMicrophone() {
 
 function createAudioConstraints() {
 
-    const constraints = {};
+    const constraints =
+        {};
 
-    let supported = {};
+
+    let supported =
+        {};
 
 
     try {
@@ -3797,10 +4929,17 @@ function createAudioConstraints() {
 
     catch (error) {
 
-        supported = {};
+        supported =
+            {};
 
     }
 
+
+    /*
+        iPad / iPhoneのみ。
+
+        完成版の設定を維持。
+    */
 
     if (
         IS_IOS
@@ -3848,6 +4987,10 @@ function createAudioConstraints() {
     }
 
 
+    /*
+        PC・Androidは今の入力特性を変えない。
+    */
+
     if (
         Object.keys(
             constraints
@@ -3878,6 +5021,7 @@ async function startMicrophone() {
             "HTTPS接続ではないためマイクを使用できません。"
         );
 
+
         return;
 
     }
@@ -3893,6 +5037,7 @@ async function startMicrophone() {
             "このブラウザではマイク機能を利用できません。"
         );
 
+
         return;
 
     }
@@ -3905,14 +5050,22 @@ async function startMicrophone() {
         "ちょっとだけ　しずかにしてね…";
 
 
+    /*
+        スタート／再スタートでは
+        モードに関係なく画像を一度消す。
+    */
+
     resetRecognitionState(
         true
     );
 
 
-    calibrationVolumes = [];
+    calibrationVolumes =
+        [];
 
-    calibrating = true;
+
+    calibrating =
+        true;
 
 
     normalDynamicMin =
@@ -3934,11 +5087,13 @@ async function startMicrophone() {
                 .mediaDevices
                 .getUserMedia(
                     {
+
                         audio:
                             audioConstraints,
 
                         video:
                             false
+
                     }
                 );
 
@@ -3954,7 +5109,8 @@ async function startMicrophone() {
 
 
         if (
-            audioContext.state ===
+            audioContext.state
+            ===
             "suspended"
         ) {
 
@@ -4091,11 +5247,16 @@ async function startMicrophone() {
             );
 
 
-        sampleQueue = [];
-        queueOffset = 0;
+        sampleQueue =
+            [];
+
+
+        queueOffset =
+            0;
 
 
         buildAudioGraph();
+
 
         startWatchdog();
 
@@ -4155,15 +5316,22 @@ async function initialize() {
 
     try {
 
+        updateDisplayModeButton();
+
+
         await openDatabase();
 
+
         await reloadImages();
+
 
         clearImageElement(
             mainImage
         );
 
+
         showWordImage();
+
 
         drawBar();
 

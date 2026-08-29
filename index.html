@@ -194,6 +194,7 @@ button {
     font-size: 18px;
 }
 
+#practiceModeButton,
 #displayModeButton,
 #imageOrderButton {
     line-height: 1.4;
@@ -611,6 +612,7 @@ button {
         gap: 10px;
     }
 
+    #practiceModeButton,
     #displayModeButton,
     #imageOrderButton {
         grid-column: 1 / -1;
@@ -725,6 +727,10 @@ button {
 
 <button id="manageMainButton">
 画像を管理
+</button>
+
+<button id="practiceModeButton">
+練習モード：すーっと！
 </button>
 
 <button id="vowelButton">
@@ -1046,6 +1052,32 @@ const MAX_WORD_IMAGES = 20;
 
 
 // ============================================================
+// 練習モード
+// ============================================================
+
+const PRACTICE_MODE_STORAGE_KEY =
+    "IkiDeAsobouPracticeMode";
+
+
+let practiceMode =
+    localStorage.getItem(
+        PRACTICE_MODE_STORAGE_KEY
+    );
+
+
+if (
+    practiceMode !== "s"
+    &&
+    practiceMode !== "breath"
+) {
+
+    practiceMode =
+        "s";
+
+}
+
+
+// ============================================================
 // 表示モード
 // ============================================================
 
@@ -1327,6 +1359,56 @@ const IOS_INITIAL_PROTECTION_SECONDS =
 
 
 // ============================================================
+// ふーっと！モード
+// ============================================================
+
+// 「すーっと！」の判定値は一切変更せず、
+// 息の練習専用の別判定として扱う。
+// 弱い呼気にも反応しやすいよう、開始音量は
+// 周囲雑音に対して少し上回る程度にする。
+const BREATH_MIN_VOLUME =
+    0.0018;
+
+const BREATH_NOISE_MULTIPLIER =
+    1.10;
+
+const BREATH_NOISE_ADD =
+    0.00030;
+
+const BREATH_HIGH_RATIO_MIN =
+    0.055;
+
+const BREATH_ZCR_MIN =
+    0.006;
+
+const BREATH_CENTROID_MIN =
+    900;
+
+const BREATH_PEAK_RATIO_LIMIT =
+    8.0;
+
+const BREATH_PEAK_LIMIT =
+    0.14;
+
+// 約30〜50ms程度続いた呼気で開始。
+const BREATH_REQUIRED =
+    2;
+
+// 継続中は開始条件よりさらに緩くする。
+const BREATH_HOLD_MIN_VOLUME =
+    0.00135;
+
+const BREATH_HOLD_NOISE_MULTIPLIER =
+    1.06;
+
+const BREATH_HOLD_NOISE_ADD =
+    0.00020;
+
+const BREATH_RELEASE_SECONDS =
+    0.18;
+
+
+// ============================================================
 // Watchdog
 // ============================================================
 
@@ -1365,6 +1447,12 @@ const statusElement =
 const startButton =
     document.getElementById(
         "startButton"
+    );
+
+
+const practiceModeButton =
+    document.getElementById(
+        "practiceModeButton"
     );
 
 
@@ -1459,24 +1547,105 @@ const deleteSelectedImagesButton =
 
 
 // ============================================================
+// 練習モード
+// ============================================================
+
+function updatePracticeModeButton() {
+
+    if (
+        practiceMode === "s"
+    ) {
+
+        practiceModeButton.textContent =
+            "練習モード：すーっと！";
+
+    }
+
+    else {
+
+        practiceModeButton.textContent =
+            "練習モード：ふーっと！";
+
+    }
+
+}
+
+
+practiceModeButton.addEventListener(
+    "click",
+    function() {
+
+        if (
+            practiceMode === "s"
+        ) {
+
+            practiceMode =
+                "breath";
+
+        }
+
+        else {
+
+            practiceMode =
+                "s";
+
+        }
+
+
+        localStorage.setItem(
+            PRACTICE_MODE_STORAGE_KEY,
+            practiceMode
+        );
+
+
+        // モード切替時は前の発音状態を持ち越さない。
+        resetRecognitionState(
+            true
+        );
+
+
+        updatePracticeModeButton();
+        updateDisplayModeButton();
+
+    }
+);
+
+
+// ============================================================
 // 表示モード
 // ============================================================
 
 function updateDisplayModeButton() {
+
+    const targetName =
+        practiceMode === "breath"
+        ?
+        "息"
+        :
+        "s音";
+
 
     if (
         displayMode === "during"
     ) {
 
         displayModeButton.textContent =
-            "表示モード：s音の間だけ";
+            "表示モード："
+            +
+            targetName
+            +
+            "の間だけ";
 
     }
 
     else {
 
         displayModeButton.textContent =
-            "表示モード：次のs音まで";
+            "表示モード：次の"
+            +
+            targetName
+            +
+            "まで";
 
     }
 
@@ -4068,6 +4237,18 @@ let iosBreathCount =
     0;
 
 
+let breathCandidateCount =
+    0;
+
+
+let breathReleaseCount =
+    0;
+
+
+let breathReleaseFramesNeeded =
+    11;
+
+
 let soundLatched =
     false;
 
@@ -4135,6 +4316,14 @@ function resetRecognitionState(
 
 
     iosBreathCount =
+        0;
+
+
+    breathCandidateCount =
+        0;
+
+
+    breathReleaseCount =
         0;
 
 
@@ -5684,6 +5873,237 @@ function finishCalibration() {
 
 
 // ============================================================
+// ふーっと！モード判定
+// ============================================================
+
+function breathCandidate(
+    result
+) {
+
+    const minimumVolume =
+        Math.max(
+            BREATH_MIN_VOLUME,
+            noiseFloor
+            *
+            BREATH_NOISE_MULTIPLIER,
+            noiseFloor
+            +
+            BREATH_NOISE_ADD
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio
+        <
+        BREATH_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        BREATH_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.spectralCentroid
+        <
+        BREATH_CENTROID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio
+        >
+        BREATH_PEAK_RATIO_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak
+        >
+        BREATH_PEAK_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+function holdBreath(
+    result
+) {
+
+    const minimumVolume =
+        Math.max(
+            BREATH_HOLD_MIN_VOLUME,
+            noiseFloor
+            *
+            BREATH_HOLD_NOISE_MULTIPLIER,
+            noiseFloor
+            +
+            BREATH_HOLD_NOISE_ADD
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    // 継続中は非常に弱い息まで追従したいので、
+    // 周波数条件は開始時より大幅に緩くする。
+    if (
+        result.zcr < 0.003
+        &&
+        result.highRatio < 0.035
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+function processBreathResult(
+    result
+) {
+
+    if (
+        !soundLatched
+    ) {
+
+        if (
+            breathCandidate(
+                result
+            )
+        ) {
+
+            breathCandidateCount++;
+
+        }
+
+        else {
+
+            breathCandidateCount =
+                0;
+
+        }
+
+
+        if (
+            breathCandidateCount
+            >=
+            BREATH_REQUIRED
+        ) {
+
+            soundLatched =
+                true;
+
+
+            breathCandidateCount =
+                0;
+
+
+            breathReleaseCount =
+                0;
+
+
+            showMainImage();
+
+        }
+
+
+        return;
+
+    }
+
+
+    if (
+        holdBreath(
+            result
+        )
+    ) {
+
+        breathReleaseCount =
+            0;
+
+
+        return;
+
+    }
+
+
+    breathReleaseCount++;
+
+
+    if (
+        breathReleaseCount
+        >=
+        breathReleaseFramesNeeded
+    ) {
+
+        finishCurrentS();
+
+    }
+
+}
+
+
+// ============================================================
 // S開始
 // ============================================================
 
@@ -5766,6 +6186,22 @@ function processResult(
             finishCalibration();
 
         }
+
+
+        return;
+
+    }
+
+
+    // 「ふーっと！」は、従来のS判定とは完全に別系統で処理する。
+    // これにより「すーっと！」の感度・端末別調整値を変更しない。
+    if (
+        practiceMode === "breath"
+    ) {
+
+        processBreathResult(
+            result
+        );
 
 
         return;
@@ -7035,6 +7471,20 @@ async function startMicrophone() {
             );
 
 
+        breathReleaseFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    BREATH_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
         pcSoftReleaseFramesNeeded =
             Math.max(
                 1,
@@ -7187,6 +7637,9 @@ startButton.addEventListener(
 async function initialize() {
 
     try {
+
+        updatePracticeModeButton();
+
 
         updateDisplayModeButton();
 

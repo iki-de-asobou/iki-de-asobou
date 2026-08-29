@@ -1244,13 +1244,13 @@ const IOS_WEAK_MIN_VOLUME =
     0.0028;
 
 const IOS_WEAK_REQUIRED =
-    5;
+    8;
 
 // iPad / iPhone は、通常の強さのSでも
-// Sらしい形が約80ms続いてから開始とする。
+// Sらしい形が約130ms続いてから開始とする。
 // 短い「s成分＋ふ」の誤発音で先にラッチするのを防ぐ。
 const IOS_NORMAL_REQUIRED =
-    5;
+    8;
 
 
 // iPad / iPhone の「ふー」除外。
@@ -1261,30 +1261,36 @@ const IOS_BREATH_REQUIRED =
     2;
 
 const IOS_S_SHAPE_HIGH_RATIO_MIN =
-    0.52;
+    0.56;
 
 const IOS_S_SHAPE_CENTROID_MIN =
-    5200;
+    5600;
 
 const IOS_S_SHAPE_UPPER_HIGH_MIN =
-    0.20;
+    0.23;
 
 const IOS_S_SHAPE_UPPER_TO_LOWMID_MIN =
-    0.85;
+    1.05;
 
 const IOS_S_SHAPE_ZCR_MIN =
-    0.050;
+    0.055;
 
 const IOS_S_SHAPE_UPPER_SHARE_MIN =
-    0.38;
+    0.42;
 
 // さらに「ふー」と混合音を分けるため、
 // /s/で出やすい8kHz以上を直接確認する。
 const IOS_S_SHAPE_VERY_HIGH_MIN =
-    0.085;
+    0.10;
 
 const IOS_S_SHAPE_VERY_HIGH_TO_MID_MIN =
-    0.60;
+    0.80;
+
+// 8kHz以上が、高域全体の中でも十分な割合を占めることを確認する。
+// 大きな「ふー」や「s＋ふ」が一部だけ高域を持っていても、
+// /s/ほど上側へ集中していない場合は開始させない。
+const IOS_S_SHAPE_VERY_HIGH_SHARE_MIN =
+    0.20;
 
 
 const IOS_HOLD_HIGH_RATIO_MIN =
@@ -5103,6 +5109,15 @@ function iosSShape(
         );
 
 
+    const veryHighShareOfHigh =
+        result.veryHighRatio
+        /
+        Math.max(
+            result.highRatio,
+            0.001
+        );
+
+
     if (
         result.highRatio
         <
@@ -5184,6 +5199,17 @@ function iosSShape(
         veryHighToMid
         <
         IOS_S_SHAPE_VERY_HIGH_TO_MID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        veryHighShareOfHigh
+        <
+        IOS_S_SHAPE_VERY_HIGH_SHARE_MIN
     ) {
 
         return false;

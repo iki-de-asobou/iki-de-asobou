@@ -1255,16 +1255,22 @@ const IOS_BREATH_REQUIRED =
     2;
 
 const IOS_S_SHAPE_HIGH_RATIO_MIN =
-    0.46;
+    0.50;
 
 const IOS_S_SHAPE_CENTROID_MIN =
-    4500;
+    5000;
 
 const IOS_S_SHAPE_UPPER_HIGH_MIN =
-    0.14;
+    0.18;
 
 const IOS_S_SHAPE_UPPER_TO_LOWMID_MIN =
-    0.50;
+    0.70;
+
+const IOS_S_SHAPE_ZCR_MIN =
+    0.040;
+
+const IOS_S_SHAPE_UPPER_SHARE_MIN =
+    0.34;
 
 
 const IOS_HOLD_HIGH_RATIO_MIN =
@@ -4953,15 +4959,15 @@ function iosClearlyBreathy(
 
 
     const mixedFu =
-        result.spectralCentroid <= 4900
+        result.spectralCentroid <= 5400
         &&
-        result.lowMidRatio >= 0.32
+        result.lowMidRatio >= 0.24
         &&
-        result.upperHighRatio <= 0.18
+        result.upperHighRatio <= 0.22
         &&
-        result.highRatio <= 0.52
+        result.highRatio <= 0.58
         &&
-        result.zcr <= 0.090;
+        result.zcr <= 0.100;
 
 
     return (
@@ -4992,6 +4998,15 @@ function iosSShape(
         /
         Math.max(
             result.lowMidRatio,
+            0.001
+        );
+
+
+    const upperShareOfHigh =
+        result.upperHighRatio
+        /
+        Math.max(
+            result.highRatio,
             0.001
         );
 
@@ -5033,6 +5048,28 @@ function iosSShape(
         upperToLowMid
         <
         IOS_S_SHAPE_UPPER_TO_LOWMID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        IOS_S_SHAPE_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        upperShareOfHigh
+        <
+        IOS_S_SHAPE_UPPER_SHARE_MIN
     ) {
 
         return false;

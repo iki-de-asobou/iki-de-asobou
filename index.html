@@ -1248,10 +1248,23 @@ const IOS_WEAK_REQUIRED =
 
 
 // iPad / iPhone の「ふー」除外。
-// 1フレームだけでは除外せず、2フレーム続いたときだけ
-// 明確な「ふー」系の息として扱う。
+// 「ふー」を後から除外するだけでなく、S開始時に
+// 高域へ十分にエネルギーが集まっていることを確認する。
+// 音量しきい値は変えず、弱いSへの感度はできるだけ維持する。
 const IOS_BREATH_REQUIRED =
     2;
+
+const IOS_S_SHAPE_HIGH_RATIO_MIN =
+    0.46;
+
+const IOS_S_SHAPE_CENTROID_MIN =
+    4500;
+
+const IOS_S_SHAPE_UPPER_HIGH_MIN =
+    0.14;
+
+const IOS_S_SHAPE_UPPER_TO_LOWMID_MIN =
+    0.50;
 
 
 const IOS_HOLD_HIGH_RATIO_MIN =
@@ -4964,6 +4977,78 @@ function iosClearlyBreathy(
 // iPad弱いS
 // ============================================================
 
+function iosSShape(
+    result
+) {
+
+    // /s/ は iPad でも、口唇摩擦の「ふー」より
+    // 高い周波数側へエネルギーが集まりやすい。
+    // 「ふー」を明確に減らすため、iOSだけS開始時に
+    // この“高域型”の形を追加確認する。
+    // 音量条件には触れない。
+
+    const upperToLowMid =
+        result.upperHighRatio
+        /
+        Math.max(
+            result.lowMidRatio,
+            0.001
+        );
+
+
+    if (
+        result.highRatio
+        <
+        IOS_S_SHAPE_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.spectralCentroid
+        <
+        IOS_S_SHAPE_CENTROID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.upperHighRatio
+        <
+        IOS_S_SHAPE_UPPER_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        upperToLowMid
+        <
+        IOS_S_SHAPE_UPPER_TO_LOWMID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// iPad弱いS
+// ============================================================
+
 function weakSIOS(
     result
 ) {
@@ -4979,8 +5064,14 @@ function weakSIOS(
     }
 
 
-    return commonSFeatures(
-        result
+    return (
+        commonSFeatures(
+            result
+        )
+        &&
+        iosSShape(
+            result
+        )
     );
 
 }
@@ -5623,16 +5714,32 @@ function processResult(
         }
 
 
+        // iPad / iPhone では、通常経路・弱音経路のどちらでも
+        // Sらしい高域分布を満たすことを開始条件にする。
+        // これにより「ふー」や「s＋ふ」の誤発音が
+        // genericなS判定をすり抜けるのを防ぐ。
+        const iosShapeOK =
+            !IS_IOS
+            ||
+            iosSShape(
+                result
+            );
+
+
         const normalCandidate =
             normalS(
                 result
-            );
+            )
+            &&
+            iosShapeOK;
 
 
         const weakCandidate =
             weakS(
                 result
-            );
+            )
+            &&
+            iosShapeOK;
 
 
         if (

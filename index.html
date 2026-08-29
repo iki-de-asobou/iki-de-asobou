@@ -9,7 +9,7 @@
     content="width=device-width, initial-scale=1, viewport-fit=cover"
 >
 
-<title>いきで　あそぼう！</title>
+<title>すーっと！ はつおん</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,7 @@ body {
         "Meiryo",
         sans-serif;
 
-    font-weight: 700 + 1,0px;
+    font-weight: 700;
 }
 
 button {
@@ -91,24 +91,30 @@ button {
 
 .title {
     display: flex;
-
     justify-content: center;
     align-items: baseline;
-
     flex-wrap: wrap;
 
-    margin: 5px 0 15px;
+    gap: 10px 16px;
 
-    font-size: 34px;
-    font-weight: 600;
+    margin: 4px 0 16px;
+
+    font-weight: 700;
+    line-height: 1.2;
 }
 
-.title-s {
+.title-main {
     color: var(--blue);
 
-    margin-left: 24px;
+    font-size: 46px;
+    letter-spacing: 0.04em;
+}
 
-    font-size: 37px;
+.title-sub {
+    color: #111;
+
+    font-size: 30px;
+    letter-spacing: 0.08em;
 }
 
 #status {
@@ -437,13 +443,16 @@ button {
     }
 
     .title {
-        font-size: 26px;
+        gap: 6px 10px;
+        margin-bottom: 12px;
     }
 
-    .title-s {
-        margin-left: 10px;
+    .title-main {
+        font-size: 34px;
+    }
 
-        font-size: 29px;
+    .title-sub {
+        font-size: 24px;
     }
 
     .page h1 {
@@ -479,12 +488,12 @@ button {
 
 <div class="title">
 
-<span>
-いきで　あそぼう！
+<span class="title-main">
+すーっと！
 </span>
 
-<span class="title-s">
-すー　すー　すー
+<span class="title-sub">
+はつおん
 </span>
 
 </div>

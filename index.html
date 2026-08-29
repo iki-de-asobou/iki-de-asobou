@@ -1247,6 +1247,13 @@ const IOS_WEAK_REQUIRED =
     5;
 
 
+// iPad / iPhone の「ふー」除外。
+// 1フレームだけでは除外せず、2フレーム続いたときだけ
+// 明確な「ふー」系の息として扱う。
+const IOS_BREATH_REQUIRED =
+    2;
+
+
 const IOS_HOLD_HIGH_RATIO_MIN =
     0.28;
 
@@ -4017,6 +4024,10 @@ let iosWeakCount =
     0;
 
 
+let iosBreathCount =
+    0;
+
+
 let soundLatched =
     false;
 
@@ -4080,6 +4091,10 @@ function resetRecognitionState(
 
 
     iosWeakCount =
+        0;
+
+
+    iosBreathCount =
         0;
 
 
@@ -4648,6 +4663,13 @@ function analyzeFrame(
         0;
 
 
+    // スペクトル重心。
+    // 「すー」は高い周波数側に重心が来やすく、
+    // 「ふー」は低めになりやすいので、iPad の除外判定に使う。
+    let weightedFrequency =
+        0;
+
+
     for (
         let i = 0;
         i < fft.magnitudes.length;
@@ -4668,6 +4690,12 @@ function analyzeFrame(
             audioContext.sampleRate
             /
             fft.fftSize;
+
+
+        weightedFrequency +=
+            frequency
+            *
+            magnitude;
 
 
         if (
@@ -4728,6 +4756,14 @@ function analyzeFrame(
         0;
 
 
+    const spectralCentroid =
+        total > 0
+        ?
+        weightedFrequency / total
+        :
+        0;
+
+
     return {
 
         volume:
@@ -4746,7 +4782,10 @@ function analyzeFrame(
             lowMidRatio,
 
         upperHighRatio:
-            upperHighRatio
+            upperHighRatio,
+
+        spectralCentroid:
+            spectralCentroid
 
     };
 
@@ -4880,30 +4919,43 @@ function iosClearlyBreathy(
     result
 ) {
 
-    // 「すー」への感度を落とさないため、
-    // 1つの値だけでは除外しない。
+    // 正しい「すー」の感度をなるべく維持するため、
+    // 音量しきい値や従来の S 判定値は厳しくしない。
     //
-    // 低〜中域がかなり多く、6kHz以上が少なく、
-    // さらにゼロ交差率も低め、という条件が
-    // 同時にそろったときだけ「ふー」寄りとみなす。
-    // 条件が少しでも外れれば従来どおり S 候補として扱う。
+    // 代わりに、iPad だけで
+    // ・スペクトル重心が低い
+    // ・700〜3000Hz が多い
+    // ・6000Hz 以上が少ない
+    // という「ふー」寄りの周波数分布を確認する。
+    //
+    // 純粋な「ふー」だけでなく、
+    // 「s」と「ふ」が混ざったような誤発音も少し広めに除外する。
 
-    if (
-        result.lowMidRatio >= 0.34
+    const clearFu =
+        result.spectralCentroid <= 4400
         &&
-        result.upperHighRatio <= 0.105
+        result.lowMidRatio >= 0.28
         &&
-        result.highRatio <= 0.49
+        result.upperHighRatio <= 0.17;
+
+
+    const mixedFu =
+        result.spectralCentroid <= 4900
         &&
-        result.zcr <= 0.060
-    ) {
+        result.lowMidRatio >= 0.32
+        &&
+        result.upperHighRatio <= 0.18
+        &&
+        result.highRatio <= 0.52
+        &&
+        result.zcr <= 0.090;
 
-        return true;
 
-    }
-
-
-    return false;
+    return (
+        clearFu
+        ||
+        mixedFu
+    );
 
 }
 
@@ -5386,6 +5438,10 @@ function latchS(
         0;
 
 
+    iosBreathCount =
+        0;
+
+
     releaseCount =
         0;
 
@@ -5512,6 +5568,61 @@ function processResult(
         }
 
 
+        // iPad / iPhone では、明確な「ふー」系の息が
+        // 2フレーム続いた場合だけ候補カウントを破棄する。
+        // 1フレームだけの揺れでは止めないため、
+        // 正しい「すー」への感度を保ちやすい。
+        if (
+            IS_IOS
+        ) {
+
+            if (
+                iosClearlyBreathy(
+                    result
+                )
+            ) {
+
+                iosBreathCount++;
+
+            }
+
+            else {
+
+                iosBreathCount =
+                    0;
+
+            }
+
+
+            if (
+                iosBreathCount
+                >=
+                IOS_BREATH_REQUIRED
+            ) {
+
+                normalCount =
+                    0;
+
+                weakCount =
+                    0;
+
+                iosWeakCount =
+                    0;
+
+                return;
+
+            }
+
+        }
+
+        else {
+
+            iosBreathCount =
+                0;
+
+        }
+
+
         const normalCandidate =
             normalS(
                 result
@@ -5607,24 +5718,12 @@ function processResult(
             IOS_WEAK_REQUIRED;
 
 
-        const iosBreathVeto =
-            IS_IOS
-            &&
-            iosClearlyBreathy(
-                result
-            );
-
-
         if (
-            (
-                normalSuccess
-                ||
-                weakSuccess
-                ||
-                iosWeakSuccess
-            )
-            &&
-            !iosBreathVeto
+            normalSuccess
+            ||
+            weakSuccess
+            ||
+            iosWeakSuccess
         ) {
 
             if (

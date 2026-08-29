@@ -39,10 +39,14 @@ button {
     font-family: inherit;
     font-weight: bold;
     cursor: pointer;
+
     min-height: 50px;
+
     padding: 8px 15px;
+
     border: 1px solid #888;
     border-radius: 7px;
+
     background: #f7f7f7;
 }
 
@@ -56,10 +60,12 @@ button {
 
 .main-layout {
     max-width: 1100px;
+
     margin: auto;
     padding: 20px;
 
     display: grid;
+
     grid-template-columns:
         minmax(0, 1fr)
         210px;
@@ -73,8 +79,10 @@ button {
 
 .title {
     display: flex;
+
     justify-content: center;
     align-items: baseline;
+
     flex-wrap: wrap;
 
     margin: 5px 0 15px;
@@ -85,25 +93,31 @@ button {
 
 .title-s {
     color: var(--blue);
+
     margin-left: 24px;
+
     font-size: 37px;
 }
 
 #status {
     min-height: 34px;
+
     font-size: 20px;
 }
 
 .image-box {
     width: min(100%, 650px);
+
     aspect-ratio: 10 / 7;
 
     margin: 10px auto;
 
     background: white;
+
     border: 1px solid #999;
 
     display: flex;
+
     justify-content: center;
     align-items: center;
 
@@ -113,11 +127,13 @@ button {
 .image-box img {
     width: 100%;
     height: 100%;
+
     object-fit: contain;
 }
 
 .count {
     margin-top: 12px;
+
     font-size: 19px;
     font-weight: bold;
 }
@@ -126,6 +142,7 @@ button {
     padding-top: 50px;
 
     display: flex;
+
     flex-direction: column;
 
     gap: 15px;
@@ -141,6 +158,7 @@ button {
 
 .page {
     max-width: 1000px;
+
     margin: auto;
 
     text-align: center;
@@ -150,24 +168,34 @@ button {
 
 .page h1 {
     font-size: 36px;
+
     margin: 5px 0 18px;
 }
 
 .description {
     font-size: 19px;
+
     line-height: 1.7;
+
     margin: 5px;
 }
+
+
+/* =========================================================
+   母音後続
+========================================================= */
 
 .bar-area {
     position: relative;
 
     width: min(92vw, 900px);
+
     height: 250px;
 
     margin: 25px auto 5px;
 
     touch-action: none;
+
     user-select: none;
 }
 
@@ -179,17 +207,34 @@ button {
     top: 80px;
 
     height: 90px;
+
+    transform-origin: center center;
+
+    transition: transform 0.18s ease;
+}
+
+
+/*
+    鏡モード。
+
+    棒も「いき」「こえ」の文字も
+    全部まとめて左右反転する。
+*/
+.bar-track.mirror {
+    transform: scaleX(-1);
 }
 
 .segment {
     position: absolute;
 
     height: 90px;
+
     top: 0;
 
     color: white;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -222,7 +267,9 @@ button {
 
 .bar-line.middle {
     top: -22px;
+
     height: 134px;
+
     background: white;
 }
 
@@ -237,6 +284,7 @@ button {
     min-height: 0;
 
     border-radius: 50%;
+
     border: 2px solid #333;
 
     background: white;
@@ -248,13 +296,38 @@ button {
     z-index: 10;
 }
 
+.vowel-controls {
+    margin: 5px auto 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+}
+
+.vowel-controls button {
+    min-width: 210px;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   単語
+========================================================= */
+
 .word-box {
     cursor: pointer;
+
     touch-action: manipulation;
 }
 
 #wordPosition {
     min-height: 24px;
+
     color: #555;
 }
 
@@ -262,7 +335,9 @@ button {
     margin-top: 15px;
 
     display: flex;
+
     justify-content: center;
+
     flex-wrap: wrap;
 
     gap: 12px;
@@ -270,13 +345,20 @@ button {
 
 .bottom-buttons button {
     min-width: 145px;
+
     font-size: 16px;
 }
+
+
+/* =========================================================
+   スマホ・iPad等
+========================================================= */
 
 @media (max-width: 760px) {
 
     .main-layout {
         grid-template-columns: 1fr;
+
         padding: 12px;
     }
 
@@ -284,7 +366,9 @@ button {
         padding-top: 5px;
 
         display: grid;
-        grid-template-columns: 1fr 1fr;
+
+        grid-template-columns:
+            1fr 1fr;
 
         gap: 10px;
     }
@@ -299,6 +383,7 @@ button {
 
     .title-s {
         margin-left: 10px;
+
         font-size: 29px;
     }
 
@@ -312,15 +397,24 @@ button {
 }
 
 </style>
+
 </head>
 
 
 <body>
 
 
-<section id="mainScreen" class="screen active">
+<!-- =========================================================
+     メイン
+========================================================= -->
+
+<section
+    id="mainScreen"
+    class="screen active"
+>
 
 <div class="main-layout">
+
 
 <div class="main-left">
 
@@ -341,11 +435,19 @@ button {
 
 
 <div class="image-box">
-<img id="mainImage" alt="">
+
+<img
+    id="mainImage"
+    alt=""
+>
+
 </div>
 
 
-<div id="mainCount" class="count">
+<div
+    id="mainCount"
+    class="count"
+>
 登録画像：0 / 10
 </div>
 
@@ -380,13 +482,21 @@ button {
 
 </div>
 
+
 </div>
 
 </section>
 
 
 
-<section id="vowelScreen" class="screen">
+<!-- =========================================================
+     母音後続
+========================================================= -->
+
+<section
+    id="vowelScreen"
+    class="screen"
+>
 
 <div class="page">
 
@@ -394,42 +504,68 @@ button {
 母音後続
 </h1>
 
+
 <p class="description">
 棒の左端・青と赤の境目・右端を動かせます。
 </p>
 
-<p class="description">
-息と声をつなげ、音節（さすせそ）の練習をしましょう。
-</p>
 
 <p class="description">
-（「し」は子音が異なるので気をつけましょう！）
+息と声をつなげ、音節（さしすせそ）の練習をしましょう。
 </p>
 
-<p class="description">
-（他の行音の練習でも使えます。）
-</p>
 
-<div id="barArea" class="bar-area">
+<div class="vowel-controls">
 
-<div class="bar-track">
+<button id="mirrorButton">
+左右反転（鏡に映す）：OFF
+</button>
 
-<div id="blueSegment" class="segment">
+</div>
+
+
+<div
+    id="barArea"
+    class="bar-area"
+>
+
+
+<div
+    id="barTrack"
+    class="bar-track"
+>
+
+
+<div
+    id="blueSegment"
+    class="segment"
+>
 いき
 </div>
 
-<div id="redSegment" class="segment">
+
+<div
+    id="redSegment"
+    class="segment"
+>
 こえ
 </div>
 
-<div id="leftLine" class="bar-line"></div>
+
+<div
+    id="leftLine"
+    class="bar-line"
+></div>
 
 <div
     id="middleLine"
     class="bar-line middle"
 ></div>
 
-<div id="rightLine" class="bar-line"></div>
+<div
+    id="rightLine"
+    class="bar-line"
+></div>
 
 
 <button
@@ -438,17 +574,20 @@ button {
     aria-label="左端"
 ></button>
 
+
 <button
     id="middleHandle"
     class="handle"
     aria-label="青と赤の境目"
 ></button>
 
+
 <button
     id="rightHandle"
     class="handle"
     aria-label="右端"
 ></button>
+
 
 </div>
 
@@ -463,13 +602,21 @@ button {
 
 </div>
 
+
 </div>
 
 </section>
 
 
 
-<section id="wordScreen" class="screen">
+<!-- =========================================================
+     単語
+========================================================= -->
+
+<section
+    id="wordScreen"
+    class="screen"
+>
 
 <div class="page">
 
@@ -477,15 +624,13 @@ button {
 単語
 </h1>
 
+
 <p class="description">
-「さすせそ」を含む単語のイラストや写真を登録してください。
+「さしすせそ」を含む単語のイラストや写真を登録してください。
 <br>
 クリックまたはタップすると順番に表示されます。
 </p>
 
-<p class="description">
-（他の行音の練習でも使えます。）
-</p>
 
 <div
     id="wordImageBox"
@@ -493,14 +638,21 @@ button {
     tabindex="0"
 >
 
-<img id="wordImage" alt="">
+<img
+    id="wordImage"
+    alt=""
+>
 
 </div>
 
 
-<div id="wordCount" class="count">
+<div
+    id="wordCount"
+    class="count"
+>
 登録画像：0 / 12
 </div>
+
 
 <div id="wordPosition"></div>
 
@@ -521,9 +673,11 @@ button {
 
 </div>
 
+
 </div>
 
 </section>
+
 
 
 <input
@@ -534,6 +688,7 @@ button {
     hidden
 >
 
+
 <input
     id="wordFileInput"
     type="file"
@@ -541,6 +696,7 @@ button {
     multiple
     hidden
 >
+
 
 
 <script>
@@ -583,9 +739,23 @@ if (
 
 
 // ============================================================
+// ★母音後続 鏡モード
+// ============================================================
+
+const MIRROR_MODE_STORAGE_KEY =
+    "IkiDeAsobouMirrorMode";
+
+
+let mirrorMode =
+    localStorage.getItem(
+        MIRROR_MODE_STORAGE_KEY
+    )
+    ===
+    "true";
+
+
+// ============================================================
 // 共通 S開始判定
-//
-// PC・Androidは完成しているので変更しない。
 // ============================================================
 
 const HIGH_RATIO_MIN =
@@ -655,8 +825,7 @@ const IS_IOS =
 
 // ============================================================
 // Android
-//
-// 完成しているので変更なし
+// 完成版のまま
 // ============================================================
 
 const ANDROID_HOLD_HIGH_RATIO_MIN =
@@ -671,8 +840,7 @@ const ANDROID_RELEASE_SECONDS =
 
 // ============================================================
 // PC
-//
-// 完成しているので変更なし
+// 完成版のまま
 // ============================================================
 
 const PC_HOLD_HIGH_RATIO_MIN =
@@ -693,26 +861,15 @@ const PC_ONSET_EXTRA_FRAMES =
 
 // ============================================================
 // iPad / iPhone
-//
-// ★今回ここだけ調整
+// 現在採用している調整版のまま
 // ============================================================
-
-// 弱いS救済。
-// 音量だけ少し低くする。
 
 const IOS_WEAK_MIN_VOLUME =
     0.0028;
 
-
-// 短い口の雑音を拾いにくくするため
-// 弱いSは約5フレーム連続が必要。
-
 const IOS_WEAK_REQUIRED =
     5;
 
-
-// S継続時のスペクトル条件。
-// 開始条件より少し緩くする。
 
 const IOS_HOLD_HIGH_RATIO_MIN =
     0.28;
@@ -721,28 +878,14 @@ const IOS_HOLD_ZCR_MIN =
     0.015;
 
 
-// 最初のS音量基準を作る時間。
-
 const IOS_REFERENCE_BUILD_SECONDS =
     0.25;
-
-
-// 以前 0.45。
-// 弱いSが途中で少し小さくなっても
-// 消えにくいよう 0.35 に変更。
 
 const IOS_RELEASE_RATIO =
     0.35;
 
-
-// 以前 0.0028。
-// 弱いS保持のため少し下げる。
-
 const IOS_RELEASE_ABSOLUTE =
     0.0022;
-
-
-// ノイズ床基準も少し緩める。
 
 const IOS_RELEASE_NOISE_MULTIPLIER =
     1.30;
@@ -750,20 +893,11 @@ const IOS_RELEASE_NOISE_MULTIPLIER =
 const IOS_RELEASE_NOISE_ADD =
     0.00055;
 
-
-// 弱いSで一瞬音量が落ちても
-// すぐ画像が消えないよう少し延長。
-
 const IOS_RELEASE_SECONDS =
     0.20;
 
-
-// スペクトル条件が一時的に崩れても
-// 少し待つ。
-
 const IOS_SPECTRAL_RELEASE_SECONDS =
     0.40;
-
 
 const IOS_INITIAL_PROTECTION_SECONDS =
     0.30;
@@ -786,65 +920,78 @@ const mainScreen =
         "mainScreen"
     );
 
+
 const vowelScreen =
     document.getElementById(
         "vowelScreen"
     );
+
 
 const wordScreen =
     document.getElementById(
         "wordScreen"
     );
 
+
 const statusElement =
     document.getElementById(
         "status"
     );
+
 
 const startButton =
     document.getElementById(
         "startButton"
     );
 
+
 const displayModeButton =
     document.getElementById(
         "displayModeButton"
     );
+
 
 const mainImage =
     document.getElementById(
         "mainImage"
     );
 
+
 const mainCount =
     document.getElementById(
         "mainCount"
     );
+
 
 const mainFileInput =
     document.getElementById(
         "mainFileInput"
     );
 
+
 const wordImage =
     document.getElementById(
         "wordImage"
     );
+
 
 const wordImageBox =
     document.getElementById(
         "wordImageBox"
     );
 
+
 const wordCount =
     document.getElementById(
         "wordCount"
     );
 
+
 const wordPosition =
     document.getElementById(
         "wordPosition"
     );
+
 
 const wordFileInput =
     document.getElementById(
@@ -941,6 +1088,7 @@ function showScreen(target) {
         "active"
     );
 
+
     target.classList.add(
         "active"
     );
@@ -955,11 +1103,14 @@ function showScreen(target) {
 const DB_NAME =
     "IkiDeAsobouDB";
 
+
 const DB_VERSION =
     1;
 
+
 const STORE_MAIN =
     "mainImages";
+
 
 const STORE_WORD =
     "wordImages";
@@ -968,11 +1119,14 @@ const STORE_WORD =
 let database =
     null;
 
+
 let mainImages =
     [];
 
+
 let wordImages =
     [];
+
 
 let wordIndex =
     0;
@@ -1283,6 +1437,7 @@ function revokeImageURL(
             oldURL
         );
 
+
         delete imageElement.dataset.url;
 
     }
@@ -1290,14 +1445,17 @@ function revokeImageURL(
 }
 
 
-// iPad Safariで画像が残る問題への対策を維持。
-
+/*
+    iPad Safari対策。
+    src削除だけでなくCSSでも隠す。
+*/
 function clearImageElement(
     imageElement
 ) {
 
     imageElement.style.visibility =
         "hidden";
+
 
     imageElement.style.opacity =
         "0";
@@ -1322,6 +1480,7 @@ function displayBlob(
 
     imageElement.style.visibility =
         "hidden";
+
 
     imageElement.style.opacity =
         "0";
@@ -1348,6 +1507,7 @@ function displayBlob(
             imageElement.style.visibility =
                 "visible";
 
+
             imageElement.style.opacity =
                 "1";
 
@@ -1369,6 +1529,7 @@ function showRandomMainImage() {
         clearImageElement(
             mainImage
         );
+
 
         return;
 
@@ -1405,8 +1566,10 @@ function showWordImage() {
             wordImage
         );
 
+
         wordPosition.textContent =
             "";
+
 
         return;
 
@@ -1491,6 +1654,7 @@ document
                     "画像は10枚まで登録できます。"
                 );
 
+
                 return;
 
             }
@@ -1498,6 +1662,7 @@ document
 
             mainFileInput.value =
                 "";
+
 
             mainFileInput.click();
 
@@ -1529,7 +1694,8 @@ mainFileInput.addEventListener(
 
 
         for (
-            const file of files
+            const file
+            of files
         ) {
 
             if (
@@ -1634,6 +1800,7 @@ document
                     "画像は12枚まで登録できます。"
                 );
 
+
                 return;
 
             }
@@ -1641,6 +1808,7 @@ document
 
             wordFileInput.value =
                 "";
+
 
             wordFileInput.click();
 
@@ -1672,7 +1840,8 @@ wordFileInput.addEventListener(
 
 
         for (
-            const file of files
+            const file
+            of files
         ) {
 
             if (
@@ -1856,40 +2025,54 @@ const barArea =
         "barArea"
     );
 
+
+const barTrack =
+    document.getElementById(
+        "barTrack"
+    );
+
+
 const blueSegment =
     document.getElementById(
         "blueSegment"
     );
+
 
 const redSegment =
     document.getElementById(
         "redSegment"
     );
 
+
 const leftLine =
     document.getElementById(
         "leftLine"
     );
+
 
 const middleLine =
     document.getElementById(
         "middleLine"
     );
 
+
 const rightLine =
     document.getElementById(
         "rightLine"
     );
+
 
 const leftHandle =
     document.getElementById(
         "leftHandle"
     );
 
+
 const middleHandle =
     document.getElementById(
         "middleHandle"
     );
+
 
 const rightHandle =
     document.getElementById(
@@ -1897,77 +2080,186 @@ const rightHandle =
     );
 
 
+const mirrorButton =
+    document.getElementById(
+        "mirrorButton"
+    );
+
+
 let barLeft =
     0.15;
+
 
 let barMiddle =
     0.50;
 
+
 let barRight =
     0.85;
+
 
 let dragging =
     null;
 
 
-function drawBar() {
+// ============================================================
+// ★鏡モード表示更新
+// ============================================================
 
-    const track =
-        document.querySelector(
-            ".bar-track"
+function updateMirrorMode() {
+
+    if (
+        mirrorMode
+    ) {
+
+        barTrack.classList.add(
+            "mirror"
         );
 
 
+        mirrorButton.textContent =
+            "左右反転（鏡に映す）：ON";
+
+    }
+
+    else {
+
+        barTrack.classList.remove(
+            "mirror"
+        );
+
+
+        mirrorButton.textContent =
+            "左右反転（鏡に映す）：OFF";
+
+    }
+
+}
+
+
+// ============================================================
+// ★鏡モード切替
+// ============================================================
+
+mirrorButton.addEventListener(
+    "click",
+    function() {
+
+        mirrorMode =
+            !mirrorMode;
+
+
+        localStorage.setItem(
+            MIRROR_MODE_STORAGE_KEY,
+            String(
+                mirrorMode
+            )
+        );
+
+
+        updateMirrorMode();
+
+
+        drawBar();
+
+    }
+);
+
+
+// ============================================================
+// バー描画
+// ============================================================
+
+function drawBar() {
+
     const width =
-        track.clientWidth;
+        barTrack.clientWidth;
 
 
     const left =
-        barLeft * width;
+        barLeft
+        *
+        width;
+
 
     const middle =
-        barMiddle * width;
+        barMiddle
+        *
+        width;
+
 
     const right =
-        barRight * width;
+        barRight
+        *
+        width;
 
 
     blueSegment.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     blueSegment.style.width =
-        (middle - left)
+        (
+            middle
+            -
+            left
+        )
         +
         "px";
 
 
     redSegment.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     redSegment.style.width =
-        (right - middle)
+        (
+            right
+            -
+            middle
+        )
         +
         "px";
 
 
     leftLine.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     middleLine.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     rightLine.style.left =
-        right + "px";
+        right
+        +
+        "px";
 
 
     leftHandle.style.left =
-        left + "px";
+        left
+        +
+        "px";
+
 
     middleHandle.style.left =
-        middle + "px";
+        middle
+        +
+        "px";
+
 
     rightHandle.style.left =
-        right + "px";
+        right
+        +
+        "px";
 
 
     blueSegment.textContent =
@@ -1992,12 +2284,16 @@ function drawBar() {
 }
 
 
+// ============================================================
+// バー最小幅
+// ============================================================
+
 function minimumBarWidth() {
 
     const width =
         Math.max(
             1,
-            barArea.clientWidth
+            barTrack.clientWidth
         );
 
 
@@ -2009,24 +2305,73 @@ function minimumBarWidth() {
 }
 
 
+// ============================================================
+// ★画面上のX座標を論理位置に変換
+//
+// 通常：左→右が 0→1
+// 鏡用：右→左が 0→1
+//
+// これにより反転後も
+// 指で見たまま自然に動かせる。
+// ============================================================
+
+function pointerRatio(
+    clientX
+) {
+
+    const rect =
+        barTrack.getBoundingClientRect();
+
+
+    let ratio =
+        (
+            clientX
+            -
+            rect.left
+        )
+        /
+        rect.width;
+
+
+    ratio =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                ratio
+            )
+        );
+
+
+    if (
+        mirrorMode
+    ) {
+
+        ratio =
+            1
+            -
+            ratio;
+
+    }
+
+
+    return ratio;
+
+}
+
+
+// ============================================================
+// 最寄りハンドル
+// ============================================================
+
 function nearestHandle(
     clientX
 ) {
 
-    const track =
-        document.querySelector(
-            ".bar-track"
+    const ratio =
+        pointerRatio(
+            clientX
         );
-
-
-    const rect =
-        track.getBoundingClientRect();
-
-
-    const x =
-        clientX
-        -
-        rect.left;
 
 
     const values =
@@ -2034,29 +2379,23 @@ function nearestHandle(
 
             left:
                 Math.abs(
-                    x
+                    ratio
                     -
                     barLeft
-                    *
-                    rect.width
                 ),
 
             middle:
                 Math.abs(
-                    x
+                    ratio
                     -
                     barMiddle
-                    *
-                    rect.width
                 ),
 
             right:
                 Math.abs(
-                    x
+                    ratio
                     -
                     barRight
-                    *
-                    rect.width
                 )
 
         };
@@ -2069,13 +2408,21 @@ function nearestHandle(
         .sort(
             function(a, b) {
 
-                return a[1] - b[1];
+                return (
+                    a[1]
+                    -
+                    b[1]
+                );
 
             }
         )[0][0];
 
 }
 
+
+// ============================================================
+// バー移動
+// ============================================================
 
 function moveBar(
     clientX
@@ -2090,24 +2437,10 @@ function moveBar(
     }
 
 
-    const track =
-        document.querySelector(
-            ".bar-track"
-        );
-
-
-    const rect =
-        track.getBoundingClientRect();
-
-
     let x =
-        (
+        pointerRatio(
             clientX
-            -
-            rect.left
-        )
-        /
-        rect.width;
+        );
 
 
     x =
@@ -2134,6 +2467,7 @@ function moveBar(
 
                 Math.min(
                     x,
+
                     barMiddle
                     -
                     minimum
@@ -2155,6 +2489,7 @@ function moveBar(
 
                 Math.min(
                     x,
+
                     barRight
                     -
                     minimum
@@ -2174,6 +2509,7 @@ function moveBar(
 
                 Math.max(
                     x,
+
                     barMiddle
                     +
                     minimum
@@ -2187,6 +2523,10 @@ function moveBar(
 
 }
 
+
+// ============================================================
+// Pointer操作
+// ============================================================
 
 barArea.addEventListener(
     "pointerdown",
@@ -2279,14 +2619,18 @@ window.addEventListener(
 let audioContext =
     null;
 
+
 let mediaStream =
     null;
+
 
 let sourceNode =
     null;
 
+
 let processorNode =
     null;
+
 
 let muteNode =
     null;
@@ -2295,8 +2639,10 @@ let muteNode =
 let sampleQueue =
     [];
 
+
 let queueOffset =
     0;
+
 
 let frameSize =
     735;
@@ -2313,6 +2659,7 @@ let androidReleaseFramesNeeded =
 let pcSoftReleaseFramesNeeded =
     30;
 
+
 let pcSilenceFramesNeeded =
     11;
 
@@ -2320,11 +2667,14 @@ let pcSilenceFramesNeeded =
 let iosReferenceBuildFramesNeeded =
     15;
 
+
 let iosReleaseFramesNeeded =
     12;
 
+
 let iosSpectralReleaseFramesNeeded =
     24;
+
 
 let iosInitialProtectionFramesNeeded =
     18;
@@ -2333,8 +2683,10 @@ let iosInitialProtectionFramesNeeded =
 let calibrating =
     false;
 
+
 let calibrationVolumes =
     [];
+
 
 let noiseFloor =
     0;
@@ -2343,8 +2695,10 @@ let noiseFloor =
 let normalDynamicMin =
     NORMAL_MIN_VOLUME;
 
+
 let weakDynamicMin =
     WEAK_MIN_VOLUME;
+
 
 let iosWeakDynamicMin =
     IOS_WEAK_MIN_VOLUME;
@@ -2353,8 +2707,10 @@ let iosWeakDynamicMin =
 let normalCount =
     0;
 
+
 let weakCount =
     0;
+
 
 let iosWeakCount =
     0;
@@ -2367,6 +2723,7 @@ let soundLatched =
 let releaseCount =
     0;
 
+
 let silenceCount =
     0;
 
@@ -2375,6 +2732,7 @@ let silenceCount =
 
 let pcPendingOnset =
     false;
+
 
 let pcOnsetConfirmCount =
     0;
@@ -2385,6 +2743,7 @@ let pcOnsetConfirmCount =
 let iosReferenceVolume =
     0;
 
+
 let iosActiveFrameCount =
     0;
 
@@ -2394,8 +2753,10 @@ let iosActiveFrameCount =
 let lastAudioCallbackTime =
     0;
 
+
 let watchdogTimer =
     null;
+
 
 let rebuildingGraph =
     false;
@@ -2412,8 +2773,10 @@ function resetRecognitionState(
     normalCount =
         0;
 
+
     weakCount =
         0;
+
 
     iosWeakCount =
         0;
@@ -2422,6 +2785,7 @@ function resetRecognitionState(
     releaseCount =
         0;
 
+
     silenceCount =
         0;
 
@@ -2429,12 +2793,14 @@ function resetRecognitionState(
     pcPendingOnset =
         false;
 
+
     pcOnsetConfirmCount =
         0;
 
 
     iosReferenceVolume =
         0;
+
 
     iosActiveFrameCount =
         0;
@@ -2458,7 +2824,7 @@ function resetRecognitionState(
 
 
 // ============================================================
-// S終了時
+// S終了
 // ============================================================
 
 function finishCurrentS() {
@@ -2524,7 +2890,8 @@ function calculatePeak(
 
 
     for (
-        const value of samples
+        const value
+        of samples
     ) {
 
         const absolute =
@@ -2569,10 +2936,15 @@ function calculateZCR(
     ) {
 
         const before =
-            samples[i - 1];
+            samples[
+                i - 1
+            ];
+
 
         const now =
-            samples[i];
+            samples[
+                i
+            ];
 
 
         if (
@@ -2647,6 +3019,7 @@ function fftMagnitudes(
             size
         );
 
+
     const imaginary =
         new Float64Array(
             size
@@ -2686,6 +3059,7 @@ function fftMagnitudes(
             j ^=
                 bit;
 
+
             bit >>=
                 1;
 
@@ -2703,8 +3077,10 @@ function fftMagnitudes(
             const tempReal =
                 real[i];
 
+
             real[i] =
                 real[j];
+
 
             real[j] =
                 tempReal;
@@ -2713,8 +3089,10 @@ function fftMagnitudes(
             const tempImag =
                 imaginary[i];
 
+
             imaginary[i] =
                 imaginary[j];
+
 
             imaginary[j] =
                 tempImag;
@@ -2743,6 +3121,7 @@ function fftMagnitudes(
                 angle
             );
 
+
         const baseSin =
             Math.sin(
                 angle
@@ -2758,6 +3137,7 @@ function fftMagnitudes(
             let wCos =
                 1;
 
+
             let wSin =
                 0;
 
@@ -2769,10 +3149,15 @@ function fftMagnitudes(
             ) {
 
                 const firstReal =
-                    real[i + k];
+                    real[
+                        i + k
+                    ];
+
 
                 const firstImag =
-                    imaginary[i + k];
+                    imaginary[
+                        i + k
+                    ];
 
 
                 const index2 =
@@ -2784,44 +3169,60 @@ function fftMagnitudes(
 
 
                 const secondReal =
-                    real[index2]
+                    real[
+                        index2
+                    ]
                     *
                     wCos
                     -
-                    imaginary[index2]
+                    imaginary[
+                        index2
+                    ]
                     *
                     wSin;
 
 
                 const secondImag =
-                    real[index2]
+                    real[
+                        index2
+                    ]
                     *
                     wSin
                     +
-                    imaginary[index2]
+                    imaginary[
+                        index2
+                    ]
                     *
                     wCos;
 
 
-                real[i + k] =
+                real[
+                    i + k
+                ] =
                     firstReal
                     +
                     secondReal;
 
 
-                imaginary[i + k] =
+                imaginary[
+                    i + k
+                ] =
                     firstImag
                     +
                     secondImag;
 
 
-                real[index2] =
+                real[
+                    index2
+                ] =
                     firstReal
                     -
                     secondReal;
 
 
-                imaginary[index2] =
+                imaginary[
+                    index2
+                ] =
                     firstImag
                     -
                     secondImag;
@@ -2849,6 +3250,7 @@ function fftMagnitudes(
 
                 wCos =
                     nextCos;
+
 
                 wSin =
                     nextSin;
@@ -2929,6 +3331,7 @@ function analyzeFrame(
     let total =
         0;
 
+
     let high =
         0;
 
@@ -2995,7 +3398,7 @@ function analyzeFrame(
 
 
 // ============================================================
-// 共通 S特徴
+// S共通特徴
 // ============================================================
 
 function commonSFeatures(
@@ -3003,7 +3406,8 @@ function commonSFeatures(
 ) {
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         HIGH_RATIO_MIN
     ) {
 
@@ -3013,7 +3417,8 @@ function commonSFeatures(
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         ZCR_MIN
     ) {
 
@@ -3033,7 +3438,8 @@ function commonSFeatures(
 
 
     if (
-        peakRatio >
+        peakRatio
+        >
         PEAK_RATIO_LIMIT
     ) {
 
@@ -3043,7 +3449,8 @@ function commonSFeatures(
 
 
     if (
-        result.peak >
+        result.peak
+        >
         PEAK_LIMIT
     ) {
 
@@ -3057,12 +3464,17 @@ function commonSFeatures(
 }
 
 
+// ============================================================
+// 通常S
+// ============================================================
+
 function normalS(
     result
 ) {
 
     if (
-        result.volume <
+        result.volume
+        <
         normalDynamicMin
     ) {
 
@@ -3078,12 +3490,17 @@ function normalS(
 }
 
 
+// ============================================================
+// 弱いS
+// ============================================================
+
 function weakS(
     result
 ) {
 
     if (
-        result.volume <
+        result.volume
+        <
         weakDynamicMin
     ) {
 
@@ -3100,14 +3517,7 @@ function weakS(
 
 
 // ============================================================
-// ★iPad 弱いS専用救済
-//
-// 音量だけは少し低く許可。
-// Sらしいスペクトル、ZCR、Peak条件は
-// 共通条件をそのまま使う。
-//
-// さらに5フレーム連続を要求するため、
-// 短い舌打ち等は拾いにくい。
+// iPad弱いS
 // ============================================================
 
 function weakSIOS(
@@ -3115,7 +3525,8 @@ function weakSIOS(
 ) {
 
     if (
-        result.volume <
+        result.volume
+        <
         iosWeakDynamicMin
     ) {
 
@@ -3148,7 +3559,8 @@ function pcOnsetContinuation(
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -3158,7 +3570,9 @@ function pcOnsetContinuation(
 
 
     if (
-        result.highRatio < 0.32
+        result.highRatio
+        <
+        0.32
     ) {
 
         return false;
@@ -3167,7 +3581,9 @@ function pcOnsetContinuation(
 
 
     if (
-        result.zcr < 0.018
+        result.zcr
+        <
+        0.018
     ) {
 
         return false;
@@ -3225,7 +3641,8 @@ function holdSAndroid(
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -3235,7 +3652,8 @@ function holdSAndroid(
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         ANDROID_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -3245,7 +3663,8 @@ function holdSAndroid(
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         ANDROID_HOLD_ZCR_MIN
     ) {
 
@@ -3304,7 +3723,8 @@ function holdSPC(
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -3314,7 +3734,8 @@ function holdSPC(
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         PC_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -3324,7 +3745,8 @@ function holdSPC(
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         PC_HOLD_ZCR_MIN
     ) {
 
@@ -3351,7 +3773,8 @@ function pcClearlySilent(
 
 
     return (
-        result.volume <
+        result.volume
+        <
         threshold
     );
 
@@ -3359,10 +3782,7 @@ function pcClearlySilent(
 
 
 // ============================================================
-// ★iPad継続
-//
-// 小さいS・途中で弱くなったSを
-// 少し保持しやすくする。
+// iPad継続
 // ============================================================
 
 function holdSIOS(
@@ -3378,7 +3798,8 @@ function holdSIOS(
 
 
     if (
-        result.volume <
+        result.volume
+        <
         minimumVolume
     ) {
 
@@ -3388,7 +3809,8 @@ function holdSIOS(
 
 
     if (
-        result.highRatio <
+        result.highRatio
+        <
         IOS_HOLD_HIGH_RATIO_MIN
     ) {
 
@@ -3398,7 +3820,8 @@ function holdSIOS(
 
 
     if (
-        result.zcr <
+        result.zcr
+        <
         IOS_HOLD_ZCR_MIN
     ) {
 
@@ -3485,8 +3908,6 @@ function finishCalibration() {
     }
 
 
-    // PC・Android共通値はそのまま。
-
     normalDynamicMin =
         Math.max(
             NORMAL_MIN_VOLUME,
@@ -3524,11 +3945,6 @@ function finishCalibration() {
         );
 
 
-    // ★iPad弱いS専用。
-    //
-    // 共有のweakDynamicMinより少し低くする。
-    // ただしノイズ床より十分上を要求。
-
     iosWeakDynamicMin =
         Math.max(
             IOS_WEAK_MIN_VOLUME,
@@ -3555,7 +3971,7 @@ function finishCalibration() {
 
 
 // ============================================================
-// S開始確定
+// S開始
 // ============================================================
 
 function latchS(
@@ -3569,8 +3985,10 @@ function latchS(
     normalCount =
         0;
 
+
     weakCount =
         0;
+
 
     iosWeakCount =
         0;
@@ -3579,6 +3997,7 @@ function latchS(
     releaseCount =
         0;
 
+
     silenceCount =
         0;
 
@@ -3586,12 +4005,14 @@ function latchS(
     pcPendingOnset =
         false;
 
+
     pcOnsetConfirmCount =
         0;
 
 
     iosReferenceVolume =
         result.volume;
+
 
     iosActiveFrameCount =
         0;
@@ -3603,16 +4024,12 @@ function latchS(
 
 
 // ============================================================
-// 判定
+// 音声判定
 // ============================================================
 
 function processResult(
     result
 ) {
-
-    // --------------------------------------------------------
-    // キャリブレーション
-    // --------------------------------------------------------
 
     if (
         calibrating
@@ -3624,7 +4041,8 @@ function processResult(
 
 
         if (
-            calibrationVolumes.length >=
+            calibrationVolumes.length
+            >=
             calibrationFramesNeeded
         ) {
 
@@ -3639,16 +4057,14 @@ function processResult(
 
 
     // ========================================================
-    // Sを検出していない状態
+    // S未検出
     // ========================================================
 
     if (
         !soundLatched
     ) {
 
-        // ----------------------------------------------------
         // PC追加確認
-        // ----------------------------------------------------
 
         if (
             !IS_ANDROID
@@ -3668,7 +4084,8 @@ function processResult(
 
 
                 if (
-                    pcOnsetConfirmCount >=
+                    pcOnsetConfirmCount
+                    >=
                     PC_ONSET_EXTRA_FRAMES
                 ) {
 
@@ -3685,11 +4102,14 @@ function processResult(
                 pcPendingOnset =
                     false;
 
+
                 pcOnsetConfirmCount =
                     0;
 
+
                 normalCount =
                     0;
+
 
                 weakCount =
                     0;
@@ -3746,10 +4166,6 @@ function processResult(
         }
 
 
-        // ----------------------------------------------------
-        // ★iPadだけさらに弱いS救済
-        // ----------------------------------------------------
-
         if (
             IS_IOS
         ) {
@@ -3782,19 +4198,22 @@ function processResult(
 
 
         const normalSuccess =
-            normalCount >=
+            normalCount
+            >=
             NORMAL_REQUIRED;
 
 
         const weakSuccess =
-            weakCount >=
+            weakCount
+            >=
             WEAK_REQUIRED;
 
 
         const iosWeakSuccess =
             IS_IOS
             &&
-            iosWeakCount >=
+            iosWeakCount
+            >=
             IOS_WEAK_REQUIRED;
 
 
@@ -3806,8 +4225,6 @@ function processResult(
             iosWeakSuccess
         ) {
 
-            // PCのみ追加確認。
-
             if (
                 !IS_ANDROID
                 &&
@@ -3817,15 +4234,15 @@ function processResult(
                 pcPendingOnset =
                     true;
 
+
                 pcOnsetConfirmCount =
                     0;
+
 
                 return;
 
             }
 
-
-            // Android / iPad
 
             latchS(
                 result
@@ -3856,6 +4273,7 @@ function processResult(
             releaseCount =
                 0;
 
+
             return;
 
         }
@@ -3865,7 +4283,8 @@ function processResult(
 
 
         if (
-            releaseCount >=
+            releaseCount
+            >=
             androidReleaseFramesNeeded
         ) {
 
@@ -3890,15 +4309,15 @@ function processResult(
         iosActiveFrameCount++;
 
 
-        // 最初の0.25秒でSの基準音量を作る。
-
         if (
-            iosActiveFrameCount <=
+            iosActiveFrameCount
+            <=
             iosReferenceBuildFramesNeeded
         ) {
 
             if (
-                result.volume >
+                result.volume
+                >
                 iosReferenceVolume
             ) {
 
@@ -3910,10 +4329,9 @@ function processResult(
         }
 
 
-        // 開始直後の保護。
-
         if (
-            iosActiveFrameCount <=
+            iosActiveFrameCount
+            <=
             iosInitialProtectionFramesNeeded
         ) {
 
@@ -3926,12 +4344,9 @@ function processResult(
             iosReleaseVolumeThreshold();
 
 
-        // ----------------------------------------------------
-        // 音量による終了判定
-        // ----------------------------------------------------
-
         if (
-            result.volume <
+            result.volume
+            <
             releaseVolume
         ) {
 
@@ -3948,20 +4363,18 @@ function processResult(
 
 
         if (
-            silenceCount >=
+            silenceCount
+            >=
             iosReleaseFramesNeeded
         ) {
 
             finishCurrentS();
 
+
             return;
 
         }
 
-
-        // ----------------------------------------------------
-        // スペクトルによる終了判定
-        // ----------------------------------------------------
 
         if (
             holdSIOS(
@@ -3982,7 +4395,8 @@ function processResult(
 
 
         if (
-            releaseCount >=
+            releaseCount
+            >=
             iosSpectralReleaseFramesNeeded
         ) {
 
@@ -4019,11 +4433,13 @@ function processResult(
 
 
     if (
-        silenceCount >=
+        silenceCount
+        >=
         pcSilenceFramesNeeded
     ) {
 
         finishCurrentS();
+
 
         return;
 
@@ -4039,6 +4455,7 @@ function processResult(
         releaseCount =
             0;
 
+
         return;
 
     }
@@ -4048,7 +4465,8 @@ function processResult(
 
 
     if (
-        releaseCount >=
+        releaseCount
+        >=
         pcSoftReleaseFramesNeeded
     ) {
 
@@ -4102,7 +4520,9 @@ function addSamples(
 
             frame[i] =
                 sampleQueue[
-                    queueOffset + i
+                    queueOffset
+                    +
+                    i
                 ];
 
         }
@@ -4134,6 +4554,7 @@ function addSamples(
                 queueOffset
             );
 
+
         queueOffset =
             0;
 
@@ -4143,7 +4564,7 @@ function addSamples(
 
 
 // ============================================================
-// Audio graph
+// Audio Graph
 // ============================================================
 
 function disconnectAudioGraph() {
@@ -4156,6 +4577,7 @@ function disconnectAudioGraph() {
 
             processorNode.onaudioprocess =
                 null;
+
 
             processorNode.disconnect();
 
@@ -4199,8 +4621,10 @@ function disconnectAudioGraph() {
     processorNode =
         null;
 
+
     sourceNode =
         null;
+
 
     muteNode =
         null;
@@ -4319,6 +4743,7 @@ async function rebuildAudioGraph() {
     sampleQueue =
         [];
 
+
     queueOffset =
         0;
 
@@ -4326,7 +4751,8 @@ async function rebuildAudioGraph() {
     try {
 
         if (
-            audioContext.state ===
+            audioContext.state
+            ===
             "suspended"
         ) {
 
@@ -4393,7 +4819,8 @@ function startWatchdog() {
 
 
                 if (
-                    audioContext.state ===
+                    audioContext.state
+                    ===
                     "suspended"
                 ) {
 
@@ -4415,7 +4842,8 @@ function startWatchdog() {
 
 
                 if (
-                    elapsed >
+                    elapsed
+                    >
                     AUDIO_STALL_MS
                 ) {
 
@@ -4439,7 +4867,8 @@ document.addEventListener(
     async function() {
 
         if (
-            document.visibilityState !==
+            document.visibilityState
+            !==
             "visible"
         ) {
 
@@ -4460,7 +4889,8 @@ document.addEventListener(
         try {
 
             if (
-                audioContext.state ===
+                audioContext.state
+                ===
                 "suspended"
             ) {
 
@@ -4494,6 +4924,7 @@ function stopExistingMicrophone() {
         clearInterval(
             watchdogTimer
         );
+
 
         watchdogTimer =
             null;
@@ -4538,6 +4969,7 @@ function stopExistingMicrophone() {
         ) {
 
             audioContext.close();
+
 
             audioContext =
                 null;
@@ -4588,8 +5020,6 @@ function createAudioConstraints() {
     }
 
 
-    // iPad / iPhoneのみ。
-
     if (
         IS_IOS
     ) {
@@ -4636,8 +5066,6 @@ function createAudioConstraints() {
     }
 
 
-    // PC・Androidは audio:true のまま。
-
     if (
         Object.keys(
             constraints
@@ -4668,6 +5096,7 @@ async function startMicrophone() {
             "HTTPS接続ではないためマイクを使用できません。"
         );
 
+
         return;
 
     }
@@ -4682,6 +5111,7 @@ async function startMicrophone() {
         alert(
             "このブラウザではマイク機能を利用できません。"
         );
+
 
         return;
 
@@ -4703,6 +5133,7 @@ async function startMicrophone() {
     calibrationVolumes =
         [];
 
+
     calibrating =
         true;
 
@@ -4710,8 +5141,10 @@ async function startMicrophone() {
     normalDynamicMin =
         NORMAL_MIN_VOLUME;
 
+
     weakDynamicMin =
         WEAK_MIN_VOLUME;
+
 
     iosWeakDynamicMin =
         IOS_WEAK_MIN_VOLUME;
@@ -4728,11 +5161,13 @@ async function startMicrophone() {
                 .mediaDevices
                 .getUserMedia(
                     {
+
                         audio:
                             audioConstraints,
 
                         video:
                             false
+
                     }
                 );
 
@@ -4748,7 +5183,8 @@ async function startMicrophone() {
 
 
         if (
-            audioContext.state ===
+            audioContext.state
+            ===
             "suspended"
         ) {
 
@@ -4888,6 +5324,7 @@ async function startMicrophone() {
         sampleQueue =
             [];
 
+
         queueOffset =
             0;
 
@@ -4956,6 +5393,12 @@ async function initialize() {
         updateDisplayModeButton();
 
 
+        /*
+            前回の鏡モード設定を復元
+        */
+        updateMirrorMode();
+
+
         await openDatabase();
 
 
@@ -4995,5 +5438,4 @@ initialize();
 </script>
 
 </body>
-
 </html>

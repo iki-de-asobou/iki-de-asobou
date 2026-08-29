@@ -43,11 +43,13 @@ body {
         "Hiragino Kaku Gothic ProN",
         "Meiryo",
         sans-serif;
+
+    font-weight: 600;
 }
 
 button {
     font-family: inherit;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
 
     min-height: 50px;
@@ -98,7 +100,7 @@ button {
     margin: 5px 0 15px;
 
     font-size: 34px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .title-s {
@@ -145,7 +147,7 @@ button {
     margin-top: 12px;
 
     font-size: 19px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .side-buttons {
@@ -166,6 +168,24 @@ button {
     line-height: 1.4;
 }
 
+
+/* =========================================================
+   トップページ 注意書き
+========================================================= */
+
+.trouble-note {
+    margin: 18px 2px 0;
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.7;
+
+    text-align: left;
+
+    color: #555;
+}
+
+
 .page {
     max-width: 1000px;
 
@@ -178,12 +198,14 @@ button {
 
 .page h1 {
     font-size: 36px;
+    font-weight: 600;
 
     margin: 5px 0 18px;
 }
 
 .description {
     font-size: 19px;
+    font-weight: 600;
 
     line-height: 1.7;
 
@@ -249,7 +271,7 @@ button {
     justify-content: center;
 
     font-size: 22px;
-    font-weight: bold;
+    font-weight: 600;
 
     overflow: hidden;
 }
@@ -387,6 +409,15 @@ button {
         grid-column: 1 / -1;
     }
 
+    .trouble-note {
+        grid-column: 1 / -1;
+
+        margin-top: 8px;
+        padding: 0 4px;
+
+        font-size: 12px;
+    }
+
     .title {
         font-size: 26px;
     }
@@ -490,6 +521,11 @@ button {
 表示モード：S音の間だけ
 </button>
 
+
+<p class="trouble-note">
+画像が変わらなくなるなど、不具合が生じた際は「再スタート」を押すか、ページを更新してください。
+</p>
+
 </div>
 
 
@@ -521,9 +557,16 @@ button {
 
 
 <p class="description">
-息と声をつなげ、音節（さしすせそ）の練習をしましょう。
+息と声をつなげ、音節（さすせそ）の練習をしましょう。
 </p>
 
+<p class="description">
+（「し」は子音が異なります。）
+</p>
+
+<p class="description">
+他の行音の練習にも使用できます。
+</p>
 
 <div class="vowel-controls">
 
@@ -636,11 +679,14 @@ button {
 
 
 <p class="description">
-「さしすせそ」を含む単語のイラストや写真を登録してください。
+「さすせそ」を含む単語のイラストや写真を登録してください。
 <br>
 クリックまたはタップすると順番に表示されます。
 </p>
 
+<p class="description">
+他の行音の練習にも使用できます。
+</p>
 
 <div
     id="wordImageBox"
@@ -749,7 +795,7 @@ if (
 
 
 // ============================================================
-// ★母音後続 鏡モード
+// 母音後続 鏡モード
 // ============================================================
 
 const MIRROR_MODE_STORAGE_KEY =
@@ -835,7 +881,6 @@ const IS_IOS =
 
 // ============================================================
 // Android
-// 完成版のまま
 // ============================================================
 
 const ANDROID_HOLD_HIGH_RATIO_MIN =
@@ -850,7 +895,6 @@ const ANDROID_RELEASE_SECONDS =
 
 // ============================================================
 // PC
-// 完成版のまま
 // ============================================================
 
 const PC_HOLD_HIGH_RATIO_MIN =
@@ -871,7 +915,6 @@ const PC_ONSET_EXTRA_FRAMES =
 
 // ============================================================
 // iPad / iPhone
-// 現在採用している調整版のまま
 // ============================================================
 
 const IOS_WEAK_MIN_VOLUME =
@@ -1455,10 +1498,6 @@ function revokeImageURL(
 }
 
 
-/*
-    iPad Safari対策。
-    src削除だけでなくCSSでも隠す。
-*/
 function clearImageElement(
     imageElement
 ) {
@@ -2113,7 +2152,7 @@ let dragging =
 
 
 // ============================================================
-// ★鏡モード表示更新
+// 鏡モード表示更新
 // ============================================================
 
 function updateMirrorMode() {
@@ -2148,7 +2187,7 @@ function updateMirrorMode() {
 
 
 // ============================================================
-// ★鏡モード切替
+// 鏡モード切替
 // ============================================================
 
 mirrorButton.addEventListener(
@@ -2316,13 +2355,7 @@ function minimumBarWidth() {
 
 
 // ============================================================
-// ★画面上のX座標を論理位置に変換
-//
-// 通常：左→右が 0→1
-// 鏡用：右→左が 0→1
-//
-// これにより反転後も
-// 指で見たまま自然に動かせる。
+// 画面上のX座標を論理位置に変換
 // ============================================================
 
 function pointerRatio(
@@ -4074,8 +4107,6 @@ function processResult(
         !soundLatched
     ) {
 
-        // PC追加確認
-
         if (
             !IS_ANDROID
             &&
@@ -5403,9 +5434,6 @@ async function initialize() {
         updateDisplayModeButton();
 
 
-        /*
-            前回の鏡モード設定を復元
-        */
         updateMirrorMode();
 
 

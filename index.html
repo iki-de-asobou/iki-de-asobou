@@ -423,6 +423,163 @@ button {
 }
 
 
+/* =========================================================
+   画像管理
+========================================================= */
+
+.image-manager-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background: rgba(0, 0, 0, 0.38);
+}
+
+.image-manager-overlay.open {
+    display: flex;
+}
+
+.image-manager-panel {
+    width: min(96vw, 980px);
+    max-height: 92vh;
+
+    overflow: auto;
+
+    padding: 22px;
+
+    background: white;
+    border-radius: 14px;
+
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+
+.image-manager-panel h2 {
+    margin: 0 0 8px;
+
+    font-size: 28px;
+    font-weight: 600;
+
+    text-align: center;
+}
+
+.image-manager-help {
+    margin: 0 0 18px;
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.7;
+
+    text-align: center;
+    color: #555;
+}
+
+.image-manager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 14px;
+}
+
+.image-manager-card {
+    padding: 9px;
+
+    border: 2px solid #ddd;
+    border-radius: 10px;
+
+    background: #fafafa;
+}
+
+.image-manager-card.selected {
+    border-color: #1677FF;
+    background: #EEF6FF;
+}
+
+.image-manager-thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    display: block;
+
+    object-fit: contain;
+
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.image-manager-number {
+    margin: 6px 0 4px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-align: center;
+}
+
+.image-manager-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 34px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.image-manager-select input {
+    width: 20px;
+    height: 20px;
+}
+
+.image-manager-move {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+
+    margin-top: 6px;
+}
+
+.image-manager-move button {
+    min-height: 40px;
+    padding: 5px 7px;
+
+    font-size: 13px;
+}
+
+.image-manager-actions {
+    margin-top: 20px;
+
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.image-manager-actions button {
+    min-width: 170px;
+}
+
+#deleteSelectedImagesButton {
+    border-color: #C73B3B;
+}
+
+.image-manager-empty {
+    grid-column: 1 / -1;
+
+    padding: 30px 10px;
+
+    text-align: center;
+    color: #666;
+}
+
+
 .copyright {
     margin-top: 28px;
     text-align: center;
@@ -546,7 +703,7 @@ button {
     id="mainCount"
     class="count"
 >
-登録画像：0 / 10
+登録画像：0 / 20
 </div>
 
 </div>
@@ -564,6 +721,10 @@ button {
 
 <button id="clearMainButton">
 画像をクリア
+</button>
+
+<button id="manageMainButton">
+画像を管理
 </button>
 
 <button id="vowelButton">
@@ -771,7 +932,7 @@ button {
     id="wordCount"
     class="count"
 >
-登録画像：0 / 12
+登録画像：0 / 20
 </div>
 
 
@@ -786,6 +947,10 @@ button {
 
 <button id="clearWordButton">
 画像をクリア
+</button>
+
+<button id="manageWordButton">
+画像を管理
 </button>
 
 <button id="wordMirrorButton">
@@ -803,6 +968,49 @@ button {
 
 </section>
 
+
+
+<!-- =========================================================
+     画像管理
+========================================================= -->
+
+<div
+    id="imageManagerOverlay"
+    class="image-manager-overlay"
+    aria-hidden="true"
+>
+
+<div class="image-manager-panel">
+
+<h2 id="imageManagerTitle">
+画像を管理
+</h2>
+
+<p class="image-manager-help">
+削除したい画像にチェックを入れてください。<br>
+「前へ」「後へ」で表示される順番を変更できます。
+</p>
+
+<div
+    id="imageManagerGrid"
+    class="image-manager-grid"
+></div>
+
+<div class="image-manager-actions">
+
+<button id="deleteSelectedImagesButton">
+選択した画像を削除
+</button>
+
+<button id="closeImageManagerButton">
+もどる
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 
 <input
@@ -833,8 +1041,8 @@ button {
 // 基本
 // ============================================================
 
-const MAX_MAIN_IMAGES = 10;
-const MAX_WORD_IMAGES = 12;
+const MAX_MAIN_IMAGES = 20;
+const MAX_WORD_IMAGES = 20;
 
 
 // ============================================================
@@ -1176,6 +1384,30 @@ const wordFileInput =
 const wordMirrorButton =
     document.getElementById(
         "wordMirrorButton"
+    );
+
+
+const imageManagerOverlay =
+    document.getElementById(
+        "imageManagerOverlay"
+    );
+
+
+const imageManagerTitle =
+    document.getElementById(
+        "imageManagerTitle"
+    );
+
+
+const imageManagerGrid =
+    document.getElementById(
+        "imageManagerGrid"
+    );
+
+
+const deleteSelectedImagesButton =
+    document.getElementById(
+        "deleteSelectedImagesButton"
     );
 
 
@@ -1610,6 +1842,141 @@ function clearImages(
 }
 
 
+function deleteImagesByIds(
+    storeName,
+    ids
+) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+
+            for (
+                const id
+                of ids
+            ) {
+
+                store.delete(
+                    id
+                );
+
+            }
+
+
+            transaction.oncomplete =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            transaction.onerror =
+                function() {
+
+                    reject(
+                        transaction.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+function saveImageOrder(
+    storeName,
+    records
+) {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            const transaction =
+                database.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+
+            records.forEach(
+                function(record, index) {
+
+                    record.sortOrder =
+                        index;
+
+
+                    store.put(
+                        record
+                    );
+
+                }
+            );
+
+
+            transaction.oncomplete =
+                function() {
+
+                    resolve();
+
+                };
+
+
+            transaction.onerror =
+                function() {
+
+                    reject(
+                        transaction.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+function imageSortValue(
+    record
+) {
+
+    if (
+        Number.isFinite(
+            record.sortOrder
+        )
+    ) {
+
+        return record.sortOrder;
+
+    }
+
+
+    return record.id;
+
+}
+
+
 async function reloadImages() {
 
     mainImages =
@@ -1620,7 +1987,7 @@ async function reloadImages() {
         ).sort(
             function(a, b) {
 
-                return a.id - b.id;
+                return imageSortValue(a) - imageSortValue(b);
 
             }
         );
@@ -1634,7 +2001,7 @@ async function reloadImages() {
         ).sort(
             function(a, b) {
 
-                return a.id - b.id;
+                return imageSortValue(a) - imageSortValue(b);
 
             }
         );
@@ -1645,7 +2012,9 @@ async function reloadImages() {
         +
         mainImages.length
         +
-        " / 10";
+        " / "
+        +
+        MAX_MAIN_IMAGES;
 
 
     wordCount.textContent =
@@ -1653,7 +2022,9 @@ async function reloadImages() {
         +
         wordImages.length
         +
-        " / 12";
+        " / "
+        +
+        MAX_WORD_IMAGES;
 
 }
 
@@ -1963,6 +2334,609 @@ function nextWordImage() {
 
 
 // ============================================================
+// 画像管理
+// ============================================================
+
+let imageManagerTarget =
+    null;
+
+
+let imageManagerSelectedIds =
+    new Set();
+
+
+let imageManagerObjectURLs =
+    [];
+
+
+function managedStoreName() {
+
+    return imageManagerTarget === "main"
+        ? STORE_MAIN
+        : STORE_WORD;
+
+}
+
+
+function managedImages() {
+
+    return imageManagerTarget === "main"
+        ? mainImages
+        : wordImages;
+
+}
+
+
+function revokeManagerObjectURLs() {
+
+    for (
+        const url
+        of imageManagerObjectURLs
+    ) {
+
+        URL.revokeObjectURL(
+            url
+        );
+
+    }
+
+
+    imageManagerObjectURLs =
+        [];
+
+}
+
+
+function renderImageManager() {
+
+    revokeManagerObjectURLs();
+
+
+    imageManagerGrid.replaceChildren();
+
+
+    const images =
+        managedImages();
+
+
+    if (
+        images.length === 0
+    ) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.className =
+            "image-manager-empty";
+
+
+        empty.textContent =
+            "登録されている画像はありません。";
+
+
+        imageManagerGrid.appendChild(
+            empty
+        );
+
+
+        deleteSelectedImagesButton.disabled =
+            true;
+
+
+        return;
+
+    }
+
+
+    deleteSelectedImagesButton.disabled =
+        imageManagerSelectedIds.size === 0;
+
+
+    images.forEach(
+        function(record, index) {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "image-manager-card";
+
+
+            if (
+                imageManagerSelectedIds.has(
+                    record.id
+                )
+            ) {
+
+                card.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.className =
+                "image-manager-thumb";
+
+            image.alt =
+                "登録画像 " + (index + 1);
+
+
+            const url =
+                URL.createObjectURL(
+                    record.blob
+                );
+
+
+            imageManagerObjectURLs.push(
+                url
+            );
+
+
+            image.src =
+                url;
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+
+            number.className =
+                "image-manager-number";
+
+            number.textContent =
+                (index + 1)
+                +
+                " / "
+                +
+                images.length;
+
+
+            const label =
+                document.createElement(
+                    "label"
+                );
+
+
+            label.className =
+                "image-manager-select";
+
+
+            const checkbox =
+                document.createElement(
+                    "input"
+                );
+
+
+            checkbox.type =
+                "checkbox";
+
+            checkbox.checked =
+                imageManagerSelectedIds.has(
+                    record.id
+                );
+
+
+            checkbox.addEventListener(
+                "change",
+                function() {
+
+                    if (
+                        checkbox.checked
+                    ) {
+
+                        imageManagerSelectedIds.add(
+                            record.id
+                        );
+
+                    }
+
+                    else {
+
+                        imageManagerSelectedIds.delete(
+                            record.id
+                        );
+
+                    }
+
+
+                    renderImageManager();
+
+                }
+            );
+
+
+            const labelText =
+                document.createElement(
+                    "span"
+                );
+
+
+            labelText.textContent =
+                "選択";
+
+
+            label.append(
+                checkbox,
+                labelText
+            );
+
+
+            const move =
+                document.createElement(
+                    "div"
+                );
+
+
+            move.className =
+                "image-manager-move";
+
+
+            const previousButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            previousButton.type =
+                "button";
+
+            previousButton.textContent =
+                "← 前へ";
+
+            previousButton.disabled =
+                index === 0;
+
+
+            previousButton.addEventListener(
+                "click",
+                function() {
+
+                    moveManagedImage(
+                        index,
+                        -1
+                    );
+
+                }
+            );
+
+
+            const nextButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            nextButton.type =
+                "button";
+
+            nextButton.textContent =
+                "後へ →";
+
+            nextButton.disabled =
+                index === images.length - 1;
+
+
+            nextButton.addEventListener(
+                "click",
+                function() {
+
+                    moveManagedImage(
+                        index,
+                        1
+                    );
+
+                }
+            );
+
+
+            move.append(
+                previousButton,
+                nextButton
+            );
+
+
+            card.append(
+                image,
+                number,
+                label,
+                move
+            );
+
+
+            imageManagerGrid.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+async function moveManagedImage(
+    index,
+    direction
+) {
+
+    const images =
+        managedImages();
+
+
+    const targetIndex =
+        index + direction;
+
+
+    if (
+        targetIndex < 0
+        ||
+        targetIndex >= images.length
+    ) {
+
+        return;
+
+    }
+
+
+    const temporary =
+        images[index];
+
+
+    images[index] =
+        images[targetIndex];
+
+    images[targetIndex] =
+        temporary;
+
+
+    await saveImageOrder(
+        managedStoreName(),
+        images
+    );
+
+
+    await reloadImages();
+
+
+    mainSequentialIndex =
+        0;
+
+    wordIndex =
+        0;
+
+
+    renderImageManager();
+
+}
+
+
+function openImageManager(
+    target
+) {
+
+    imageManagerTarget =
+        target;
+
+
+    imageManagerSelectedIds.clear();
+
+
+    imageManagerTitle.textContent =
+        target === "main"
+        ? "トップページの画像を管理"
+        : "単語練習の画像を管理";
+
+
+    renderImageManager();
+
+
+    imageManagerOverlay.classList.add(
+        "open"
+    );
+
+    imageManagerOverlay.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+}
+
+
+function closeImageManager() {
+
+    imageManagerOverlay.classList.remove(
+        "open"
+    );
+
+    imageManagerOverlay.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    imageManagerSelectedIds.clear();
+
+
+    revokeManagerObjectURLs();
+
+
+    if (
+        imageManagerTarget === "word"
+    ) {
+
+        showWordImage();
+
+    }
+
+
+    imageManagerTarget =
+        null;
+
+}
+
+
+async function deleteSelectedManagedImages() {
+
+    if (
+        imageManagerSelectedIds.size === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const count =
+        imageManagerSelectedIds.size;
+
+
+    if (
+        !confirm(
+            count
+            +
+            "枚の画像を削除しますか？"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    await deleteImagesByIds(
+        managedStoreName(),
+        Array.from(
+            imageManagerSelectedIds
+        )
+    );
+
+
+    imageManagerSelectedIds.clear();
+
+
+    await reloadImages();
+
+
+    const images =
+        managedImages();
+
+
+    if (
+        images.length > 0
+    ) {
+
+        await saveImageOrder(
+            managedStoreName(),
+            images
+        );
+
+        await reloadImages();
+
+    }
+
+
+    mainSequentialIndex =
+        0;
+
+    wordIndex =
+        0;
+
+
+    if (
+        imageManagerTarget === "main"
+    ) {
+
+        clearImageElement(
+            mainImage
+        );
+
+    }
+
+
+    renderImageManager();
+
+}
+
+
+document
+    .getElementById(
+        "manageMainButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            openImageManager(
+                "main"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "manageWordButton"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            openImageManager(
+                "word"
+            );
+
+        }
+    );
+
+
+deleteSelectedImagesButton.addEventListener(
+    "click",
+    deleteSelectedManagedImages
+);
+
+
+document
+    .getElementById(
+        "closeImageManagerButton"
+    )
+    .addEventListener(
+        "click",
+        closeImageManager
+    );
+
+
+imageManagerOverlay.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target === imageManagerOverlay
+        ) {
+
+            closeImageManager();
+
+        }
+
+    }
+);
+
+
+// ============================================================
 // 画像登録
 // ============================================================
 
@@ -1980,7 +2954,7 @@ document
             ) {
 
                 alert(
-                    "画像は10枚まで登録できます。"
+                    "画像は20枚まで登録できます。"
                 );
 
 
@@ -2101,6 +3075,10 @@ document
             );
 
 
+            mainSequentialIndex =
+                0;
+
+
             await reloadImages();
 
 
@@ -2126,7 +3104,7 @@ document
             ) {
 
                 alert(
-                    "画像は12枚まで登録できます。"
+                    "画像は20枚まで登録できます。"
                 );
 
 

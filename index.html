@@ -44,7 +44,7 @@ body {
         "Meiryo",
         sans-serif;
 
-    font-weight: 700;
+    font-weight: 700 + 0.1px;
 }
 
 button {
@@ -361,6 +361,16 @@ button {
     min-height: 24px;
 
     color: #555;
+}
+
+/* 単語画像の鏡モード */
+#wordImage {
+    transform-origin: center center;
+    transition: transform 0.18s ease;
+}
+
+#wordImage.mirror {
+    transform: scaleX(-1);
 }
 
 .bottom-buttons {
@@ -723,6 +733,10 @@ button {
 画像をクリア
 </button>
 
+<button id="wordMirrorButton">
+左右反転（鏡に映す）：OFF
+</button>
+
 <button id="wordBackButton">
 もどる
 </button>
@@ -805,6 +819,22 @@ const MIRROR_MODE_STORAGE_KEY =
 let mirrorMode =
     localStorage.getItem(
         MIRROR_MODE_STORAGE_KEY
+    )
+    ===
+    "true";
+
+
+// ============================================================
+// 単語 鏡モード
+// ============================================================
+
+const WORD_MIRROR_MODE_STORAGE_KEY =
+    "IkiDeAsobouWordMirrorMode";
+
+
+let wordMirrorMode =
+    localStorage.getItem(
+        WORD_MIRROR_MODE_STORAGE_KEY
     )
     ===
     "true";
@@ -1049,6 +1079,12 @@ const wordPosition =
 const wordFileInput =
     document.getElementById(
         "wordFileInput"
+    );
+
+
+const wordMirrorButton =
+    document.getElementById(
+        "wordMirrorButton"
     );
 
 
@@ -1599,6 +1635,63 @@ function showRandomMainImage() {
     );
 
 }
+
+
+// ============================================================
+// 単語 鏡モード表示更新
+// ============================================================
+
+function updateWordMirrorMode() {
+
+    if (
+        wordMirrorMode
+    ) {
+
+        wordImage.classList.add(
+            "mirror"
+        );
+
+
+        wordMirrorButton.textContent =
+            "左右反転（鏡に映す）：ON";
+
+    }
+
+    else {
+
+        wordImage.classList.remove(
+            "mirror"
+        );
+
+
+        wordMirrorButton.textContent =
+            "左右反転（鏡に映す）：OFF";
+
+    }
+
+}
+
+
+wordMirrorButton.addEventListener(
+    "click",
+    function() {
+
+        wordMirrorMode =
+            !wordMirrorMode;
+
+
+        localStorage.setItem(
+            WORD_MIRROR_MODE_STORAGE_KEY,
+            String(
+                wordMirrorMode
+            )
+        );
+
+
+        updateWordMirrorMode();
+
+    }
+);
 
 
 // ============================================================
@@ -5435,6 +5528,9 @@ async function initialize() {
 
 
         updateMirrorMode();
+
+
+        updateWordMirrorMode();
 
 
         await openDatabase();

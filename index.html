@@ -4637,6 +4637,17 @@ function analyzeFrame(
         0;
 
 
+    // iPad の「ふー」除外用。
+    // 既存の S 判定そのものは変えず、
+    // 周波数の偏りを追加で確認するための値だけ集計する。
+    let lowMid =
+        0;
+
+
+    let upperHigh =
+        0;
+
+
     for (
         let i = 0;
         i < fft.magnitudes.length;
@@ -4668,6 +4679,28 @@ function analyzeFrame(
 
         }
 
+
+        if (
+            frequency >= 700
+            &&
+            frequency < 3000
+        ) {
+
+            lowMid +=
+                magnitude;
+
+        }
+
+
+        if (
+            frequency >= 6000
+        ) {
+
+            upperHigh +=
+                magnitude;
+
+        }
+
     }
 
 
@@ -4675,6 +4708,22 @@ function analyzeFrame(
         total > 0
         ?
         high / total
+        :
+        0;
+
+
+    const lowMidRatio =
+        total > 0
+        ?
+        lowMid / total
+        :
+        0;
+
+
+    const upperHighRatio =
+        total > 0
+        ?
+        upperHigh / total
         :
         0;
 
@@ -4691,7 +4740,13 @@ function analyzeFrame(
             zcr,
 
         highRatio:
-            highRatio
+            highRatio,
+
+        lowMidRatio:
+            lowMidRatio,
+
+        upperHighRatio:
+            upperHighRatio
 
     };
 
@@ -4813,6 +4868,42 @@ function weakS(
     return commonSFeatures(
         result
     );
+
+}
+
+
+// ============================================================
+// iPad 「ふー」らしい息だけを除外
+// ============================================================
+
+function iosClearlyBreathy(
+    result
+) {
+
+    // 「すー」への感度を落とさないため、
+    // 1つの値だけでは除外しない。
+    //
+    // 低〜中域がかなり多く、6kHz以上が少なく、
+    // さらにゼロ交差率も低め、という条件が
+    // 同時にそろったときだけ「ふー」寄りとみなす。
+    // 条件が少しでも外れれば従来どおり S 候補として扱う。
+
+    if (
+        result.lowMidRatio >= 0.34
+        &&
+        result.upperHighRatio <= 0.105
+        &&
+        result.highRatio <= 0.49
+        &&
+        result.zcr <= 0.060
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
 
 }
 
@@ -5516,12 +5607,24 @@ function processResult(
             IOS_WEAK_REQUIRED;
 
 
+        const iosBreathVeto =
+            IS_IOS
+            &&
+            iosClearlyBreathy(
+                result
+            );
+
+
         if (
-            normalSuccess
-            ||
-            weakSuccess
-            ||
-            iosWeakSuccess
+            (
+                normalSuccess
+                ||
+                weakSuccess
+                ||
+                iosWeakSuccess
+            )
+            &&
+            !iosBreathVeto
         ) {
 
             if (

@@ -1246,6 +1246,12 @@ const IOS_WEAK_MIN_VOLUME =
 const IOS_WEAK_REQUIRED =
     5;
 
+// iPad / iPhone は、通常の強さのSでも
+// Sらしい形が約80ms続いてから開始とする。
+// 短い「s成分＋ふ」の誤発音で先にラッチするのを防ぐ。
+const IOS_NORMAL_REQUIRED =
+    5;
+
 
 // iPad / iPhone の「ふー」除外。
 // 「ふー」を後から除外するだけでなく、S開始時に
@@ -1255,22 +1261,30 @@ const IOS_BREATH_REQUIRED =
     2;
 
 const IOS_S_SHAPE_HIGH_RATIO_MIN =
-    0.50;
+    0.52;
 
 const IOS_S_SHAPE_CENTROID_MIN =
-    5000;
+    5200;
 
 const IOS_S_SHAPE_UPPER_HIGH_MIN =
-    0.18;
+    0.20;
 
 const IOS_S_SHAPE_UPPER_TO_LOWMID_MIN =
-    0.70;
+    0.85;
 
 const IOS_S_SHAPE_ZCR_MIN =
-    0.040;
+    0.050;
 
 const IOS_S_SHAPE_UPPER_SHARE_MIN =
-    0.34;
+    0.38;
+
+// さらに「ふー」と混合音を分けるため、
+// /s/で出やすい8kHz以上を直接確認する。
+const IOS_S_SHAPE_VERY_HIGH_MIN =
+    0.085;
+
+const IOS_S_SHAPE_VERY_HIGH_TO_MID_MIN =
+    0.60;
 
 
 const IOS_HOLD_HIGH_RATIO_MIN =
@@ -4682,6 +4696,14 @@ function analyzeFrame(
         0;
 
 
+    let mid24 =
+        0;
+
+
+    let veryHigh =
+        0;
+
+
     // スペクトル重心。
     // 「すー」は高い周波数側に重心が来やすく、
     // 「ふー」は低めになりやすいので、iPad の除外判定に使う。
@@ -4748,6 +4770,28 @@ function analyzeFrame(
 
         }
 
+
+        if (
+            frequency >= 2000
+            &&
+            frequency < 4000
+        ) {
+
+            mid24 +=
+                magnitude;
+
+        }
+
+
+        if (
+            frequency >= 8000
+        ) {
+
+            veryHigh +=
+                magnitude;
+
+        }
+
     }
 
 
@@ -4771,6 +4815,22 @@ function analyzeFrame(
         total > 0
         ?
         upperHigh / total
+        :
+        0;
+
+
+    const mid24Ratio =
+        total > 0
+        ?
+        mid24 / total
+        :
+        0;
+
+
+    const veryHighRatio =
+        total > 0
+        ?
+        veryHigh / total
         :
         0;
 
@@ -4802,6 +4862,12 @@ function analyzeFrame(
 
         upperHighRatio:
             upperHighRatio,
+
+        mid24Ratio:
+            mid24Ratio,
+
+        veryHighRatio:
+            veryHighRatio,
 
         spectralCentroid:
             spectralCentroid
@@ -4959,21 +5025,38 @@ function iosClearlyBreathy(
 
 
     const mixedFu =
-        result.spectralCentroid <= 5400
+        result.spectralCentroid <= 5700
         &&
-        result.lowMidRatio >= 0.24
+        result.lowMidRatio >= 0.21
         &&
-        result.upperHighRatio <= 0.22
+        result.upperHighRatio <= 0.25
         &&
-        result.highRatio <= 0.58
+        result.highRatio <= 0.62
         &&
-        result.zcr <= 0.100;
+        result.zcr <= 0.120;
+
+
+    const highButBreathy =
+        result.mid24Ratio >= 0.16
+        &&
+        result.veryHighRatio <= 0.10
+        &&
+        result.veryHighRatio
+            /
+            Math.max(
+                result.mid24Ratio,
+                0.001
+            )
+            <
+            0.55;
 
 
     return (
         clearFu
         ||
         mixedFu
+        ||
+        highButBreathy
     );
 
 }
@@ -5007,6 +5090,15 @@ function iosSShape(
         /
         Math.max(
             result.highRatio,
+            0.001
+        );
+
+
+    const veryHighToMid =
+        result.veryHighRatio
+        /
+        Math.max(
+            result.mid24Ratio,
             0.001
         );
 
@@ -5070,6 +5162,28 @@ function iosSShape(
         upperShareOfHigh
         <
         IOS_S_SHAPE_UPPER_SHARE_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.veryHighRatio
+        <
+        IOS_S_SHAPE_VERY_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        veryHighToMid
+        <
+        IOS_S_SHAPE_VERY_HIGH_TO_MID_MIN
     ) {
 
         return false;
@@ -5845,13 +5959,25 @@ function processResult(
         const normalSuccess =
             normalCount
             >=
-            NORMAL_REQUIRED;
+            (
+                IS_IOS
+                ?
+                IOS_NORMAL_REQUIRED
+                :
+                NORMAL_REQUIRED
+            );
 
 
         const weakSuccess =
             weakCount
             >=
-            WEAK_REQUIRED;
+            (
+                IS_IOS
+                ?
+                IOS_WEAK_REQUIRED
+                :
+                WEAK_REQUIRED
+            );
 
 
         const iosWeakSuccess =

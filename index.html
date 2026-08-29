@@ -194,7 +194,8 @@ button {
     font-size: 18px;
 }
 
-#displayModeButton {
+#displayModeButton,
+#imageOrderButton {
     line-height: 1.4;
 }
 
@@ -453,7 +454,8 @@ button {
         gap: 10px;
     }
 
-    #displayModeButton {
+    #displayModeButton,
+    #imageOrderButton {
         grid-column: 1 / -1;
     }
 
@@ -574,6 +576,10 @@ button {
 
 <button id="displayModeButton">
 表示モード：s音の間だけ
+</button>
+
+<button id="imageOrderButton">
+表示順：ランダム
 </button>
 
 
@@ -858,6 +864,36 @@ if (
 
 
 // ============================================================
+// トップ画像の表示順
+// ============================================================
+
+const IMAGE_ORDER_STORAGE_KEY =
+    "IkiDeAsobouImageOrder";
+
+
+let imageOrderMode =
+    localStorage.getItem(
+        IMAGE_ORDER_STORAGE_KEY
+    );
+
+
+if (
+    imageOrderMode !== "random"
+    &&
+    imageOrderMode !== "sequential"
+) {
+
+    imageOrderMode =
+        "random";
+
+}
+
+
+let mainSequentialIndex =
+    0;
+
+
+// ============================================================
 // 母音後続 鏡モード
 // ============================================================
 
@@ -1083,6 +1119,12 @@ const displayModeButton =
     );
 
 
+const imageOrderButton =
+    document.getElementById(
+        "imageOrderButton"
+    );
+
+
 const mainImage =
     document.getElementById(
         "mainImage"
@@ -1203,6 +1245,67 @@ displayModeButton.addEventListener(
             );
 
         }
+
+    }
+);
+
+
+// ============================================================
+// トップ画像の表示順
+// ============================================================
+
+function updateImageOrderButton() {
+
+    if (
+        imageOrderMode === "random"
+    ) {
+
+        imageOrderButton.textContent =
+            "画像の順番：ランダム";
+
+    }
+
+    else {
+
+        imageOrderButton.textContent =
+            "画像の順番：順番";
+
+    }
+
+}
+
+
+imageOrderButton.addEventListener(
+    "click",
+    function() {
+
+        if (
+            imageOrderMode === "random"
+        ) {
+
+            imageOrderMode =
+                "sequential";
+
+            mainSequentialIndex =
+                0;
+
+        }
+
+        else {
+
+            imageOrderMode =
+                "random";
+
+        }
+
+
+        localStorage.setItem(
+            IMAGE_ORDER_STORAGE_KEY,
+            imageOrderMode
+        );
+
+
+        updateImageOrderButton();
 
     }
 );
@@ -1654,7 +1757,7 @@ function displayBlob(
 }
 
 
-function showRandomMainImage() {
+function showMainImage() {
 
     if (
         mainImages.length === 0
@@ -1670,12 +1773,47 @@ function showRandomMainImage() {
     }
 
 
-    const index =
-        Math.floor(
-            Math.random()
-            *
+    let index;
+
+
+    if (
+        imageOrderMode === "sequential"
+    ) {
+
+        if (
+            mainSequentialIndex >=
             mainImages.length
-        );
+        ) {
+
+            mainSequentialIndex =
+                0;
+
+        }
+
+
+        index =
+            mainSequentialIndex;
+
+
+        mainSequentialIndex =
+            (
+                mainSequentialIndex + 1
+            )
+            %
+            mainImages.length;
+
+    }
+
+    else {
+
+        index =
+            Math.floor(
+                Math.random()
+                *
+                mainImages.length
+            );
+
+    }
 
 
     displayBlob(
@@ -4203,7 +4341,7 @@ function latchS(
         0;
 
 
-    showRandomMainImage();
+    showMainImage();
 
 }
 
@@ -5574,6 +5712,9 @@ async function initialize() {
     try {
 
         updateDisplayModeButton();
+
+
+        updateImageOrderButton();
 
 
         updateMirrorMode();

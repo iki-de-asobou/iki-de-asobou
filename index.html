@@ -1409,6 +1409,27 @@ const BREATH_RELEASE_SECONDS =
     0.18;
 
 
+// iPad / iPhone の「ふーっと！」だけ追加調整。
+// 弱い息への開始感度は維持しつつ、
+// ・声だけの入力を開始しにくくする
+// ・息が止まったら早めに終了する
+// ための端末別判定。
+const IOS_BREATH_RELEASE_SECONDS =
+    0.10;
+
+const IOS_BREATH_REFERENCE_BUILD_SECONDS =
+    0.22;
+
+const IOS_BREATH_RELEASE_RATIO =
+    0.40;
+
+const IOS_BREATH_RELEASE_NOISE_MULTIPLIER =
+    1.055;
+
+const IOS_BREATH_RELEASE_NOISE_ADD =
+    0.00007;
+
+
 // ============================================================
 // Watchdog
 // ============================================================
@@ -4250,6 +4271,22 @@ let breathReleaseFramesNeeded =
     11;
 
 
+let iosBreathReleaseFramesNeeded =
+    6;
+
+
+let iosBreathReferenceBuildFramesNeeded =
+    13;
+
+
+let breathReferenceVolume =
+    0;
+
+
+let breathActiveFrameCount =
+    0;
+
+
 let soundLatched =
     false;
 
@@ -4330,6 +4367,14 @@ function resetRecognitionState(
 
 
     breathReleaseCount =
+        0;
+
+
+    breathReferenceVolume =
+        0;
+
+
+    breathActiveFrameCount =
         0;
 
 
@@ -5954,6 +5999,20 @@ function breathCandidate(
     }
 
 
+    // iPad / iPhone は声の成分を息として拾いやすいため、
+    // iOSだけ追加の声判定を通す。
+    // 弱い息の音量しきい値そのものは上げない。
+    if (
+        breathLooksLikeVoiceIOS(
+            result
+        )
+    ) {
+
+        return false;
+
+    }
+
+
     const peakRatio =
         result.volume > 0
         ?
@@ -5979,6 +6038,147 @@ function breathCandidate(
         result.peak
         >
         BREATH_PEAK_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+function breathLooksLikeVoiceIOS(
+    result
+) {
+
+    if (
+        !IS_IOS
+    ) {
+
+        return false;
+
+    }
+
+
+    // 母音などの声は、iPadでは低～中域へ集中し、
+    // ZCRが低くなりやすい。
+    // 条件を単独で厳しくしすぎず、複数の特徴が
+    // 同時に「声らしい」ときだけ除外する。
+    if (
+        result.zcr < 0.040
+        &&
+        result.spectralCentroid < 3000
+        &&
+        result.highRatio < 0.25
+        &&
+        result.lowMidRatio > 0.34
+    ) {
+
+        return true;
+
+    }
+
+
+    // さらに、かなり周期的な声を除外する。
+    if (
+        result.zcr < 0.025
+        &&
+        result.highRatio < 0.30
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+function holdBreathIOS(
+    result
+) {
+
+    // 息開始直後の最大音量を短時間だけ基準として保存する。
+    breathActiveFrameCount++;
+
+
+    if (
+        breathActiveFrameCount
+        <=
+        iosBreathReferenceBuildFramesNeeded
+        &&
+        result.volume
+        >
+        breathReferenceVolume
+    ) {
+
+        breathReferenceVolume =
+            result.volume;
+
+    }
+
+
+    const relativeThreshold =
+        breathReferenceVolume
+        *
+        IOS_BREATH_RELEASE_RATIO;
+
+
+    const noiseThreshold =
+        Math.max(
+            noiseFloor
+            *
+            IOS_BREATH_RELEASE_NOISE_MULTIPLIER,
+
+            noiseFloor
+            +
+            IOS_BREATH_RELEASE_NOISE_ADD,
+
+            0.00042
+        );
+
+
+    const minimumVolume =
+        Math.max(
+            relativeThreshold,
+            noiseThreshold
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    // 声へ移行した場合も「息が続いている」とみなさない。
+    if (
+        breathLooksLikeVoiceIOS(
+            result
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    // iPadでは無音後の微小な残留ノイズだけで
+    // ラッチし続けないよう、最低限の息らしさを残す。
+    if (
+        result.zcr < 0.010
+        &&
+        result.highRatio < 0.070
     ) {
 
         return false;
@@ -6080,6 +6280,14 @@ function processBreathResult(
                 0;
 
 
+            breathReferenceVolume =
+                result.volume;
+
+
+            breathActiveFrameCount =
+                0;
+
+
             showMainImage();
 
         }
@@ -6090,10 +6298,20 @@ function processBreathResult(
     }
 
 
-    if (
-        holdBreath(
+    const breathStillActive =
+        IS_IOS
+        ?
+        holdBreathIOS(
             result
         )
+        :
+        holdBreath(
+            result
+        );
+
+
+    if (
+        breathStillActive
     ) {
 
         breathReleaseCount =
@@ -6108,10 +6326,18 @@ function processBreathResult(
     breathReleaseCount++;
 
 
+    const requiredReleaseFrames =
+        IS_IOS
+        ?
+        iosBreathReleaseFramesNeeded
+        :
+        breathReleaseFramesNeeded;
+
+
     if (
         breathReleaseCount
         >=
-        breathReleaseFramesNeeded
+        requiredReleaseFrames
     ) {
 
         finishCurrentS();
@@ -7495,6 +7721,34 @@ async function startMicrophone() {
 
                 Math.round(
                     BREATH_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosBreathReleaseFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    IOS_BREATH_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        iosBreathReferenceBuildFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    IOS_BREATH_REFERENCE_BUILD_SECONDS
                     *
                     audioContext.sampleRate
                     /

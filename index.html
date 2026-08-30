@@ -751,7 +751,7 @@ button {
 
 
 <p class="trouble-note">
-画像が変わらなくなるなど、不具合が生じた際は「再スタート」を押すか、ページを再読み込みしてください。
+画像が変わらなくなるなど、不具合が生じた際は「停止」→「スタート」を押すか、ページを再読み込みしてください。
 </p>
 
 </div>
@@ -1367,22 +1367,22 @@ const IOS_INITIAL_PROTECTION_SECONDS =
 // 弱い呼気にも反応しやすいよう、開始音量は
 // 周囲雑音に対して少し上回る程度にする。
 const BREATH_MIN_VOLUME =
-    0.0018;
+    0.00115;
 
 const BREATH_NOISE_MULTIPLIER =
-    1.10;
+    1.045;
 
 const BREATH_NOISE_ADD =
-    0.00030;
+    0.00012;
 
 const BREATH_HIGH_RATIO_MIN =
-    0.12;
+    0.10;
 
 const BREATH_ZCR_MIN =
-    0.015;
+    0.018;
 
 const BREATH_CENTROID_MIN =
-    1400;
+    1700;
 
 const BREATH_PEAK_RATIO_LIMIT =
     5.5;
@@ -1393,17 +1393,17 @@ const BREATH_PEAK_LIMIT =
 // 息らしい音が数フレーム連続したときだけ開始。
 // 声や一瞬の物音への誤反応を減らす。
 const BREATH_REQUIRED =
-    4;
+    5;
 
 // 継続中は開始条件よりさらに緩くする。
 const BREATH_HOLD_MIN_VOLUME =
-    0.00135;
+    0.00090;
 
 const BREATH_HOLD_NOISE_MULTIPLIER =
-    1.06;
+    1.025;
 
 const BREATH_HOLD_NOISE_ADD =
-    0.00020;
+    0.00008;
 
 const BREATH_RELEASE_SECONDS =
     0.18;
@@ -4296,6 +4296,11 @@ let rebuildingGraph =
     false;
 
 
+// スタート／停止ボタン用
+let microphoneRunning =
+    false;
+
+
 // ============================================================
 // リセット
 // ============================================================
@@ -5930,6 +5935,18 @@ function breathCandidate(
         result.spectralCentroid
         <
         BREATH_CENTROID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    // 声だけの入力を開始候補から外す。
+    if (
+        result.highRatio < 0.18
+        &&
+        result.zcr < 0.035
     ) {
 
         return false;
@@ -7588,8 +7605,12 @@ async function startMicrophone() {
             false;
 
 
+        microphoneRunning =
+            true;
+
+
         startButton.textContent =
-            "再スタート";
+            "停止";
 
     }
 
@@ -7600,8 +7621,28 @@ async function startMicrophone() {
         );
 
 
+        stopExistingMicrophone();
+
+
+        resetRecognitionState(
+            true
+        );
+
+
+        calibrating =
+            false;
+
+
+        calibrationVolumes =
+            [];
+
+
         statusElement.textContent =
             "";
+
+
+        microphoneRunning =
+            false;
 
 
         startButton.disabled =
@@ -7622,12 +7663,72 @@ async function startMicrophone() {
 
 
 // ============================================================
-// スタート
+// スタート／停止
 // ============================================================
+
+function stopMicrophoneByUser() {
+
+    stopExistingMicrophone();
+
+
+    resetRecognitionState(
+        true
+    );
+
+
+    calibrating =
+        false;
+
+
+    calibrationVolumes =
+        [];
+
+
+    sampleQueue =
+        [];
+
+
+    queueOffset =
+        0;
+
+
+    statusElement.textContent =
+        "";
+
+
+    microphoneRunning =
+        false;
+
+
+    startButton.disabled =
+        false;
+
+
+    startButton.textContent =
+        "スタート";
+
+}
+
 
 startButton.addEventListener(
     "click",
-    startMicrophone
+    function() {
+
+        if (
+            microphoneRunning
+        ) {
+
+            stopMicrophoneByUser();
+
+        }
+
+        else {
+
+            startMicrophone();
+
+        }
+
+    }
 );
 
 

@@ -751,7 +751,7 @@ button {
 
 
 <p class="trouble-note">
-画像が変わらなくなるなど、不具合が生じた際は「停止」→「スタート」を押すか、ページを再読み込みしてください。
+画像が変わらなくなるなど、不具合が生じた際は「再スタート」を押すか、ページを再読み込みしてください。
 </p>
 
 </div>
@@ -1367,22 +1367,22 @@ const IOS_INITIAL_PROTECTION_SECONDS =
 // 弱い呼気にも反応しやすいよう、開始音量は
 // 周囲雑音に対して少し上回る程度にする。
 const BREATH_MIN_VOLUME =
-    0.00070;
+    0.0018;
 
 const BREATH_NOISE_MULTIPLIER =
-    1.020;
+    1.10;
 
 const BREATH_NOISE_ADD =
-    0.00004;
+    0.00030;
 
 const BREATH_HIGH_RATIO_MIN =
-    0.10;
+    0.12;
 
 const BREATH_ZCR_MIN =
-    0.018;
+    0.015;
 
 const BREATH_CENTROID_MIN =
-    1700;
+    1400;
 
 const BREATH_PEAK_RATIO_LIMIT =
     5.5;
@@ -1397,37 +1397,37 @@ const BREATH_REQUIRED =
 
 // 継続中は開始条件よりさらに緩くする。
 const BREATH_HOLD_MIN_VOLUME =
-    0.00050;
+    0.00135;
 
 const BREATH_HOLD_NOISE_MULTIPLIER =
-    1.010;
+    1.06;
 
 const BREATH_HOLD_NOISE_ADD =
-    0.00002;
+    0.00020;
 
 const BREATH_RELEASE_SECONDS =
     0.18;
 
+// iPad / iPhone の「ふーっと！」専用。
+// 弱い息への感度は保ちつつ、声や一瞬の微弱な物音を減らす。
+// 音量を強く上げるのではなく、ノイズらしさ＋持続性で判定する。
+const IOS_BREATH_MIN_VOLUME =
+    0.00145;
 
-// iPad / iPhone の「ふーっと！」だけ追加調整。
-// 弱い息への開始感度は維持しつつ、
-// ・声だけの入力を開始しにくくする
-// ・息が止まったら早めに終了する
-// ための端末別判定。
-const IOS_BREATH_RELEASE_SECONDS =
-    0.10;
+const IOS_BREATH_NOISE_MULTIPLIER =
+    1.07;
 
-const IOS_BREATH_REFERENCE_BUILD_SECONDS =
-    0.22;
+const IOS_BREATH_NOISE_ADD =
+    0.00018;
 
-const IOS_BREATH_RELEASE_RATIO =
-    0.40;
+const IOS_FU_MODE_REQUIRED =
+    6;
 
-const IOS_BREATH_RELEASE_NOISE_MULTIPLIER =
-    1.055;
+const IOS_BREATH_FLATNESS_MIN =
+    0.055;
 
-const IOS_BREATH_RELEASE_NOISE_ADD =
-    0.00007;
+const IOS_BREATH_LOW_RATIO_MAX =
+    0.72;
 
 
 // ============================================================
@@ -4271,22 +4271,6 @@ let breathReleaseFramesNeeded =
     11;
 
 
-let iosBreathReleaseFramesNeeded =
-    6;
-
-
-let iosBreathReferenceBuildFramesNeeded =
-    13;
-
-
-let breathReferenceVolume =
-    0;
-
-
-let breathActiveFrameCount =
-    0;
-
-
 let soundLatched =
     false;
 
@@ -4333,11 +4317,6 @@ let rebuildingGraph =
     false;
 
 
-// スタート／停止ボタン用
-let microphoneRunning =
-    false;
-
-
 // ============================================================
 // リセット
 // ============================================================
@@ -4367,14 +4346,6 @@ function resetRecognitionState(
 
 
     breathReleaseCount =
-        0;
-
-
-    breathReferenceVolume =
-        0;
-
-
-    breathActiveFrameCount =
         0;
 
 
@@ -4951,6 +4922,20 @@ function analyzeFrame(
         0;
 
 
+    // 「ふーっと！」で声を除外するための低域比率と
+    // スペクトル平坦度（ノイズらしさ）。
+    let lowBand =
+        0;
+
+
+    let logMagnitudeTotal =
+        0;
+
+
+    let magnitudeBinCount =
+        0;
+
+
     // スペクトル重心。
     // 「すー」は高い周波数側に重心が来やすく、
     // 「ふー」は低めになりやすいので、iPad の除外判定に使う。
@@ -4972,6 +4957,19 @@ function analyzeFrame(
             magnitude;
 
 
+        // 0除算・log(0)を避けるごく小さい下限。
+        logMagnitudeTotal +=
+            Math.log(
+                Math.max(
+                    magnitude,
+                    1e-12
+                )
+            );
+
+
+        magnitudeBinCount++;
+
+
         const frequency =
             i
             *
@@ -4984,6 +4982,16 @@ function analyzeFrame(
             frequency
             *
             magnitude;
+
+
+        if (
+            frequency < 1200
+        ) {
+
+            lowBand +=
+                magnitude;
+
+        }
 
 
         if (
@@ -5082,6 +5090,34 @@ function analyzeFrame(
         0;
 
 
+    const lowBandRatio =
+        total > 0
+        ?
+        lowBand / total
+        :
+        0;
+
+
+    const spectralFlatness =
+        total > 0
+        &&
+        magnitudeBinCount > 0
+        ?
+        Math.exp(
+            logMagnitudeTotal
+            /
+            magnitudeBinCount
+        )
+        /
+        (
+            total
+            /
+            magnitudeBinCount
+        )
+        :
+        0;
+
+
     const spectralCentroid =
         total > 0
         ?
@@ -5115,6 +5151,12 @@ function analyzeFrame(
 
         veryHighRatio:
             veryHighRatio,
+
+        lowBandRatio:
+            lowBandRatio,
+
+        spectralFlatness:
+            spectralFlatness,
 
         spectralCentroid:
             spectralCentroid
@@ -5931,6 +5973,131 @@ function breathCandidate(
     result
 ) {
 
+    // iPad / iPhone は弱い呼気を拾うため音量下限を低く保ち、
+    // 代わりに「ノイズらしさ」を複数の特徴で確認する。
+    // すべてを必須にはせず、弱い息を取りこぼしにくい点数方式にする。
+    if (
+        IS_IOS
+    ) {
+
+        const minimumVolume =
+            Math.max(
+                IOS_BREATH_MIN_VOLUME,
+                noiseFloor
+                *
+                IOS_BREATH_NOISE_MULTIPLIER,
+                noiseFloor
+                +
+                IOS_BREATH_NOISE_ADD
+            );
+
+
+        if (
+            result.volume
+            <
+            minimumVolume
+        ) {
+
+            return false;
+
+        }
+
+
+        const peakRatio =
+            result.volume > 0
+            ?
+            result.peak
+            /
+            result.volume
+            :
+            999;
+
+
+        // 接触音・クリックなどの瞬間音を除外。
+        if (
+            peakRatio > 5.0
+            ||
+            result.peak > 0.085
+        ) {
+
+            return false;
+
+        }
+
+
+        let breathScore =
+            0;
+
+
+        if (
+            result.highRatio >= 0.075
+        ) {
+
+            breathScore++;
+
+        }
+
+
+        if (
+            result.zcr >= 0.011
+        ) {
+
+            breathScore++;
+
+        }
+
+
+        if (
+            result.spectralCentroid >= 1050
+        ) {
+
+            breathScore++;
+
+        }
+
+
+        if (
+            result.spectralFlatness
+            >=
+            IOS_BREATH_FLATNESS_MIN
+        ) {
+
+            breathScore += 2;
+
+        }
+
+
+        if (
+            result.lowBandRatio
+            <=
+            IOS_BREATH_LOW_RATIO_MAX
+        ) {
+
+            breathScore++;
+
+        }
+
+
+        // 声は低域へ集まりやすく平坦度も低くなりやすい。
+        // 両方が明確に声寄りなら、弱い音でも開始させない。
+        if (
+            result.lowBandRatio > 0.78
+            &&
+            result.spectralFlatness < 0.045
+        ) {
+
+            return false;
+
+        }
+
+
+        return (
+            breathScore >= 4
+        );
+
+    }
+
+
     const minimumVolume =
         Math.max(
             BREATH_MIN_VOLUME,
@@ -5987,32 +6154,6 @@ function breathCandidate(
     }
 
 
-    // 声だけの入力を開始候補から外す。
-    if (
-        result.highRatio < 0.18
-        &&
-        result.zcr < 0.035
-    ) {
-
-        return false;
-
-    }
-
-
-    // iPad / iPhone は声の成分を息として拾いやすいため、
-    // iOSだけ追加の声判定を通す。
-    // 弱い息の音量しきい値そのものは上げない。
-    if (
-        breathLooksLikeVoiceIOS(
-            result
-        )
-    ) {
-
-        return false;
-
-    }
-
-
     const peakRatio =
         result.volume > 0
         ?
@@ -6048,148 +6189,6 @@ function breathCandidate(
     return true;
 
 }
-
-
-function breathLooksLikeVoiceIOS(
-    result
-) {
-
-    if (
-        !IS_IOS
-    ) {
-
-        return false;
-
-    }
-
-
-    // 母音などの声は、iPadでは低～中域へ集中し、
-    // ZCRが低くなりやすい。
-    // 条件を単独で厳しくしすぎず、複数の特徴が
-    // 同時に「声らしい」ときだけ除外する。
-    if (
-        result.zcr < 0.040
-        &&
-        result.spectralCentroid < 3000
-        &&
-        result.highRatio < 0.25
-        &&
-        result.lowMidRatio > 0.34
-    ) {
-
-        return true;
-
-    }
-
-
-    // さらに、かなり周期的な声を除外する。
-    if (
-        result.zcr < 0.025
-        &&
-        result.highRatio < 0.30
-    ) {
-
-        return true;
-
-    }
-
-
-    return false;
-
-}
-
-
-function holdBreathIOS(
-    result
-) {
-
-    // 息開始直後の最大音量を短時間だけ基準として保存する。
-    breathActiveFrameCount++;
-
-
-    if (
-        breathActiveFrameCount
-        <=
-        iosBreathReferenceBuildFramesNeeded
-        &&
-        result.volume
-        >
-        breathReferenceVolume
-    ) {
-
-        breathReferenceVolume =
-            result.volume;
-
-    }
-
-
-    const relativeThreshold =
-        breathReferenceVolume
-        *
-        IOS_BREATH_RELEASE_RATIO;
-
-
-    const noiseThreshold =
-        Math.max(
-            noiseFloor
-            *
-            IOS_BREATH_RELEASE_NOISE_MULTIPLIER,
-
-            noiseFloor
-            +
-            IOS_BREATH_RELEASE_NOISE_ADD,
-
-            0.00042
-        );
-
-
-    const minimumVolume =
-        Math.max(
-            relativeThreshold,
-            noiseThreshold
-        );
-
-
-    if (
-        result.volume
-        <
-        minimumVolume
-    ) {
-
-        return false;
-
-    }
-
-
-    // 声へ移行した場合も「息が続いている」とみなさない。
-    if (
-        breathLooksLikeVoiceIOS(
-            result
-        )
-    ) {
-
-        return false;
-
-    }
-
-
-    // iPadでは無音後の微小な残留ノイズだけで
-    // ラッチし続けないよう、最低限の息らしさを残す。
-    if (
-        result.zcr < 0.010
-        &&
-        result.highRatio < 0.070
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
 
 function holdBreath(
     result
@@ -6262,10 +6261,18 @@ function processBreathResult(
         }
 
 
+        const breathRequired =
+            IS_IOS
+            ?
+            IOS_FU_MODE_REQUIRED
+            :
+            BREATH_REQUIRED;
+
+
         if (
             breathCandidateCount
             >=
-            BREATH_REQUIRED
+            breathRequired
         ) {
 
             soundLatched =
@@ -6280,14 +6287,6 @@ function processBreathResult(
                 0;
 
 
-            breathReferenceVolume =
-                result.volume;
-
-
-            breathActiveFrameCount =
-                0;
-
-
             showMainImage();
 
         }
@@ -6298,20 +6297,10 @@ function processBreathResult(
     }
 
 
-    const breathStillActive =
-        IS_IOS
-        ?
-        holdBreathIOS(
-            result
-        )
-        :
+    if (
         holdBreath(
             result
-        );
-
-
-    if (
-        breathStillActive
+        )
     ) {
 
         breathReleaseCount =
@@ -6326,18 +6315,10 @@ function processBreathResult(
     breathReleaseCount++;
 
 
-    const requiredReleaseFrames =
-        IS_IOS
-        ?
-        iosBreathReleaseFramesNeeded
-        :
-        breathReleaseFramesNeeded;
-
-
     if (
         breathReleaseCount
         >=
-        requiredReleaseFrames
+        breathReleaseFramesNeeded
     ) {
 
         finishCurrentS();
@@ -7729,34 +7710,6 @@ async function startMicrophone() {
             );
 
 
-        iosBreathReleaseFramesNeeded =
-            Math.max(
-                1,
-
-                Math.round(
-                    IOS_BREATH_RELEASE_SECONDS
-                    *
-                    audioContext.sampleRate
-                    /
-                    frameSize
-                )
-            );
-
-
-        iosBreathReferenceBuildFramesNeeded =
-            Math.max(
-                1,
-
-                Math.round(
-                    IOS_BREATH_REFERENCE_BUILD_SECONDS
-                    *
-                    audioContext.sampleRate
-                    /
-                    frameSize
-                )
-            );
-
-
         pcSoftReleaseFramesNeeded =
             Math.max(
                 1,
@@ -7859,12 +7812,8 @@ async function startMicrophone() {
             false;
 
 
-        microphoneRunning =
-            true;
-
-
         startButton.textContent =
-            "停止";
+            "再スタート";
 
     }
 
@@ -7875,28 +7824,8 @@ async function startMicrophone() {
         );
 
 
-        stopExistingMicrophone();
-
-
-        resetRecognitionState(
-            true
-        );
-
-
-        calibrating =
-            false;
-
-
-        calibrationVolumes =
-            [];
-
-
         statusElement.textContent =
             "";
-
-
-        microphoneRunning =
-            false;
 
 
         startButton.disabled =
@@ -7917,72 +7846,12 @@ async function startMicrophone() {
 
 
 // ============================================================
-// スタート／停止
+// スタート
 // ============================================================
-
-function stopMicrophoneByUser() {
-
-    stopExistingMicrophone();
-
-
-    resetRecognitionState(
-        true
-    );
-
-
-    calibrating =
-        false;
-
-
-    calibrationVolumes =
-        [];
-
-
-    sampleQueue =
-        [];
-
-
-    queueOffset =
-        0;
-
-
-    statusElement.textContent =
-        "";
-
-
-    microphoneRunning =
-        false;
-
-
-    startButton.disabled =
-        false;
-
-
-    startButton.textContent =
-        "スタート";
-
-}
-
 
 startButton.addEventListener(
     "click",
-    function() {
-
-        if (
-            microphoneRunning
-        ) {
-
-            stopMicrophoneByUser();
-
-        }
-
-        else {
-
-            startMicrophone();
-
-        }
-
-    }
+    startMicrophone
 );
 
 

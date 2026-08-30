@@ -1367,13 +1367,13 @@ const IOS_INITIAL_PROTECTION_SECONDS =
 // 弱い呼気にも反応しやすいよう、開始音量は
 // 周囲雑音に対して少し上回る程度にする。
 const BREATH_MIN_VOLUME =
-    0.00115;
+    0.00070;
 
 const BREATH_NOISE_MULTIPLIER =
-    1.045;
+    1.020;
 
 const BREATH_NOISE_ADD =
-    0.00012;
+    0.00004;
 
 const BREATH_HIGH_RATIO_MIN =
     0.10;
@@ -1393,17 +1393,17 @@ const BREATH_PEAK_LIMIT =
 // 息らしい音が数フレーム連続したときだけ開始。
 // 声や一瞬の物音への誤反応を減らす。
 const BREATH_REQUIRED =
-    5;
+    4;
 
 // 継続中は開始条件よりさらに緩くする。
 const BREATH_HOLD_MIN_VOLUME =
-    0.00090;
+    0.00050;
 
 const BREATH_HOLD_NOISE_MULTIPLIER =
-    1.025;
+    1.010;
 
 const BREATH_HOLD_NOISE_ADD =
-    0.00008;
+    0.00002;
 
 const BREATH_RELEASE_SECONDS =
     0.18;

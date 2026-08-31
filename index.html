@@ -194,6 +194,50 @@ button {
     font-size: 18px;
 }
 
+
+.diagnostic-panel {
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid #b9cbd2;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    line-height: 1.55;
+    text-align: left;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+.ipad-diagnostic-note {
+    margin: 4px 0 7px;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.diagnostic-record-button {
+    margin: 3px 4px 5px 0;
+    padding: 7px 9px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.diagnostic-record-status {
+    min-height: 1.4em;
+    margin: 2px 0 5px;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.diagnostic-title {
+    margin-bottom: 4px;
+    font-family: sans-serif;
+    font-weight: 700;
+}
+
 .start-control {
     display: flex;
     align-items: center;
@@ -732,6 +776,21 @@ button {
     class="count"
 >
 登録画像：0 / 20
+</div>
+
+<div id="diagnosticPanel" class="diagnostic-panel">
+    <div class="diagnostic-title">マイク診断（調査用）</div>
+    <div class="ipad-diagnostic-note">
+        iPad入力診断：先に「スタート」を押してから録音してください。
+    </div>
+    <button id="ipadSRecordButton" type="button" class="diagnostic-record-button">
+        「すー」を10秒録音
+    </button>
+    <button id="ipadBreathRecordButton" type="button" class="diagnostic-record-button">
+        「ふー」を10秒録音
+    </button>
+    <div id="diagnosticRecordStatus" class="diagnostic-record-status"></div>
+    <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
 </div>
@@ -1535,6 +1594,50 @@ const statusElement =
     document.getElementById(
         "status"
     );
+
+
+const diagnosticText =
+    document.getElementById(
+        "diagnosticText"
+    );
+
+let lastDiagnosticUpdate =
+    0;
+
+
+let microphoneTrackSettings =
+    null;
+
+let microphoneTrackConstraints =
+    null;
+
+
+const ipadSRecordButton =
+    document.getElementById(
+        "ipadSRecordButton"
+    );
+
+const ipadBreathRecordButton =
+    document.getElementById(
+        "ipadBreathRecordButton"
+    );
+
+const diagnosticRecordStatus =
+    document.getElementById(
+        "diagnosticRecordStatus"
+    );
+
+let diagnosticRecorder =
+    null;
+
+let diagnosticRecordedChunks =
+    [];
+
+let diagnosticRecordingTimer =
+    null;
+
+let diagnosticRecordingLabel =
+    "";
 
 
 const startButton =
@@ -6599,6 +6702,533 @@ function latchS(
 // 音声判定
 // ============================================================
 
+
+function chooseDiagnosticMimeType() {
+
+    if (
+        typeof MediaRecorder === "undefined"
+    ) {
+
+        return "";
+
+    }
+
+    const candidates = [
+        "audio/mp4",
+        "audio/webm;codecs=opus",
+        "audio/webm"
+    ];
+
+    for (
+        const type
+        of
+        candidates
+    ) {
+
+        if (
+            MediaRecorder.isTypeSupported(
+                type
+            )
+        ) {
+
+            return type;
+
+        }
+
+    }
+
+    return "";
+
+}
+
+
+function setDiagnosticRecordingButtons(
+    disabled
+) {
+
+    ipadSRecordButton.disabled =
+        disabled;
+
+    ipadBreathRecordButton.disabled =
+        disabled;
+
+}
+
+
+function finishDiagnosticRecording() {
+
+    if (
+        diagnosticRecordingTimer
+    ) {
+
+        clearTimeout(
+            diagnosticRecordingTimer
+        );
+
+        diagnosticRecordingTimer =
+            null;
+
+    }
+
+    if (
+        diagnosticRecorder
+        &&
+        diagnosticRecorder.state !== "inactive"
+    ) {
+
+        diagnosticRecorder.stop();
+
+    }
+
+}
+
+
+function startDiagnosticRecording(
+    label
+) {
+
+    if (
+        !mediaStream
+    ) {
+
+        diagnosticRecordStatus.textContent =
+            "先に「スタート」でマイクを開始してください。";
+
+        return;
+
+    }
+
+    if (
+        typeof MediaRecorder === "undefined"
+    ) {
+
+        diagnosticRecordStatus.textContent =
+            "このiPad/SafariではWeb録音機能を利用できません。";
+
+        return;
+
+    }
+
+    if (
+        diagnosticRecorder
+        &&
+        diagnosticRecorder.state !== "inactive"
+    ) {
+
+        return;
+
+    }
+
+    diagnosticRecordingLabel =
+        label;
+
+    diagnosticRecordedChunks =
+        [];
+
+    const mimeType =
+        chooseDiagnosticMimeType();
+
+    try {
+
+        diagnosticRecorder =
+            mimeType
+            ?
+            new MediaRecorder(
+                mediaStream,
+                {
+                    mimeType:
+                        mimeType
+                }
+            )
+            :
+            new MediaRecorder(
+                mediaStream
+            );
+
+        diagnosticRecorder.ondataavailable =
+            function(
+                event
+            ) {
+
+                if (
+                    event.data
+                    &&
+                    event.data.size > 0
+                ) {
+
+                    diagnosticRecordedChunks.push(
+                        event.data
+                    );
+
+                }
+
+            };
+
+        diagnosticRecorder.onstop =
+            function() {
+
+                const actualType =
+                    diagnosticRecorder.mimeType
+                    ||
+                    mimeType
+                    ||
+                    "audio/mp4";
+
+                const blob =
+                    new Blob(
+                        diagnosticRecordedChunks,
+                        {
+                            type:
+                                actualType
+                        }
+                    );
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+                const extension =
+                    actualType.includes(
+                        "mp4"
+                    )
+                    ?
+                    "m4a"
+                    :
+                    "webm";
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+                link.href =
+                    url;
+
+                link.download =
+                    diagnosticRecordingLabel
+                    +
+                    "-ipad-web-mic-test."
+                    +
+                    extension;
+
+                document.body.appendChild(
+                    link
+                );
+
+                link.click();
+
+                link.remove();
+
+                setTimeout(
+                    function() {
+
+                        URL.revokeObjectURL(
+                            url
+                        );
+
+                    },
+                    5000
+                );
+
+                diagnosticRecordStatus.textContent =
+                    "録音完了。「"
+                    +
+                    diagnosticRecordingLabel
+                    +
+                    "」の音声ファイルを保存しました。";
+
+                setDiagnosticRecordingButtons(
+                    false
+                );
+
+            };
+
+        diagnosticRecorder.start();
+
+        setDiagnosticRecordingButtons(
+            true
+        );
+
+        diagnosticRecordStatus.textContent =
+            "10秒録音中。「"
+            +
+            diagnosticRecordingLabel
+            +
+            "」を3回くらい繰り返してください。";
+
+        diagnosticRecordingTimer =
+            setTimeout(
+                finishDiagnosticRecording,
+                10000
+            );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            error
+        );
+
+        diagnosticRecordStatus.textContent =
+            "Web録音を開始できませんでした。";
+
+        setDiagnosticRecordingButtons(
+            false
+        );
+
+    }
+
+}
+
+
+ipadSRecordButton.addEventListener(
+    "click",
+    function() {
+
+        startDiagnosticRecording(
+            "すー"
+        );
+
+    }
+);
+
+
+ipadBreathRecordButton.addEventListener(
+    "click",
+    function() {
+
+        startDiagnosticRecording(
+            "ふー"
+        );
+
+    }
+);
+
+
+function updateDiagnostic(
+    result
+) {
+
+    if (
+        !diagnosticText
+    ) {
+
+        return;
+
+    }
+
+
+    const now =
+        performance.now();
+
+
+    // 数字が速すぎて読めなくならないよう約5回/秒に制限。
+    if (
+        now - lastDiagnosticUpdate < 200
+    ) {
+
+        return;
+
+    }
+
+
+    lastDiagnosticUpdate =
+        now;
+
+
+    const platform =
+        IS_IOS
+        ?
+        "iPad / iPhone"
+        :
+        (
+            IS_ANDROID
+            ?
+            "Android"
+            :
+            "PC"
+        );
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak / result.volume
+        :
+        0;
+
+
+    let sVolumeThreshold =
+        weakDynamicMin;
+
+
+    if (
+        IS_IOS
+    ) {
+
+        sVolumeThreshold =
+            iosWeakDynamicMin;
+
+    }
+
+
+    const sShapeBasic =
+        result.highRatio >= HIGH_RATIO_MIN
+        &&
+        result.zcr >= ZCR_MIN;
+
+
+    let breathVolumeThreshold =
+        Math.max(
+            BREATH_MIN_VOLUME,
+            noiseFloor
+            *
+            BREATH_NOISE_MULTIPLIER,
+            noiseFloor
+            +
+            BREATH_NOISE_ADD
+        );
+
+
+    if (
+        IS_IOS
+    ) {
+
+        breathVolumeThreshold =
+            Math.max(
+                IOS_BREATH_MIN_VOLUME,
+                noiseFloor
+                *
+                IOS_BREATH_NOISE_MULTIPLIER,
+                noiseFloor
+                +
+                IOS_BREATH_NOISE_ADD
+            );
+
+    }
+
+
+    const lines = [
+        "端末: " + platform
+            + " / モード: "
+            + (
+                practiceMode === "breath"
+                ? "ふーっと！"
+                : "すーっと！"
+            ),
+        calibrating
+            ? "状態: キャリブレーション中"
+            : "状態: 計測中",
+        "",
+        "音量 volume      : "
+            + result.volume.toFixed(6),
+        "ピーク peak       : "
+            + result.peak.toFixed(6),
+        "peak / volume     : "
+            + peakRatio.toFixed(2),
+        "高域比 highRatio  : "
+            + result.highRatio.toFixed(3),
+        "重心 centroid     : "
+            + Math.round(
+                result.spectralCentroid
+            )
+            + " Hz",
+        "ZCR               : "
+            + result.zcr.toFixed(3),
+        "lowMidRatio       : "
+            + result.lowMidRatio.toFixed(3),
+        "upperHighRatio    : "
+            + result.upperHighRatio.toFixed(3),
+        "mid24Ratio        : "
+            + result.mid24Ratio.toFixed(3),
+        "veryHighRatio     : "
+            + result.veryHighRatio.toFixed(3),
+        "",
+        "noiseFloor        : "
+            + noiseFloor.toFixed(6),
+        "S音量しきい値      : "
+            + sVolumeThreshold.toFixed(6),
+        "S基本形状(HR/ZCR)  : "
+            + (
+                sShapeBasic
+                ? "○"
+                : "×"
+            ),
+        "ふー音量しきい値    : "
+            + breathVolumeThreshold.toFixed(6),
+        "画像表示中         : "
+            + (
+                soundLatched
+                ? "はい"
+                : "いいえ"
+            ),
+        "",
+        "---- マイク実設定 ----",
+        "autoGainControl    : "
+            + (
+                microphoneTrackSettings
+                &&
+                "autoGainControl" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.autoGainControl)
+                :
+                "取得不可"
+            ),
+        "noiseSuppression   : "
+            + (
+                microphoneTrackSettings
+                &&
+                "noiseSuppression" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.noiseSuppression)
+                :
+                "取得不可"
+            ),
+        "echoCancellation   : "
+            + (
+                microphoneTrackSettings
+                &&
+                "echoCancellation" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.echoCancellation)
+                :
+                "取得不可"
+            ),
+        "sampleRate         : "
+            + (
+                microphoneTrackSettings
+                &&
+                microphoneTrackSettings.sampleRate
+                ?
+                String(microphoneTrackSettings.sampleRate)
+                :
+                "取得不可"
+            ),
+        "channelCount       : "
+            + (
+                microphoneTrackSettings
+                &&
+                microphoneTrackSettings.channelCount
+                ?
+                String(microphoneTrackSettings.channelCount)
+                :
+                "取得不可"
+            )
+    ];
+
+
+    diagnosticText.textContent =
+        lines.join(
+            "\n"
+        );
+
+}
+
+
 function processResult(
     result
 ) {
@@ -7205,6 +7835,11 @@ function addSamples(
             analyzeFrame(
                 frame
             );
+
+
+        updateDiagnostic(
+            result
+        );
 
 
         processResult(
@@ -7839,6 +8474,32 @@ async function startMicrophone() {
 
                     }
                 );
+
+
+        const diagnosticTrack =
+            mediaStream.getAudioTracks()[0];
+
+
+        if (
+            diagnosticTrack
+        ) {
+
+            microphoneTrackSettings =
+                typeof diagnosticTrack.getSettings === "function"
+                ?
+                diagnosticTrack.getSettings()
+                :
+                null;
+
+
+            microphoneTrackConstraints =
+                typeof diagnosticTrack.getConstraints === "function"
+                ?
+                diagnosticTrack.getConstraints()
+                :
+                null;
+
+        }
 
 
         const AudioContextClass =

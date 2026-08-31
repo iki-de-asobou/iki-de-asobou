@@ -756,7 +756,7 @@ button {
 </div>
 
 <div id="diagnosticPanel" class="diagnostic-panel">
-    <div class="diagnostic-title">マイク診断（調査用）</div>
+    <div class="diagnostic-title">マイク診断（PC・S形状テスト）</div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
@@ -5330,6 +5330,31 @@ function normalS(
     result
 ) {
 
+    // PC診断実験：
+    // PCだけ絶対音量しきい値を一時的に使わず、
+    // 「Sらしい周波数形状」で反応できるか確認する。
+    // iPad / Android は従来どおり。
+    if (
+        !IS_IOS
+        &&
+        !IS_ANDROID
+    ) {
+
+        return (
+            result.highRatio >= 0.60
+            &&
+            result.spectralCentroid >= 5500
+            &&
+            result.zcr >= 0.10
+            &&
+            result.upperHighRatio >= 0.30
+            &&
+            result.veryHighRatio >= 0.18
+        );
+
+    }
+
+
     if (
         result.volume
         <
@@ -5355,6 +5380,28 @@ function normalS(
 function weakS(
     result
 ) {
+
+    // PC診断実験では normalS と同じ形状判定を使う。
+    if (
+        !IS_IOS
+        &&
+        !IS_ANDROID
+    ) {
+
+        return (
+            result.highRatio >= 0.60
+            &&
+            result.spectralCentroid >= 5500
+            &&
+            result.zcr >= 0.10
+            &&
+            result.upperHighRatio >= 0.30
+            &&
+            result.veryHighRatio >= 0.18
+        );
+
+    }
+
 
     if (
         result.volume

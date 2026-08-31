@@ -194,6 +194,36 @@ button {
     font-size: 18px;
 }
 
+
+.diagnostic-panel {
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid #b9cbd2;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    line-height: 1.55;
+    text-align: left;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+.diagnostic-record-button {
+    display:block;
+    width:100%;
+    margin:4px 0;
+    padding:7px 8px;
+    font-size:12px;
+}
+
+.diagnostic-title {
+    margin-bottom: 4px;
+    font-family: sans-serif;
+    font-weight: 700;
+}
+
 .start-control {
     display: flex;
     align-items: center;
@@ -732,6 +762,23 @@ button {
     class="count"
 >
 登録画像：0 / 20
+</div>
+
+<div id="diagnosticPanel" class="diagnostic-panel">
+    <div class="diagnostic-title">マイク診断（調査用）</div>
+    <div style="font-size:12px;line-height:1.45;margin:4px 0 8px;">
+        iPad音声処理・個別OFFテスト<br>
+        各ボタンで10秒録音し、「すーーー」「ふーーー」を試します。
+    </div>
+    <button id="procDefault" class="diagnostic-record-button">① Safari標準（後付けなし）</button>
+    <button id="procEC" class="diagnostic-record-button">② 開始後にECだけOFF</button>
+    <button id="procNS" class="diagnostic-record-button">③ 開始後にNSだけOFF</button>
+    <button id="procAGC" class="diagnostic-record-button">④ 開始後にAGCだけOFF</button>
+    <button id="procNSAGC" class="diagnostic-record-button">⑤ 開始後にNS＋AGC OFF</button>
+    <button id="procAll" class="diagnostic-record-button">⑥ 開始後に3項目すべてOFF</button>
+    <div id="procStatus" style="font-size:12px;line-height:1.45;min-height:2.8em;margin:6px 0;"></div>
+
+    <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
 </div>
@@ -1535,6 +1582,40 @@ const statusElement =
     document.getElementById(
         "status"
     );
+
+
+const diagnosticText =
+    document.getElementById(
+        "diagnosticText"
+    );
+
+let lastDiagnosticUpdate =
+    0;
+
+
+let microphoneTrackSettings =
+    null;
+
+let microphoneTrackConstraints =
+    null;
+
+
+const procButtons = [
+    document.getElementById("procDefault"),
+    document.getElementById("procEC"),
+    document.getElementById("procNS"),
+    document.getElementById("procAGC"),
+    document.getElementById("procNSAGC"),
+    document.getElementById("procAll")
+];
+
+const procStatus =
+    document.getElementById("procStatus");
+
+let procRecorder = null;
+let procChunks = [];
+let procStream = null;
+let procTimer = null;
 
 
 const startButton =
@@ -6599,1156 +6680,312 @@ function latchS(
 // 音声判定
 // ============================================================
 
-function processResult(
-    result
-) {
 
-    if (
-        calibrating
-    ) {
-
-        calibrationVolumes.push(
-            result.volume
-        );
-
-
-        if (
-            calibrationVolumes.length
-            >=
-            calibrationFramesNeeded
-        ) {
-
-            finishCalibration();
-
+function setProcButtonsDisabled(disabled) {
+    procButtons.forEach(
+        function(button) {
+            button.disabled = disabled;
         }
-
-
-        return;
-
-    }
-
-
-    // 「ふーっと！」は、従来のS判定とは完全に別系統で処理する。
-    // これにより「すーっと！」の感度・端末別調整値を変更しない。
-    if (
-        practiceMode === "breath"
-    ) {
-
-        processBreathResult(
-            result
-        );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // S未検出
-    // ========================================================
-
-    if (
-        !soundLatched
-    ) {
-
-        if (
-            !IS_ANDROID
-            &&
-            !IS_IOS
-            &&
-            pcPendingOnset
-        ) {
-
-            if (
-                pcOnsetContinuation(
-                    result
-                )
-            ) {
-
-                pcOnsetConfirmCount++;
-
-
-                if (
-                    pcOnsetConfirmCount
-                    >=
-                    PC_ONSET_EXTRA_FRAMES
-                ) {
-
-                    latchS(
-                        result
-                    );
-
-                }
-
-            }
-
-            else {
-
-                pcPendingOnset =
-                    false;
-
-
-                pcOnsetConfirmCount =
-                    0;
-
-
-                normalCount =
-                    0;
-
-
-                weakCount =
-                    0;
-
-            }
-
-
-            return;
-
-        }
-
-
-        // iPad / iPhone では、明確な「ふー」系の息が
-        // 2フレーム続いた場合だけ候補カウントを破棄する。
-        // 1フレームだけの揺れでは止めないため、
-        // 正しい「すー」への感度を保ちやすい。
-        if (
-            IS_IOS
-        ) {
-
-            if (
-                iosClearlyBreathy(
-                    result
-                )
-            ) {
-
-                iosBreathCount++;
-
-            }
-
-            else {
-
-                iosBreathCount =
-                    0;
-
-            }
-
-
-            if (
-                iosBreathCount
-                >=
-                IOS_BREATH_REQUIRED
-            ) {
-
-                normalCount =
-                    0;
-
-                weakCount =
-                    0;
-
-                iosWeakCount =
-                    0;
-
-                return;
-
-            }
-
-        }
-
-        else {
-
-            iosBreathCount =
-                0;
-
-        }
-
-
-        // iPad / iPhone では、通常経路・弱音経路のどちらでも
-        // Sらしい高域分布を満たすことを開始条件にする。
-        // これにより「ふー」や「s＋ふ」の誤発音が
-        // genericなS判定をすり抜けるのを防ぐ。
-        const iosShapeOK =
-            !IS_IOS
-            ||
-            iosSShape(
-                result
-            );
-
-
-        const normalCandidate =
-            normalS(
-                result
-            )
-            &&
-            iosShapeOK;
-
-
-        const weakCandidate =
-            weakS(
-                result
-            )
-            &&
-            iosShapeOK;
-
-
-        if (
-            normalCandidate
-        ) {
-
-            normalCount++;
-
-        }
-
-        else {
-
-            normalCount =
-                0;
-
-        }
-
-
-        if (
-            weakCandidate
-        ) {
-
-            weakCount++;
-
-        }
-
-        else {
-
-            weakCount =
-                0;
-
-        }
-
-
-        if (
-            IS_IOS
-        ) {
-
-            if (
-                weakSIOS(
-                    result
-                )
-            ) {
-
-                iosWeakCount++;
-
-            }
-
-            else {
-
-                iosWeakCount =
-                    0;
-
-            }
-
-        }
-
-        else {
-
-            iosWeakCount =
-                0;
-
-        }
-
-
-        const normalSuccess =
-            normalCount
-            >=
-            (
-                IS_IOS
-                ?
-                IOS_NORMAL_REQUIRED
-                :
-                NORMAL_REQUIRED
-            );
-
-
-        const weakSuccess =
-            weakCount
-            >=
-            (
-                IS_IOS
-                ?
-                IOS_WEAK_REQUIRED
-                :
-                WEAK_REQUIRED
-            );
-
-
-        const iosWeakSuccess =
-            IS_IOS
-            &&
-            iosWeakCount
-            >=
-            IOS_WEAK_REQUIRED;
-
-
-        if (
-            normalSuccess
-            ||
-            weakSuccess
-            ||
-            iosWeakSuccess
-        ) {
-
-            if (
-                !IS_ANDROID
-                &&
-                !IS_IOS
-            ) {
-
-                pcPendingOnset =
-                    true;
-
-
-                pcOnsetConfirmCount =
-                    0;
-
-
-                return;
-
-            }
-
-
-            latchS(
-                result
-            );
-
-        }
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // Android
-    // ========================================================
-
-    if (
-        IS_ANDROID
-    ) {
-
-        if (
-            holdSAndroid(
-                result
-            )
-        ) {
-
-            releaseCount =
-                0;
-
-
-            return;
-
-        }
-
-
-        releaseCount++;
-
-
-        if (
-            releaseCount
-            >=
-            androidReleaseFramesNeeded
-        ) {
-
-            finishCurrentS();
-
-        }
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // iPad / iPhone
-    // ========================================================
-
-    if (
-        IS_IOS
-    ) {
-
-        iosActiveFrameCount++;
-
-
-        if (
-            iosActiveFrameCount
-            <=
-            iosReferenceBuildFramesNeeded
-        ) {
-
-            if (
-                result.volume
-                >
-                iosReferenceVolume
-            ) {
-
-                iosReferenceVolume =
-                    result.volume;
-
-            }
-
-        }
-
-
-        if (
-            iosActiveFrameCount
-            <=
-            iosInitialProtectionFramesNeeded
-        ) {
-
-            return;
-
-        }
-
-
-        const releaseVolume =
-            iosReleaseVolumeThreshold();
-
-
-        if (
-            result.volume
-            <
-            releaseVolume
-        ) {
-
-            silenceCount++;
-
-        }
-
-        else {
-
-            silenceCount =
-                0;
-
-        }
-
-
-        if (
-            silenceCount
-            >=
-            iosReleaseFramesNeeded
-        ) {
-
-            finishCurrentS();
-
-
-            return;
-
-        }
-
-
-        if (
-            holdSIOS(
-                result
-            )
-        ) {
-
-            releaseCount =
-                0;
-
-        }
-
-        else {
-
-            releaseCount++;
-
-        }
-
-
-        if (
-            releaseCount
-            >=
-            iosSpectralReleaseFramesNeeded
-        ) {
-
-            finishCurrentS();
-
-        }
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // PC
-    // ========================================================
-
-    if (
-        pcClearlySilent(
-            result
-        )
-    ) {
-
-        silenceCount++;
-
-    }
-
-    else {
-
-        silenceCount =
-            0;
-
-    }
-
-
-    if (
-        silenceCount
-        >=
-        pcSilenceFramesNeeded
-    ) {
-
-        finishCurrentS();
-
-
-        return;
-
-    }
-
-
-    if (
-        holdSPC(
-            result
-        )
-    ) {
-
-        releaseCount =
-            0;
-
-
-        return;
-
-    }
-
-
-    releaseCount++;
-
-
-    if (
-        releaseCount
-        >=
-        pcSoftReleaseFramesNeeded
-    ) {
-
-        finishCurrentS();
-
-    }
-
+    );
 }
 
-
-// ============================================================
-// サンプル処理
-// ============================================================
-
-function addSamples(
-    input
-) {
-
-    for (
-        let i = 0;
-        i < input.length;
-        i++
-    ) {
-
-        sampleQueue.push(
-            input[i]
+function stopProcStream() {
+    if (procStream) {
+        procStream.getTracks().forEach(
+            function(track) {
+                track.stop();
+            }
         );
-
+        procStream = null;
     }
-
-
-    while (
-        sampleQueue.length
-        -
-        queueOffset
-        >=
-        frameSize
-    ) {
-
-        const frame =
-            new Float32Array(
-                frameSize
-            );
-
-
-        for (
-            let i = 0;
-            i < frameSize;
-            i++
-        ) {
-
-            frame[i] =
-                sampleQueue[
-                    queueOffset
-                    +
-                    i
-                ];
-
-        }
-
-
-        queueOffset +=
-            frameSize;
-
-
-        const result =
-            analyzeFrame(
-                frame
-            );
-
-
-        processResult(
-            result
-        );
-
-    }
-
-
-    if (
-        queueOffset > 8192
-    ) {
-
-        sampleQueue =
-            sampleQueue.slice(
-                queueOffset
-            );
-
-
-        queueOffset =
-            0;
-
-    }
-
 }
 
+function chooseProcMimeType() {
+    if (typeof MediaRecorder === "undefined") {
+        return "";
+    }
 
-// ============================================================
-// Audio Graph
-// ============================================================
+    const candidates = [
+        "audio/mp4",
+        "audio/webm;codecs=opus",
+        "audio/webm"
+    ];
 
-function disconnectAudioGraph() {
+    for (const type of candidates) {
+        if (MediaRecorder.isTypeSupported(type)) {
+            return type;
+        }
+    }
+
+    return "";
+}
+
+async function runProcTest(label, postConstraints) {
+
+    if (typeof MediaRecorder === "undefined") {
+        procStatus.textContent =
+            "このSafariでは録音機能を利用できません。";
+        return;
+    }
+
+    if (
+        procRecorder
+        &&
+        procRecorder.state !== "inactive"
+    ) {
+        return;
+    }
+
+    setProcButtonsDisabled(true);
+    procStatus.textContent =
+        label + "：まずSafari標準でマイク取得中…";
 
     try {
 
-        if (
-            processorNode
-        ) {
+        // 重要：最初は必ず Safari 標準 audio:true で開始する。
+        procStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false
+            });
 
-            processorNode.onaudioprocess =
-                null;
+        const track =
+            procStream.getAudioTracks()[0];
 
+        const before =
+            track && track.getSettings
+            ? track.getSettings()
+            : {};
 
-            processorNode.disconnect();
-
-        }
-
-    }
-
-    catch (error) {}
-
-
-    try {
+        let applyResult = "後付けなし";
 
         if (
-            sourceNode
+            postConstraints
+            &&
+            track
+            &&
+            typeof track.applyConstraints === "function"
         ) {
-
-            sourceNode.disconnect();
-
-        }
-
-    }
-
-    catch (error) {}
-
-
-    try {
-
-        if (
-            muteNode
-        ) {
-
-            muteNode.disconnect();
-
-        }
-
-    }
-
-    catch (error) {}
-
-
-    processorNode =
-        null;
-
-
-    sourceNode =
-        null;
-
-
-    muteNode =
-        null;
-
-}
-
-
-function buildAudioGraph() {
-
-    disconnectAudioGraph();
-
-
-    sourceNode =
-        audioContext
-            .createMediaStreamSource(
-                mediaStream
-            );
-
-
-    processorNode =
-        audioContext
-            .createScriptProcessor(
-                1024,
-                1,
-                1
-            );
-
-
-    processorNode.onaudioprocess =
-        function(event) {
-
-            lastAudioCallbackTime =
-                performance.now();
-
-
-            const input =
-                event
-                    .inputBuffer
-                    .getChannelData(
-                        0
-                    );
-
-
-            addSamples(
-                input
-            );
-
-        };
-
-
-    muteNode =
-        audioContext
-            .createGain();
-
-
-    muteNode.gain.value =
-        0;
-
-
-    sourceNode.connect(
-        processorNode
-    );
-
-
-    processorNode.connect(
-        muteNode
-    );
-
-
-    muteNode.connect(
-        audioContext.destination
-    );
-
-
-    lastAudioCallbackTime =
-        performance.now();
-
-}
-
-
-// ============================================================
-// Audio復旧
-// ============================================================
-
-async function rebuildAudioGraph() {
-
-    if (
-        rebuildingGraph
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        !audioContext
-        ||
-        !mediaStream
-    ) {
-
-        return;
-
-    }
-
-
-    rebuildingGraph =
-        true;
-
-
-    resetRecognitionState(
-        true
-    );
-
-
-    sampleQueue =
-        [];
-
-
-    queueOffset =
-        0;
-
-
-    try {
-
-        if (
-            audioContext.state
-            ===
-            "suspended"
-        ) {
+            procStatus.textContent =
+                label + "：標準入力を取得済み。設定を後付け中…";
+
+            // 入力開始直後の経路を確保してから設定変更する。
+            await new Promise(function(resolve) {
+                setTimeout(resolve, 350);
+            });
 
             try {
-
-                await audioContext.resume();
-
+                await track.applyConstraints(postConstraints);
+                applyResult = "applyConstraints成功";
+            }
+            catch (applyError) {
+                console.error("applyConstraints failed", applyError);
+                applyResult =
+                    "applyConstraints失敗"
+                    + (applyError && applyError.name
+                        ? "(" + applyError.name + ")"
+                        : "");
             }
 
-            catch (error) {}
-
+            await new Promise(function(resolve) {
+                setTimeout(resolve, 350);
+            });
         }
 
+        const after =
+            track && track.getSettings
+            ? track.getSettings()
+            : {};
 
-        buildAudioGraph();
+        function settingsText(settings) {
+            return (
+                "AGC=" + String(settings.autoGainControl)
+                + " / NS=" + String(settings.noiseSuppression)
+                + " / EC=" + String(settings.echoCancellation)
+                + " / SR=" + String(settings.sampleRate)
+                + " / CH=" + String(settings.channelCount)
+            );
+        }
+
+        const settingText =
+            "開始前[" + settingsText(before) + "]"
+            + " → 開始後[" + settingsText(after) + "]"
+            + " / " + applyResult;
+
+        procChunks = [];
+
+        const mimeType =
+            chooseProcMimeType();
+
+        procRecorder =
+            mimeType
+            ? new MediaRecorder(procStream, { mimeType })
+            : new MediaRecorder(procStream);
+
+        procRecorder.ondataavailable =
+            function(event) {
+                if (event.data && event.data.size > 0) {
+                    procChunks.push(event.data);
+                }
+            };
+
+        procRecorder.onstop =
+            function() {
+
+                const actualType =
+                    procRecorder.mimeType
+                    ||
+                    mimeType
+                    ||
+                    "audio/mp4";
+
+                const blob =
+                    new Blob(procChunks, { type: actualType });
+
+                const url =
+                    URL.createObjectURL(blob);
+
+                const extension =
+                    actualType.includes("mp4")
+                    ? "m4a"
+                    : "webm";
+
+                const link =
+                    document.createElement("a");
+
+                link.href = url;
+                link.download =
+                    label.replace(/[^\w\u3040-\u30ff\u4e00-\u9fff①②③④⑤⑥-]+/g, "_")
+                    + "."
+                    + extension;
+
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                setTimeout(
+                    function() {
+                        URL.revokeObjectURL(url);
+                    },
+                    5000
+                );
+
+                stopProcStream();
+
+                procStatus.textContent =
+                    label
+                    + "：完了 / "
+                    + settingText;
+
+                setProcButtonsDisabled(false);
+            };
+
+        procRecorder.start();
+
+        procStatus.textContent =
+            label
+            + "：10秒録音中。「すーーーー」を5秒ほど伸ばし、"
+            + "少し休んで「ふーーーー」も試してください。 / "
+            + settingText;
+
+        procTimer =
+            setTimeout(
+                function() {
+                    procTimer = null;
+
+                    if (
+                        procRecorder
+                        &&
+                        procRecorder.state !== "inactive"
+                    ) {
+                        procRecorder.stop();
+                    }
+                },
+                10000
+            );
 
     }
-
     catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
+        stopProcStream();
 
+        procStatus.textContent =
+            label
+            + "：マイク取得失敗 "
+            + (error && error.name ? "(" + error.name + ")" : "");
+
+        setProcButtonsDisabled(false);
     }
-
-
-    rebuildingGraph =
-        false;
-
 }
 
-
-// ============================================================
-// Watchdog
-// ============================================================
-
-function startWatchdog() {
-
-    if (
-        watchdogTimer
-    ) {
-
-        clearInterval(
-            watchdogTimer
+document.getElementById("procDefault").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "①Safari標準_後付けなし",
+            null
         );
-
-    }
-
-
-    watchdogTimer =
-        setInterval(
-            async function() {
-
-                if (
-                    !audioContext
-                    ||
-                    !mediaStream
-                ) {
-
-                    return;
-
-                }
-
-
-                if (
-                    audioContext.state
-                    ===
-                    "suspended"
-                ) {
-
-                    try {
-
-                        await audioContext.resume();
-
-                    }
-
-                    catch (error) {}
-
-                }
-
-
-                const elapsed =
-                    performance.now()
-                    -
-                    lastAudioCallbackTime;
-
-
-                if (
-                    elapsed
-                    >
-                    AUDIO_STALL_MS
-                ) {
-
-                    await rebuildAudioGraph();
-
-                }
-
-            },
-            500
-        );
-
-}
-
-
-// ============================================================
-// 前面復帰
-// ============================================================
-
-document.addEventListener(
-    "visibilitychange",
-    async function() {
-
-        if (
-            document.visibilityState
-            !==
-            "visible"
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !audioContext
-        ) {
-
-            return;
-
-        }
-
-
-        try {
-
-            if (
-                audioContext.state
-                ===
-                "suspended"
-            ) {
-
-                await audioContext.resume();
-
-            }
-
-        }
-
-        catch (error) {}
-
-
-        resetRecognitionState(
-            true
-        );
-
     }
 );
 
-
-// ============================================================
-// マイク停止
-// ============================================================
-
-function stopExistingMicrophone() {
-
-    if (
-        watchdogTimer
-    ) {
-
-        clearInterval(
-            watchdogTimer
+document.getElementById("procEC").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "②開始後_ECだけOFF",
+            { echoCancellation: false }
         );
-
-
-        watchdogTimer =
-            null;
-
     }
+);
 
-
-    disconnectAudioGraph();
-
-
-    try {
-
-        if (
-            mediaStream
-        ) {
-
-            mediaStream
-                .getTracks()
-                .forEach(
-                    function(track) {
-
-                        track.stop();
-
-                    }
-                );
-
-
-            mediaStream =
-                null;
-
-        }
-
+document.getElementById("procNS").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "③開始後_NSだけOFF",
+            { noiseSuppression: false }
+        );
     }
+);
 
-    catch (error) {}
-
-
-    try {
-
-        if (
-            audioContext
-        ) {
-
-            audioContext.close();
-
-
-            audioContext =
-                null;
-
-        }
-
+document.getElementById("procAGC").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "④開始後_AGCだけOFF",
+            { autoGainControl: false }
+        );
     }
+);
 
-    catch (error) {}
-
-}
-
-
-// ============================================================
-// マイク制約
-// ============================================================
-
-function createAudioConstraints() {
-
-    const constraints =
-        {};
-
-
-    let supported =
-        {};
-
-
-    try {
-
-        supported =
-            navigator
-                .mediaDevices
-                .getSupportedConstraints
-            ?
-            navigator
-                .mediaDevices
-                .getSupportedConstraints()
-            :
-            {};
-
+document.getElementById("procNSAGC").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "⑤開始後_NS_AGC_OFF",
+            {
+                noiseSuppression: false,
+                autoGainControl: false
+            }
+        );
     }
+);
 
-    catch (error) {
-
-        supported =
-            {};
-
+document.getElementById("procAll").addEventListener(
+    "click",
+    function() {
+        runProcTest(
+            "⑥開始後_3項目OFF",
+            {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false
+            }
+        );
     }
+);
 
-
-    if (
-        IS_IOS
-    ) {
-
-        if (
-            supported.echoCancellation
-        ) {
-
-            constraints.echoCancellation =
-                false;
-
-        }
-
-
-        if (
-            supported.noiseSuppression
-        ) {
-
-            constraints.noiseSuppression =
-                false;
-
-        }
-
-
-        if (
-            supported.autoGainControl
-        ) {
-
-            constraints.autoGainControl =
-                false;
-
-        }
-
-
-        if (
-            supported.channelCount
-        ) {
-
-            constraints.channelCount =
-                1;
-
-        }
-
-    }
-
-
-    if (
-        Object.keys(
-            constraints
-        ).length === 0
-    ) {
-
-        return true;
-
-    }
-
-
-    return constraints;
-
-}
 
 
 // ============================================================
@@ -7839,6 +7076,32 @@ async function startMicrophone() {
 
                     }
                 );
+
+
+        const diagnosticTrack =
+            mediaStream.getAudioTracks()[0];
+
+
+        if (
+            diagnosticTrack
+        ) {
+
+            microphoneTrackSettings =
+                typeof diagnosticTrack.getSettings === "function"
+                ?
+                diagnosticTrack.getSettings()
+                :
+                null;
+
+
+            microphoneTrackConstraints =
+                typeof diagnosticTrack.getConstraints === "function"
+                ?
+                diagnosticTrack.getConstraints()
+                :
+                null;
+
+        }
 
 
         const AudioContextClass =

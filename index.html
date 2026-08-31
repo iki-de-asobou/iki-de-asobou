@@ -209,15 +209,6 @@ button {
     word-break: break-word;
 }
 
-
-.diagnostic-record-button {
-    display:block;
-    width:100%;
-    margin:4px 0;
-    padding:7px 8px;
-    font-size:12px;
-}
-
 .diagnostic-title {
     margin-bottom: 4px;
     font-family: sans-serif;
@@ -766,17 +757,10 @@ button {
 
 <div id="diagnosticPanel" class="diagnostic-panel">
     <div class="diagnostic-title">マイク診断（調査用）</div>
-    <div style="font-size:12px;line-height:1.45;margin:4px 0 8px;">
-        iPad音声処理・個別OFFテスト<br>
-        各ボタンで10秒録音し、「すーーー」「ふーーー」を試します。
+    <div style="font-size:12px;line-height:1.45;margin:4px 0 7px;">
+        第10世代iPad・微小信号診断（Safari標準入力）
     </div>
-    <button id="procDefault" class="diagnostic-record-button">① Safari標準</button>
-    <button id="procEC" class="diagnostic-record-button">② echoCancellationだけOFF</button>
-    <button id="procNS" class="diagnostic-record-button">③ noiseSuppressionだけOFF</button>
-    <button id="procAGC" class="diagnostic-record-button">④ autoGainControlだけOFF</button>
-    <button id="procNSAGC" class="diagnostic-record-button">⑤ NS＋AGCをOFF</button>
-    <button id="procAll" class="diagnostic-record-button">⑥ 3項目すべてOFF</button>
-    <div id="procStatus" style="font-size:12px;line-height:1.45;min-height:2.8em;margin:6px 0;"></div>
+    <div id="lowSignalDiagnostic" style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;margin-bottom:7px;"></div>
 
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
@@ -1600,22 +1584,19 @@ let microphoneTrackConstraints =
     null;
 
 
-const procButtons = [
-    document.getElementById("procDefault"),
-    document.getElementById("procEC"),
-    document.getElementById("procNS"),
-    document.getElementById("procAGC"),
-    document.getElementById("procNSAGC"),
-    document.getElementById("procAll")
-];
+const lowSignalDiagnostic =
+    document.getElementById(
+        "lowSignalDiagnostic"
+    );
 
-const procStatus =
-    document.getElementById("procStatus");
+let lowSignalBaseline =
+    null;
 
-let procRecorder = null;
-let procChunks = [];
-let procStream = null;
-let procTimer = null;
+let lowSignalBaselineSamples =
+    [];
+
+let lowSignalStartTime =
+    0;
 
 
 const startButton =
@@ -6681,262 +6662,130 @@ function latchS(
 // ============================================================
 
 
-function setProcButtonsDisabled(disabled) {
-    procButtons.forEach(
-        function(button) {
-            button.disabled = disabled;
-        }
-    );
-}
+function updateLowSignalDiagnostic(result) {
 
-function stopProcStream() {
-    if (procStream) {
-        procStream.getTracks().forEach(
-            function(track) {
-                track.stop();
-            }
-        );
-        procStream = null;
-    }
-}
-
-function chooseProcMimeType() {
-    if (typeof MediaRecorder === "undefined") {
-        return "";
-    }
-
-    const candidates = [
-        "audio/mp4",
-        "audio/webm;codecs=opus",
-        "audio/webm"
-    ];
-
-    for (const type of candidates) {
-        if (MediaRecorder.isTypeSupported(type)) {
-            return type;
-        }
-    }
-
-    return "";
-}
-
-async function runProcTest(label, audioConstraints) {
-
-    if (typeof MediaRecorder === "undefined") {
-        procStatus.textContent =
-            "このSafariでは録音機能を利用できません。";
+    if (!IS_IOS) {
+        lowSignalDiagnostic.textContent =
+            "この追加表示はiPad診断用です。";
         return;
+    }
+
+    if (!lowSignalStartTime) {
+        lowSignalStartTime = performance.now();
+    }
+
+    const elapsed =
+        (performance.now() - lowSignalStartTime) / 1000;
+
+    // 最初の約2秒を無音基準として収集。
+    if (
+        lowSignalBaseline === null
+        &&
+        elapsed <= 2.0
+    ) {
+        lowSignalBaselineSamples.push(
+            result.volume
+        );
     }
 
     if (
-        procRecorder
+        lowSignalBaseline === null
         &&
-        procRecorder.state !== "inactive"
+        elapsed > 2.0
     ) {
-        return;
-    }
 
-    setProcButtonsDisabled(true);
-    procStatus.textContent =
-        label + "：マイク取得中…";
-
-    try {
-
-        procStream =
-            await navigator.mediaDevices.getUserMedia({
-                audio: audioConstraints,
-                video: false
+        const sorted =
+            lowSignalBaselineSamples
+            .slice()
+            .sort(function(a, b) {
+                return a - b;
             });
 
-        const track =
-            procStream.getAudioTracks()[0];
-
-        const settings =
-            track && track.getSettings
-            ? track.getSettings()
-            : {};
-
-        const settingText =
-            "AGC=" + String(settings.autoGainControl)
-            + " / NS=" + String(settings.noiseSuppression)
-            + " / EC=" + String(settings.echoCancellation)
-            + " / SR=" + String(settings.sampleRate)
-            + " / CH=" + String(settings.channelCount);
-
-        procChunks = [];
-
-        const mimeType =
-            chooseProcMimeType();
-
-        procRecorder =
-            mimeType
-            ? new MediaRecorder(procStream, { mimeType })
-            : new MediaRecorder(procStream);
-
-        procRecorder.ondataavailable =
-            function(event) {
-                if (event.data && event.data.size > 0) {
-                    procChunks.push(event.data);
-                }
-            };
-
-        procRecorder.onstop =
-            function() {
-
-                const actualType =
-                    procRecorder.mimeType
-                    ||
-                    mimeType
-                    ||
-                    "audio/mp4";
-
-                const blob =
-                    new Blob(procChunks, { type: actualType });
-
-                const url =
-                    URL.createObjectURL(blob);
-
-                const extension =
-                    actualType.includes("mp4")
-                    ? "m4a"
-                    : "webm";
-
-                const link =
-                    document.createElement("a");
-
-                link.href = url;
-                link.download =
-                    label.replace(/[^\w\u3040-\u30ff\u4e00-\u9fff①②③④⑤⑥-]+/g, "_")
-                    + "."
-                    + extension;
-
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-
-                setTimeout(
-                    function() {
-                        URL.revokeObjectURL(url);
-                    },
-                    5000
-                );
-
-                stopProcStream();
-
-                procStatus.textContent =
-                    label
-                    + "：完了 / "
-                    + settingText;
-
-                setProcButtonsDisabled(false);
-            };
-
-        procRecorder.start();
-
-        procStatus.textContent =
-            label
-            + "：10秒録音中。「すーーー」→休む→「ふーーー」を繰り返してください。 / "
-            + settingText;
-
-        procTimer =
-            setTimeout(
-                function() {
-                    procTimer = null;
-
-                    if (
-                        procRecorder
-                        &&
-                        procRecorder.state !== "inactive"
-                    ) {
-                        procRecorder.stop();
-                    }
-                },
-                10000
-            );
-
+        lowSignalBaseline =
+            sorted.length
+            ? sorted[Math.floor(sorted.length / 2)]
+            : Math.max(noiseFloor, 0.000001);
     }
-    catch (error) {
 
-        console.error(error);
-        stopProcStream();
+    const baseline =
+        Math.max(
+            lowSignalBaseline !== null
+            ? lowSignalBaseline
+            : noiseFloor,
+            0.000001
+        );
 
-        procStatus.textContent =
-            label
-            + "：マイク取得失敗 "
-            + (error && error.name ? "(" + error.name + ")" : "");
+    const delta =
+        result.volume - baseline;
 
-        setProcButtonsDisabled(false);
-    }
+    const ratio =
+        result.volume / baseline;
+
+    const dbAboveBaseline =
+        20 * Math.log10(
+            Math.max(
+                ratio,
+                0.000001
+            )
+        );
+
+    // 表示専用。判定ロジックには使用しない。
+    const normalized =
+        Math.max(
+            0,
+            Math.min(
+                20,
+                ratio
+            )
+        );
+
+    lowSignalDiagnostic.textContent =
+        (lowSignalBaseline === null
+            ? "最初の2秒は静かにしてください…\n"
+            : "無音基準を取得済み\n")
+        + "baseline      : "
+        + baseline.toFixed(6)
+        + "\n"
+        + "volume        : "
+        + result.volume.toFixed(6)
+        + "\n"
+        + "差分 Δ        : "
+        + delta.toFixed(6)
+        + "\n"
+        + "基準比         : "
+        + ratio.toFixed(2)
+        + " 倍\n"
+        + "基準との差     : "
+        + dbAboveBaseline.toFixed(1)
+        + " dB\n"
+        + "正規化表示     : "
+        + normalized.toFixed(2)
+        + "\n"
+        + "highRatio     : "
+        + result.highRatio.toFixed(3)
+        + "\n"
+        + "centroid      : "
+        + Math.round(result.spectralCentroid)
+        + " Hz\n"
+        + "ZCR           : "
+        + result.zcr.toFixed(3)
+        + "\n"
+        + "upperHigh     : "
+        + result.upperHighRatio.toFixed(3)
+        + "\n"
+        + "veryHigh      : "
+        + result.veryHighRatio.toFixed(3);
 }
-
-document.getElementById("procDefault").addEventListener(
-    "click",
-    function() {
-        runProcTest("①Safari標準", true);
-    }
-);
-
-document.getElementById("procEC").addEventListener(
-    "click",
-    function() {
-        runProcTest(
-            "②ECだけOFF",
-            { echoCancellation: false }
-        );
-    }
-);
-
-document.getElementById("procNS").addEventListener(
-    "click",
-    function() {
-        runProcTest(
-            "③NSだけOFF",
-            { noiseSuppression: false }
-        );
-    }
-);
-
-document.getElementById("procAGC").addEventListener(
-    "click",
-    function() {
-        runProcTest(
-            "④AGCだけOFF",
-            { autoGainControl: false }
-        );
-    }
-);
-
-document.getElementById("procNSAGC").addEventListener(
-    "click",
-    function() {
-        runProcTest(
-            "⑤NS_AGC_OFF",
-            {
-                noiseSuppression: false,
-                autoGainControl: false
-            }
-        );
-    }
-);
-
-document.getElementById("procAll").addEventListener(
-    "click",
-    function() {
-        runProcTest(
-            "⑥ALL_OFF",
-            {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false
-            }
-        );
-    }
-);
 
 
 function updateDiagnostic(
     result
 ) {
+
+    updateLowSignalDiagnostic(
+        result
+    );
+
 
     if (
         !diagnosticText
@@ -8218,95 +8067,14 @@ function stopExistingMicrophone() {
 
 function createAudioConstraints() {
 
-    const constraints =
-        {};
-
-
-    let supported =
-        {};
-
-
-    try {
-
-        supported =
-            navigator
-                .mediaDevices
-                .getSupportedConstraints
-            ?
-            navigator
-                .mediaDevices
-                .getSupportedConstraints()
-            :
-            {};
-
-    }
-
-    catch (error) {
-
-        supported =
-            {};
-
-    }
-
-
-    if (
-        IS_IOS
-    ) {
-
-        if (
-            supported.echoCancellation
-        ) {
-
-            constraints.echoCancellation =
-                false;
-
-        }
-
-
-        if (
-            supported.noiseSuppression
-        ) {
-
-            constraints.noiseSuppression =
-                false;
-
-        }
-
-
-        if (
-            supported.autoGainControl
-        ) {
-
-            constraints.autoGainControl =
-                false;
-
-        }
-
-
-        if (
-            supported.channelCount
-        ) {
-
-            constraints.channelCount =
-                1;
-
-        }
-
-    }
-
-
-    if (
-        Object.keys(
-            constraints
-        ).length === 0
-    ) {
-
+    // 第10世代iPad・低入力診断：
+    // echoCancellation:false で入力が無音になる実機結果があったため、
+    // iOSでは Safari 標準の取得方法を使う。
+    if (IS_IOS) {
         return true;
-
     }
 
-
-    return constraints;
+    return true;
 
 }
 

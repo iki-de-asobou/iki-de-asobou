@@ -209,6 +209,21 @@ button {
     word-break: break-word;
 }
 
+
+.diagnostic-record-button {
+    margin: 4px 0 6px;
+    padding: 7px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.diagnostic-record-status {
+    min-height: 1.4em;
+    margin-bottom: 5px;
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
 .diagnostic-title {
     margin-bottom: 4px;
     font-family: sans-serif;
@@ -756,7 +771,11 @@ button {
 </div>
 
 <div id="diagnosticPanel" class="diagnostic-panel">
-    <div class="diagnostic-title">マイク診断（PC・S音量なし連続判定）</div>
+    <div class="diagnostic-title">マイク診断（調査用）</div>
+    <button id="diagnosticRecordButton" type="button" class="diagnostic-record-button">
+        Web入力を10秒録音
+    </button>
+    <div id="diagnosticRecordStatus" class="diagnostic-record-status"></div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
@@ -1576,6 +1595,26 @@ let microphoneTrackSettings =
     null;
 
 let microphoneTrackConstraints =
+    null;
+
+
+const diagnosticRecordButton =
+    document.getElementById(
+        "diagnosticRecordButton"
+    );
+
+const diagnosticRecordStatus =
+    document.getElementById(
+        "diagnosticRecordStatus"
+    );
+
+let diagnosticRecorder =
+    null;
+
+let diagnosticRecordedChunks =
+    [];
+
+let diagnosticRecordingTimer =
     null;
 
 
@@ -5330,31 +5369,6 @@ function normalS(
     result
 ) {
 
-    // PC診断実験：
-    // PCだけ絶対音量しきい値を一時的に使わず、
-    // 「Sらしい周波数形状」で反応できるか確認する。
-    // iPad / Android は従来どおり。
-    if (
-        !IS_IOS
-        &&
-        !IS_ANDROID
-    ) {
-
-        return (
-            result.highRatio >= 0.60
-            &&
-            result.spectralCentroid >= 5500
-            &&
-            result.zcr >= 0.10
-            &&
-            result.upperHighRatio >= 0.30
-            &&
-            result.veryHighRatio >= 0.18
-        );
-
-    }
-
-
     if (
         result.volume
         <
@@ -5380,28 +5394,6 @@ function normalS(
 function weakS(
     result
 ) {
-
-    // PC診断実験では normalS と同じ形状判定を使う。
-    if (
-        !IS_IOS
-        &&
-        !IS_ANDROID
-    ) {
-
-        return (
-            result.highRatio >= 0.60
-            &&
-            result.spectralCentroid >= 5500
-            &&
-            result.zcr >= 0.10
-            &&
-            result.upperHighRatio >= 0.30
-            &&
-            result.veryHighRatio >= 0.18
-        );
-
-    }
-
 
     if (
         result.volume
@@ -5681,23 +5673,76 @@ function pcOnsetContinuation(
     result
 ) {
 
-    // PC診断実験：
-    // 絶対音量は使わず、Sらしいスペクトル形状が
-    // 続いているかだけで開始確認する。
-    //
-    // 無音時の誤反応が起きないかを確認するための
-    // 調査版であり、iPad / Android の判定には影響しない。
-    return (
-        result.highRatio >= 0.60
-        &&
-        result.spectralCentroid >= 5500
-        &&
-        result.zcr >= 0.10
-        &&
-        result.upperHighRatio >= 0.30
-        &&
-        result.veryHighRatio >= 0.18
-    );
+    const minimumVolume =
+        Math.max(
+            0.0027,
+            noiseFloor * 1.15,
+            noiseFloor + 0.0004
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio
+        <
+        0.32
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        0.018
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak
+        /
+        result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio > 5.0
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak > 0.095
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
 
 }
 
@@ -6635,6 +6680,299 @@ function latchS(
 // 音声判定
 // ============================================================
 
+
+function chooseDiagnosticMimeType() {
+
+    if (
+        typeof MediaRecorder === "undefined"
+    ) {
+
+        return "";
+
+    }
+
+
+    const candidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4"
+    ];
+
+
+    for (
+        const type
+        of
+        candidates
+    ) {
+
+        if (
+            MediaRecorder.isTypeSupported(
+                type
+            )
+        ) {
+
+            return type;
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+function finishDiagnosticRecording() {
+
+    if (
+        diagnosticRecordingTimer
+    ) {
+
+        clearTimeout(
+            diagnosticRecordingTimer
+        );
+
+        diagnosticRecordingTimer =
+            null;
+
+    }
+
+
+    if (
+        diagnosticRecorder
+        &&
+        diagnosticRecorder.state !== "inactive"
+    ) {
+
+        diagnosticRecorder.stop();
+
+    }
+
+}
+
+
+function startDiagnosticRecording() {
+
+    if (
+        !mediaStream
+    ) {
+
+        diagnosticRecordStatus.textContent =
+            "先に「スタート」でマイクを開始してください。";
+
+
+        return;
+
+    }
+
+
+    if (
+        typeof MediaRecorder === "undefined"
+    ) {
+
+        diagnosticRecordStatus.textContent =
+            "このブラウザではWeb録音機能を利用できません。";
+
+
+        return;
+
+    }
+
+
+    if (
+        diagnosticRecorder
+        &&
+        diagnosticRecorder.state !== "inactive"
+    ) {
+
+        return;
+
+    }
+
+
+    diagnosticRecordedChunks =
+        [];
+
+
+    const mimeType =
+        chooseDiagnosticMimeType();
+
+
+    try {
+
+        diagnosticRecorder =
+            mimeType
+            ?
+            new MediaRecorder(
+                mediaStream,
+                {
+                    mimeType:
+                        mimeType
+                }
+            )
+            :
+            new MediaRecorder(
+                mediaStream
+            );
+
+
+        diagnosticRecorder.ondataavailable =
+            function(
+                event
+            ) {
+
+                if (
+                    event.data
+                    &&
+                    event.data.size > 0
+                ) {
+
+                    diagnosticRecordedChunks.push(
+                        event.data
+                    );
+
+                }
+
+            };
+
+
+        diagnosticRecorder.onstop =
+            function() {
+
+                const actualType =
+                    diagnosticRecorder.mimeType
+                    ||
+                    mimeType
+                    ||
+                    "audio/webm";
+
+
+                const blob =
+                    new Blob(
+                        diagnosticRecordedChunks,
+                        {
+                            type:
+                                actualType
+                        }
+                    );
+
+
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                const extension =
+                    actualType.includes(
+                        "mp4"
+                    )
+                    ?
+                    "m4a"
+                    :
+                    "webm";
+
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                link.href =
+                    url;
+
+                link.download =
+                    "web-mic-test."
+                    +
+                    extension;
+
+
+                document.body.appendChild(
+                    link
+                );
+
+
+                link.click();
+
+
+                link.remove();
+
+
+                setTimeout(
+                    function() {
+
+                        URL.revokeObjectURL(
+                            url
+                        );
+
+                    },
+                    5000
+                );
+
+
+                diagnosticRecordStatus.textContent =
+                    "録音完了。音声ファイルを保存しました。";
+
+
+                diagnosticRecordButton.disabled =
+                    false;
+
+                diagnosticRecordButton.textContent =
+                    "Web入力を10秒録音";
+
+            };
+
+
+        diagnosticRecorder.start();
+
+
+        diagnosticRecordButton.disabled =
+            true;
+
+        diagnosticRecordButton.textContent =
+            "録音中…";
+
+        diagnosticRecordStatus.textContent =
+            "10秒録音中。「すー」を何回か繰り返してください。";
+
+
+        diagnosticRecordingTimer =
+            setTimeout(
+                finishDiagnosticRecording,
+                10000
+            );
+
+    }
+
+    catch (
+        error
+    ) {
+
+        console.error(
+            error
+        );
+
+
+        diagnosticRecordStatus.textContent =
+            "Web録音を開始できませんでした。";
+
+
+        diagnosticRecordButton.disabled =
+            false;
+
+    }
+
+}
+
+
+diagnosticRecordButton.addEventListener(
+    "click",
+    startDiagnosticRecording
+);
+
+
 function updateDiagnostic(
     result
 ) {
@@ -6792,67 +7130,6 @@ function updateDiagnostic(
                 ? "はい"
                 : "いいえ"
             ),
-        "",
-        "---- PC・S形状条件 ----",
-        "highRatio >= 0.60  : "
-            + (
-                result.highRatio >= 0.60
-                ? "○"
-                : "×"
-            )
-            + "  (" + result.highRatio.toFixed(3) + ")",
-        "centroid >= 5500   : "
-            + (
-                result.spectralCentroid >= 5500
-                ? "○"
-                : "×"
-            )
-            + "  (" + Math.round(result.spectralCentroid) + " Hz)",
-        "ZCR >= 0.10        : "
-            + (
-                result.zcr >= 0.10
-                ? "○"
-                : "×"
-            )
-            + "  (" + result.zcr.toFixed(3) + ")",
-        "upperHigh >= 0.30  : "
-            + (
-                result.upperHighRatio >= 0.30
-                ? "○"
-                : "×"
-            )
-            + "  (" + result.upperHighRatio.toFixed(3) + ")",
-        "veryHigh >= 0.18   : "
-            + (
-                result.veryHighRatio >= 0.18
-                ? "○"
-                : "×"
-            )
-            + "  (" + result.veryHighRatio.toFixed(3) + ")",
-        "形状条件すべて      : "
-            + (
-                (
-                    result.highRatio >= 0.60
-                    &&
-                    result.spectralCentroid >= 5500
-                    &&
-                    result.zcr >= 0.10
-                    &&
-                    result.upperHighRatio >= 0.30
-                    &&
-                    result.veryHighRatio >= 0.18
-                )
-                ? "○"
-                : "×"
-            ),
-        "normalCount        : "
-            + String(normalCount),
-        "weakCount          : "
-            + String(weakCount),
-        "pcPendingOnset     : "
-            + String(pcPendingOnset),
-        "pcOnsetConfirmCount: "
-            + String(pcOnsetConfirmCount),
         "",
         "---- マイク実設定 ----",
         "autoGainControl    : "
@@ -8013,58 +8290,6 @@ function createAudioConstraints() {
 
     if (
         IS_IOS
-    ) {
-
-        if (
-            supported.echoCancellation
-        ) {
-
-            constraints.echoCancellation =
-                false;
-
-        }
-
-
-        if (
-            supported.noiseSuppression
-        ) {
-
-            constraints.noiseSuppression =
-                false;
-
-        }
-
-
-        if (
-            supported.autoGainControl
-        ) {
-
-            constraints.autoGainControl =
-                false;
-
-        }
-
-
-        if (
-            supported.channelCount
-        ) {
-
-            constraints.channelCount =
-                1;
-
-        }
-
-    }
-
-
-    // PC診断用：
-    // Windows / Chrome等で「すー」が途中から極端に小さくなる原因を
-    // 切り分けるため、PCだけ音声処理を明示的にOFFで要求する。
-    // Androidには触れない。
-    if (
-        !IS_IOS
-        &&
-        !IS_ANDROID
     ) {
 
         if (

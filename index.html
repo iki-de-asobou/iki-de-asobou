@@ -209,6 +209,15 @@ button {
     word-break: break-word;
 }
 
+
+.diagnostic-record-button {
+    display:block;
+    width:100%;
+    margin:4px 0;
+    padding:8px;
+    font-size:12px;
+}
+
 .diagnostic-title {
     margin-bottom: 4px;
     font-family: sans-serif;
@@ -757,10 +766,17 @@ button {
 
 <div id="diagnosticPanel" class="diagnostic-panel">
     <div class="diagnostic-title">マイク診断（調査用）</div>
-    <div style="font-size:12px;line-height:1.45;margin:4px 0 7px;">
-        第10世代iPad・微小信号診断（Safari標準入力）
+    <div style="font-size:12px;line-height:1.45;margin:4px 0 8px;">
+        Bluetoothマイク＋audioSession診断<br>
+        Bluetoothイヤホンを接続してから試してください。
     </div>
-    <div id="lowSignalDiagnostic" style="font-family:monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;margin-bottom:7px;"></div>
+    <button id="btNormalButton" class="diagnostic-record-button">
+        ① 通常のSafari入力で10秒録音
+    </button>
+    <button id="btRouteButton" class="diagnostic-record-button">
+        ② audioSession切替で10秒録音
+    </button>
+    <div id="btStatus" style="font-size:12px;line-height:1.5;min-height:3em;margin:6px 0;"></div>
 
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
@@ -1584,19 +1600,19 @@ let microphoneTrackConstraints =
     null;
 
 
-const lowSignalDiagnostic =
-    document.getElementById(
-        "lowSignalDiagnostic"
-    );
+const btNormalButton =
+    document.getElementById("btNormalButton");
 
-let lowSignalBaseline =
-    null;
+const btRouteButton =
+    document.getElementById("btRouteButton");
 
-let lowSignalBaselineSamples =
-    [];
+const btStatus =
+    document.getElementById("btStatus");
 
-let lowSignalStartTime =
-    0;
+let btRecorder = null;
+let btChunks = [];
+let btStream = null;
+let btTimer = null;
 
 
 const startButton =
@@ -6662,130 +6678,272 @@ function latchS(
 // ============================================================
 
 
-function updateLowSignalDiagnostic(result) {
+function setBtButtonsDisabled(disabled) {
+    btNormalButton.disabled = disabled;
+    btRouteButton.disabled = disabled;
+}
 
-    if (!IS_IOS) {
-        lowSignalDiagnostic.textContent =
-            "この追加表示はiPad診断用です。";
+function stopBtStream() {
+    if (btStream) {
+        btStream.getTracks().forEach(
+            function(track) {
+                track.stop();
+            }
+        );
+        btStream = null;
+    }
+}
+
+function chooseBtMimeType() {
+    if (typeof MediaRecorder === "undefined") {
+        return "";
+    }
+
+    const candidates = [
+        "audio/mp4",
+        "audio/webm;codecs=opus",
+        "audio/webm"
+    ];
+
+    for (const type of candidates) {
+        if (MediaRecorder.isTypeSupported(type)) {
+            return type;
+        }
+    }
+
+    return "";
+}
+
+async function runBtAudioSessionTest(useRoutingWorkaround) {
+
+    if (typeof MediaRecorder === "undefined") {
+        btStatus.textContent =
+            "このSafariでは録音機能を利用できません。";
         return;
     }
 
-    if (!lowSignalStartTime) {
-        lowSignalStartTime = performance.now();
-    }
+    setBtButtonsDisabled(true);
 
-    const elapsed =
-        (performance.now() - lowSignalStartTime) / 1000;
+    const audioSession =
+        navigator.audioSession || null;
 
-    // 最初の約2秒を無音基準として収集。
-    if (
-        lowSignalBaseline === null
-        &&
-        elapsed <= 2.0
-    ) {
-        lowSignalBaselineSamples.push(
-            result.volume
-        );
-    }
+    const label =
+        useRoutingWorkaround
+        ? "②audioSession切替"
+        : "①通常Safari入力";
 
-    if (
-        lowSignalBaseline === null
-        &&
-        elapsed > 2.0
-    ) {
+    try {
 
-        const sorted =
-            lowSignalBaselineSamples
-            .slice()
-            .sort(function(a, b) {
-                return a - b;
+        if (
+            useRoutingWorkaround
+            &&
+            audioSession
+        ) {
+            try {
+                audioSession.type = "auto";
+            }
+            catch (error) {
+                console.warn(
+                    "audioSession auto failed",
+                    error
+                );
+            }
+
+            // ルーティング変更が反映される時間を少し置く。
+            await new Promise(
+                function(resolve) {
+                    setTimeout(resolve, 250);
+                }
+            );
+        }
+
+        btStatus.textContent =
+            label + "：マイク取得中…";
+
+        btStream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false
             });
 
-        lowSignalBaseline =
-            sorted.length
-            ? sorted[Math.floor(sorted.length / 2)]
-            : Math.max(noiseFloor, 0.000001);
+        if (
+            useRoutingWorkaround
+            &&
+            audioSession
+        ) {
+            try {
+                audioSession.type =
+                    "play-and-record";
+            }
+            catch (error) {
+                console.warn(
+                    "audioSession play-and-record failed",
+                    error
+                );
+            }
+        }
+
+        const track =
+            btStream.getAudioTracks()[0];
+
+        const settings =
+            track && track.getSettings
+            ? track.getSettings()
+            : {};
+
+        const sessionType =
+            audioSession
+            ? String(audioSession.type)
+            : "未対応";
+
+        const settingText =
+            "audioSession="
+            + sessionType
+            + " / AGC="
+            + String(settings.autoGainControl)
+            + " / NS="
+            + String(settings.noiseSuppression)
+            + " / EC="
+            + String(settings.echoCancellation)
+            + " / SR="
+            + String(settings.sampleRate)
+            + " / CH="
+            + String(settings.channelCount);
+
+        btChunks = [];
+
+        const mimeType =
+            chooseBtMimeType();
+
+        btRecorder =
+            mimeType
+            ? new MediaRecorder(
+                btStream,
+                { mimeType: mimeType }
+            )
+            : new MediaRecorder(btStream);
+
+        btRecorder.ondataavailable =
+            function(event) {
+                if (event.data && event.data.size > 0) {
+                    btChunks.push(event.data);
+                }
+            };
+
+        btRecorder.onstop =
+            function() {
+
+                const actualType =
+                    btRecorder.mimeType
+                    ||
+                    mimeType
+                    ||
+                    "audio/mp4";
+
+                const blob =
+                    new Blob(
+                        btChunks,
+                        { type: actualType }
+                    );
+
+                const url =
+                    URL.createObjectURL(blob);
+
+                const extension =
+                    actualType.includes("mp4")
+                    ? "m4a"
+                    : "webm";
+
+                const link =
+                    document.createElement("a");
+
+                link.href = url;
+                link.download =
+                    (useRoutingWorkaround
+                        ? "02-audiosession-route"
+                        : "01-normal-safari")
+                    + "."
+                    + extension;
+
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                setTimeout(
+                    function() {
+                        URL.revokeObjectURL(url);
+                    },
+                    5000
+                );
+
+                stopBtStream();
+
+                btStatus.textContent =
+                    label
+                    + "：録音完了 / "
+                    + settingText;
+
+                setBtButtonsDisabled(false);
+            };
+
+        btRecorder.start();
+
+        btStatus.textContent =
+            label
+            + "：10秒録音中。「すーーーー」を数回、できれば5秒程度伸ばしてください。 / "
+            + settingText;
+
+        btTimer =
+            setTimeout(
+                function() {
+                    btTimer = null;
+
+                    if (
+                        btRecorder
+                        &&
+                        btRecorder.state !== "inactive"
+                    ) {
+                        btRecorder.stop();
+                    }
+                },
+                10000
+            );
+
     }
+    catch (error) {
 
-    const baseline =
-        Math.max(
-            lowSignalBaseline !== null
-            ? lowSignalBaseline
-            : noiseFloor,
-            0.000001
-        );
+        console.error(error);
+        stopBtStream();
 
-    const delta =
-        result.volume - baseline;
+        btStatus.textContent =
+            label
+            + "：失敗 "
+            + (error && error.name
+                ? "(" + error.name + ")"
+                : "");
 
-    const ratio =
-        result.volume / baseline;
-
-    const dbAboveBaseline =
-        20 * Math.log10(
-            Math.max(
-                ratio,
-                0.000001
-            )
-        );
-
-    // 表示専用。判定ロジックには使用しない。
-    const normalized =
-        Math.max(
-            0,
-            Math.min(
-                20,
-                ratio
-            )
-        );
-
-    lowSignalDiagnostic.textContent =
-        (lowSignalBaseline === null
-            ? "最初の2秒は静かにしてください…\n"
-            : "無音基準を取得済み\n")
-        + "baseline      : "
-        + baseline.toFixed(6)
-        + "\n"
-        + "volume        : "
-        + result.volume.toFixed(6)
-        + "\n"
-        + "差分 Δ        : "
-        + delta.toFixed(6)
-        + "\n"
-        + "基準比         : "
-        + ratio.toFixed(2)
-        + " 倍\n"
-        + "基準との差     : "
-        + dbAboveBaseline.toFixed(1)
-        + " dB\n"
-        + "正規化表示     : "
-        + normalized.toFixed(2)
-        + "\n"
-        + "highRatio     : "
-        + result.highRatio.toFixed(3)
-        + "\n"
-        + "centroid      : "
-        + Math.round(result.spectralCentroid)
-        + " Hz\n"
-        + "ZCR           : "
-        + result.zcr.toFixed(3)
-        + "\n"
-        + "upperHigh     : "
-        + result.upperHighRatio.toFixed(3)
-        + "\n"
-        + "veryHigh      : "
-        + result.veryHighRatio.toFixed(3);
+        setBtButtonsDisabled(false);
+    }
 }
+
+btNormalButton.addEventListener(
+    "click",
+    function() {
+        runBtAudioSessionTest(false);
+    }
+);
+
+btRouteButton.addEventListener(
+    "click",
+    function() {
+        runBtAudioSessionTest(true);
+    }
+);
 
 
 function updateDiagnostic(
     result
 ) {
-
-    updateLowSignalDiagnostic(
-        result
-    );
-
 
     if (
         !diagnosticText
@@ -8067,14 +8225,95 @@ function stopExistingMicrophone() {
 
 function createAudioConstraints() {
 
-    // 第10世代iPad・低入力診断：
-    // echoCancellation:false で入力が無音になる実機結果があったため、
-    // iOSでは Safari 標準の取得方法を使う。
-    if (IS_IOS) {
-        return true;
+    const constraints =
+        {};
+
+
+    let supported =
+        {};
+
+
+    try {
+
+        supported =
+            navigator
+                .mediaDevices
+                .getSupportedConstraints
+            ?
+            navigator
+                .mediaDevices
+                .getSupportedConstraints()
+            :
+            {};
+
     }
 
-    return true;
+    catch (error) {
+
+        supported =
+            {};
+
+    }
+
+
+    if (
+        IS_IOS
+    ) {
+
+        if (
+            supported.echoCancellation
+        ) {
+
+            constraints.echoCancellation =
+                false;
+
+        }
+
+
+        if (
+            supported.noiseSuppression
+        ) {
+
+            constraints.noiseSuppression =
+                false;
+
+        }
+
+
+        if (
+            supported.autoGainControl
+        ) {
+
+            constraints.autoGainControl =
+                false;
+
+        }
+
+
+        if (
+            supported.channelCount
+        ) {
+
+            constraints.channelCount =
+                1;
+
+        }
+
+    }
+
+
+    if (
+        Object.keys(
+            constraints
+        ).length === 0
+    ) {
+
+        return true;
+
+    }
+
+
+    return constraints;
 
 }
 

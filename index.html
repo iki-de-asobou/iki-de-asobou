@@ -210,7 +210,7 @@ button {
 }
 
 
-.ipad-diagnostic-note {
+.ipad-threeway-note {
     margin: 4px 0 7px;
     font-family: sans-serif;
     font-size: 12px;
@@ -218,15 +218,17 @@ button {
 }
 
 .diagnostic-record-button {
-    margin: 3px 4px 5px 0;
-    padding: 7px 9px;
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+    padding: 7px 8px;
     font-size: 12px;
     cursor: pointer;
 }
 
 .diagnostic-record-status {
-    min-height: 1.4em;
-    margin: 2px 0 5px;
+    min-height: 2.8em;
+    margin: 5px 0;
     font-family: sans-serif;
     font-size: 12px;
     line-height: 1.4;
@@ -780,14 +782,17 @@ button {
 
 <div id="diagnosticPanel" class="diagnostic-panel">
     <div class="diagnostic-title">マイク診断（調査用）</div>
-    <div class="ipad-diagnostic-note">
-        iPad入力診断：先に「スタート」を押してから録音してください。
+    <div class="ipad-threeway-note">
+        iPadマイク取得方式 3パターン比較
     </div>
-    <button id="ipadSRecordButton" type="button" class="diagnostic-record-button">
-        「すー」を10秒録音
+    <button id="ipadModeAButton" type="button" class="diagnostic-record-button">
+        ① 処理OFFで10秒録音
     </button>
-    <button id="ipadBreathRecordButton" type="button" class="diagnostic-record-button">
-        「ふー」を10秒録音
+    <button id="ipadModeBButton" type="button" class="diagnostic-record-button">
+        ② audio:trueで10秒録音
+    </button>
+    <button id="ipadModeCButton" type="button" class="diagnostic-record-button">
+        ③ 最小制約で10秒録音
     </button>
     <div id="diagnosticRecordStatus" class="diagnostic-record-status"></div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
@@ -1612,14 +1617,19 @@ let microphoneTrackConstraints =
     null;
 
 
-const ipadSRecordButton =
+const ipadModeAButton =
     document.getElementById(
-        "ipadSRecordButton"
+        "ipadModeAButton"
     );
 
-const ipadBreathRecordButton =
+const ipadModeBButton =
     document.getElementById(
-        "ipadBreathRecordButton"
+        "ipadModeBButton"
+    );
+
+const ipadModeCButton =
+    document.getElementById(
+        "ipadModeCButton"
     );
 
 const diagnosticRecordStatus =
@@ -1627,17 +1637,17 @@ const diagnosticRecordStatus =
         "diagnosticRecordStatus"
     );
 
-let diagnosticRecorder =
+let ipadDiagnosticRecorder =
     null;
 
-let diagnosticRecordedChunks =
+let ipadDiagnosticChunks =
     [];
 
-let diagnosticRecordingTimer =
+let ipadDiagnosticTimer =
     null;
 
-let diagnosticRecordingLabel =
-    "";
+let ipadDiagnosticStream =
+    null;
 
 
 const startButton =
@@ -6703,14 +6713,12 @@ function latchS(
 // ============================================================
 
 
-function chooseDiagnosticMimeType() {
+function chooseIpadDiagnosticMimeType() {
 
     if (
         typeof MediaRecorder === "undefined"
     ) {
-
         return "";
-
     }
 
     const candidates = [
@@ -6719,156 +6727,143 @@ function chooseDiagnosticMimeType() {
         "audio/webm"
     ];
 
-    for (
-        const type
-        of
-        candidates
-    ) {
-
-        if (
-            MediaRecorder.isTypeSupported(
-                type
-            )
-        ) {
-
+    for (const type of candidates) {
+        if (MediaRecorder.isTypeSupported(type)) {
             return type;
-
         }
-
     }
 
     return "";
-
 }
 
 
-function setDiagnosticRecordingButtons(
+function setIpadDiagnosticButtonsDisabled(
     disabled
 ) {
 
-    ipadSRecordButton.disabled =
-        disabled;
-
-    ipadBreathRecordButton.disabled =
-        disabled;
+    ipadModeAButton.disabled = disabled;
+    ipadModeBButton.disabled = disabled;
+    ipadModeCButton.disabled = disabled;
 
 }
 
 
-function finishDiagnosticRecording() {
+function stopIpadDiagnosticStream() {
 
-    if (
-        diagnosticRecordingTimer
-    ) {
+    if (ipadDiagnosticStream) {
 
-        clearTimeout(
-            diagnosticRecordingTimer
-        );
+        ipadDiagnosticStream
+            .getTracks()
+            .forEach(
+                function(track) {
+                    track.stop();
+                }
+            );
 
-        diagnosticRecordingTimer =
-            null;
-
-    }
-
-    if (
-        diagnosticRecorder
-        &&
-        diagnosticRecorder.state !== "inactive"
-    ) {
-
-        diagnosticRecorder.stop();
+        ipadDiagnosticStream = null;
 
     }
 
 }
 
 
-function startDiagnosticRecording(
-    label
+async function recordIpadInputPattern(
+    patternName,
+    constraints
 ) {
-
-    if (
-        !mediaStream
-    ) {
-
-        diagnosticRecordStatus.textContent =
-            "先に「スタート」でマイクを開始してください。";
-
-        return;
-
-    }
 
     if (
         typeof MediaRecorder === "undefined"
     ) {
 
         diagnosticRecordStatus.textContent =
-            "このiPad/SafariではWeb録音機能を利用できません。";
+            "このSafariではWeb録音機能を利用できません。";
 
         return;
 
     }
 
     if (
-        diagnosticRecorder
+        ipadDiagnosticRecorder
         &&
-        diagnosticRecorder.state !== "inactive"
+        ipadDiagnosticRecorder.state !== "inactive"
     ) {
-
         return;
-
     }
 
-    diagnosticRecordingLabel =
-        label;
+    setIpadDiagnosticButtonsDisabled(true);
 
-    diagnosticRecordedChunks =
-        [];
-
-    const mimeType =
-        chooseDiagnosticMimeType();
+    diagnosticRecordStatus.textContent =
+        patternName
+        +
+        "：マイクを準備しています…";
 
     try {
 
-        diagnosticRecorder =
-            mimeType
-            ?
-            new MediaRecorder(
-                mediaStream,
+        // 本体アプリのストリームとは別に、比較専用ストリームを取得する。
+        ipadDiagnosticStream =
+            await navigator.mediaDevices.getUserMedia(
                 {
-                    mimeType:
-                        mimeType
+                    audio: constraints,
+                    video: false
                 }
-            )
-            :
-            new MediaRecorder(
-                mediaStream
             );
 
-        diagnosticRecorder.ondataavailable =
-            function(
-                event
-            ) {
+        const track =
+            ipadDiagnosticStream.getAudioTracks()[0];
+
+        const settings =
+            track && track.getSettings
+            ? track.getSettings()
+            : {};
+
+        const settingText =
+            " AGC="
+            + String(settings.autoGainControl)
+            + " NS="
+            + String(settings.noiseSuppression)
+            + " EC="
+            + String(settings.echoCancellation)
+            + " SR="
+            + String(settings.sampleRate)
+            + " CH="
+            + String(settings.channelCount);
+
+        ipadDiagnosticChunks = [];
+
+        const mimeType =
+            chooseIpadDiagnosticMimeType();
+
+        ipadDiagnosticRecorder =
+            mimeType
+            ? new MediaRecorder(
+                ipadDiagnosticStream,
+                { mimeType: mimeType }
+            )
+            : new MediaRecorder(
+                ipadDiagnosticStream
+            );
+
+        ipadDiagnosticRecorder.ondataavailable =
+            function(event) {
 
                 if (
                     event.data
                     &&
                     event.data.size > 0
                 ) {
-
-                    diagnosticRecordedChunks.push(
+                    ipadDiagnosticChunks.push(
                         event.data
                     );
-
                 }
 
             };
 
-        diagnosticRecorder.onstop =
+        ipadDiagnosticRecorder.onstop =
             function() {
 
                 const actualType =
-                    diagnosticRecorder.mimeType
+                    ipadDiagnosticRecorder.mimeType
                     ||
                     mimeType
                     ||
@@ -6876,133 +6871,143 @@ function startDiagnosticRecording(
 
                 const blob =
                     new Blob(
-                        diagnosticRecordedChunks,
-                        {
-                            type:
-                                actualType
-                        }
+                        ipadDiagnosticChunks,
+                        { type: actualType }
                     );
 
                 const url =
-                    URL.createObjectURL(
-                        blob
-                    );
+                    URL.createObjectURL(blob);
 
                 const extension =
-                    actualType.includes(
-                        "mp4"
-                    )
-                    ?
-                    "m4a"
-                    :
-                    "webm";
+                    actualType.includes("mp4")
+                    ? "m4a"
+                    : "webm";
+
+                const safeName =
+                    patternName
+                    .replace(/[^\w\u3040-\u30ff\u4e00-\u9fff①②③-]+/g, "_");
 
                 const link =
-                    document.createElement(
-                        "a"
-                    );
+                    document.createElement("a");
 
-                link.href =
-                    url;
-
+                link.href = url;
                 link.download =
-                    diagnosticRecordingLabel
-                    +
-                    "-ipad-web-mic-test."
-                    +
-                    extension;
+                    safeName
+                    + "-ipad-mic-test."
+                    + extension;
 
-                document.body.appendChild(
-                    link
-                );
-
+                document.body.appendChild(link);
                 link.click();
-
                 link.remove();
 
                 setTimeout(
                     function() {
-
-                        URL.revokeObjectURL(
-                            url
-                        );
-
+                        URL.revokeObjectURL(url);
                     },
                     5000
                 );
 
-                diagnosticRecordStatus.textContent =
-                    "録音完了。「"
-                    +
-                    diagnosticRecordingLabel
-                    +
-                    "」の音声ファイルを保存しました。";
+                stopIpadDiagnosticStream();
 
-                setDiagnosticRecordingButtons(
-                    false
-                );
+                diagnosticRecordStatus.textContent =
+                    patternName
+                    +
+                    "：録音完了。"
+                    +
+                    settingText;
+
+                setIpadDiagnosticButtonsDisabled(false);
 
             };
 
-        diagnosticRecorder.start();
-
-        setDiagnosticRecordingButtons(
-            true
-        );
+        ipadDiagnosticRecorder.start();
 
         diagnosticRecordStatus.textContent =
-            "10秒録音中。「"
+            patternName
             +
-            diagnosticRecordingLabel
+            "：10秒録音中。「すーーー」→少し休む→「ふーーー」を繰り返してください。"
             +
-            "」を3回くらい繰り返してください。";
+            settingText;
 
-        diagnosticRecordingTimer =
+        ipadDiagnosticTimer =
             setTimeout(
-                finishDiagnosticRecording,
+                function() {
+
+                    ipadDiagnosticTimer = null;
+
+                    if (
+                        ipadDiagnosticRecorder
+                        &&
+                        ipadDiagnosticRecorder.state !== "inactive"
+                    ) {
+                        ipadDiagnosticRecorder.stop();
+                    }
+
+                },
                 10000
             );
 
     }
+    catch (error) {
 
-    catch (
-        error
-    ) {
+        console.error(error);
 
-        console.error(
-            error
-        );
+        stopIpadDiagnosticStream();
 
         diagnosticRecordStatus.textContent =
-            "Web録音を開始できませんでした。";
+            patternName
+            +
+            "：マイク取得に失敗しました。";
 
-        setDiagnosticRecordingButtons(
-            false
-        );
+        setIpadDiagnosticButtonsDisabled(false);
 
     }
 
 }
 
 
-ipadSRecordButton.addEventListener(
+ipadModeAButton.addEventListener(
     "click",
     function() {
 
-        startDiagnosticRecording(
-            "すー"
+        recordIpadInputPattern(
+            "①処理OFF",
+            {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                channelCount: 1
+            }
         );
 
     }
 );
 
 
-ipadBreathRecordButton.addEventListener(
+ipadModeBButton.addEventListener(
     "click",
     function() {
 
-        startDiagnosticRecording(
-            "ふー"
+        recordIpadInputPattern(
+            "②audio_true",
+            true
+        );
+
+    }
+);
+
+
+ipadModeCButton.addEventListener(
+    "click",
+    function() {
+
+        // 音声処理のON/OFFを指定せず、
+        // モノラルだけを希望する最小限の制約。
+        recordIpadInputPattern(
+            "③最小制約",
+            {
+                channelCount: 1
+            }
         );
 
     }

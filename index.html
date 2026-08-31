@@ -758,8 +758,8 @@ button {
 <div id="diagnosticPanel" class="diagnostic-panel">
     <div class="diagnostic-title">マイク診断（調査用）</div>
     <div style="font-size:12px; line-height:1.45; margin:4px 0 7px;">
-        iPad実動作テスト：iOSのマイク取得を <b>audio:true</b> にしています。<br>
-        「すーっと！」「ふーっと！」の両方を通常どおり試してください。
+        iPad実動作テスト（修正版）：iOSのマイク取得は <b>audio:true</b>。<br>
+        「すーっと！」「ふーっと！」を通常どおり試してください。
     </div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
@@ -7930,37 +7930,19 @@ function stopExistingMicrophone() {
 function createAudioConstraints() {
 
     // iPad診断実験：
-    // 第10世代で false 指定時に入力が消える現象が確認されたため、
-    // iOSだけ Safari にマイク取得方法を任せる。
-    if (isIOS) {
-        return true;
-    }
-
-    const supported =
-        navigator.mediaDevices
-        &&
-        navigator.mediaDevices.getSupportedConstraints
-        ?
-        navigator.mediaDevices.getSupportedConstraints()
-        :
-        {};
-
-    const audioConstraints = {};
-
-    // PC / Android は本番ベースラインの挙動を維持する。
+    // iOSでは個別の false 指定をせず、
+    // Safari にマイク取得方法を任せる。
     if (
-        supported.channelCount
+        IS_IOS
     ) {
-        audioConstraints.channelCount = 1;
+
+        return true;
+
     }
 
-    return (
-        Object.keys(audioConstraints).length > 0
-        ?
-        audioConstraints
-        :
-        true
-    );
+
+    // PC / Android は元の診断版と同じ。
+    return true;
 
 }
 

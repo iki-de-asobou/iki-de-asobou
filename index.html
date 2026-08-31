@@ -756,7 +756,7 @@ button {
 </div>
 
 <div id="diagnosticPanel" class="diagnostic-panel">
-    <div class="diagnostic-title">マイク診断（PC・S形状テスト）</div>
+    <div class="diagnostic-title">マイク診断（PC・S条件追跡）</div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
@@ -6845,6 +6845,67 @@ function updateDiagnostic(
                 ? "はい"
                 : "いいえ"
             ),
+        "",
+        "---- PC・S形状条件 ----",
+        "highRatio >= 0.60  : "
+            + (
+                result.highRatio >= 0.60
+                ? "○"
+                : "×"
+            )
+            + "  (" + result.highRatio.toFixed(3) + ")",
+        "centroid >= 5500   : "
+            + (
+                result.spectralCentroid >= 5500
+                ? "○"
+                : "×"
+            )
+            + "  (" + Math.round(result.spectralCentroid) + " Hz)",
+        "ZCR >= 0.10        : "
+            + (
+                result.zcr >= 0.10
+                ? "○"
+                : "×"
+            )
+            + "  (" + result.zcr.toFixed(3) + ")",
+        "upperHigh >= 0.30  : "
+            + (
+                result.upperHighRatio >= 0.30
+                ? "○"
+                : "×"
+            )
+            + "  (" + result.upperHighRatio.toFixed(3) + ")",
+        "veryHigh >= 0.18   : "
+            + (
+                result.veryHighRatio >= 0.18
+                ? "○"
+                : "×"
+            )
+            + "  (" + result.veryHighRatio.toFixed(3) + ")",
+        "形状条件すべて      : "
+            + (
+                (
+                    result.highRatio >= 0.60
+                    &&
+                    result.spectralCentroid >= 5500
+                    &&
+                    result.zcr >= 0.10
+                    &&
+                    result.upperHighRatio >= 0.30
+                    &&
+                    result.veryHighRatio >= 0.18
+                )
+                ? "○"
+                : "×"
+            ),
+        "normalCount        : "
+            + String(normalCount),
+        "weakCount          : "
+            + String(weakCount),
+        "pcPendingOnset     : "
+            + String(pcPendingOnset),
+        "pcOnsetConfirmCount: "
+            + String(pcOnsetConfirmCount),
         "",
         "---- マイク実設定 ----",
         "autoGainControl    : "

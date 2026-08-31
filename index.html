@@ -1572,6 +1572,13 @@ let lastDiagnosticUpdate =
     0;
 
 
+let microphoneTrackSettings =
+    null;
+
+let microphoneTrackConstraints =
+    null;
+
+
 const startButton =
     document.getElementById(
         "startButton"
@@ -6790,6 +6797,58 @@ function updateDiagnostic(
                 soundLatched
                 ? "はい"
                 : "いいえ"
+            ),
+        "",
+        "---- マイク実設定 ----",
+        "autoGainControl    : "
+            + (
+                microphoneTrackSettings
+                &&
+                "autoGainControl" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.autoGainControl)
+                :
+                "取得不可"
+            ),
+        "noiseSuppression   : "
+            + (
+                microphoneTrackSettings
+                &&
+                "noiseSuppression" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.noiseSuppression)
+                :
+                "取得不可"
+            ),
+        "echoCancellation   : "
+            + (
+                microphoneTrackSettings
+                &&
+                "echoCancellation" in microphoneTrackSettings
+                ?
+                String(microphoneTrackSettings.echoCancellation)
+                :
+                "取得不可"
+            ),
+        "sampleRate         : "
+            + (
+                microphoneTrackSettings
+                &&
+                microphoneTrackSettings.sampleRate
+                ?
+                String(microphoneTrackSettings.sampleRate)
+                :
+                "取得不可"
+            ),
+        "channelCount       : "
+            + (
+                microphoneTrackSettings
+                &&
+                microphoneTrackSettings.channelCount
+                ?
+                String(microphoneTrackSettings.channelCount)
+                :
+                "取得不可"
             )
     ];
 
@@ -8047,6 +8106,32 @@ async function startMicrophone() {
 
                     }
                 );
+
+
+        const diagnosticTrack =
+            mediaStream.getAudioTracks()[0];
+
+
+        if (
+            diagnosticTrack
+        ) {
+
+            microphoneTrackSettings =
+                typeof diagnosticTrack.getSettings === "function"
+                ?
+                diagnosticTrack.getSettings()
+                :
+                null;
+
+
+            microphoneTrackConstraints =
+                typeof diagnosticTrack.getConstraints === "function"
+                ?
+                diagnosticTrack.getConstraints()
+                :
+                null;
+
+        }
 
 
         const AudioContextClass =

@@ -209,31 +209,6 @@ button {
     word-break: break-word;
 }
 
-
-.ipad-threeway-note {
-    margin: 4px 0 7px;
-    font-family: sans-serif;
-    font-size: 12px;
-    line-height: 1.4;
-}
-
-.diagnostic-record-button {
-    display: block;
-    width: 100%;
-    margin: 4px 0;
-    padding: 7px 8px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.diagnostic-record-status {
-    min-height: 2.8em;
-    margin: 5px 0;
-    font-family: sans-serif;
-    font-size: 12px;
-    line-height: 1.4;
-}
-
 .diagnostic-title {
     margin-bottom: 4px;
     font-family: sans-serif;
@@ -782,19 +757,10 @@ button {
 
 <div id="diagnosticPanel" class="diagnostic-panel">
     <div class="diagnostic-title">マイク診断（調査用）</div>
-    <div class="ipad-threeway-note">
-        iPadマイク取得方式 3パターン比較
+    <div style="font-size:12px; line-height:1.45; margin:4px 0 7px;">
+        iPad実動作テスト：iOSのマイク取得を <b>audio:true</b> にしています。<br>
+        「すーっと！」「ふーっと！」の両方を通常どおり試してください。
     </div>
-    <button id="ipadModeAButton" type="button" class="diagnostic-record-button">
-        ① 処理OFFで10秒録音
-    </button>
-    <button id="ipadModeBButton" type="button" class="diagnostic-record-button">
-        ② audio:trueで10秒録音
-    </button>
-    <button id="ipadModeCButton" type="button" class="diagnostic-record-button">
-        ③ 最小制約で10秒録音
-    </button>
-    <div id="diagnosticRecordStatus" class="diagnostic-record-status"></div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
@@ -1614,39 +1580,6 @@ let microphoneTrackSettings =
     null;
 
 let microphoneTrackConstraints =
-    null;
-
-
-const ipadModeAButton =
-    document.getElementById(
-        "ipadModeAButton"
-    );
-
-const ipadModeBButton =
-    document.getElementById(
-        "ipadModeBButton"
-    );
-
-const ipadModeCButton =
-    document.getElementById(
-        "ipadModeCButton"
-    );
-
-const diagnosticRecordStatus =
-    document.getElementById(
-        "diagnosticRecordStatus"
-    );
-
-let ipadDiagnosticRecorder =
-    null;
-
-let ipadDiagnosticChunks =
-    [];
-
-let ipadDiagnosticTimer =
-    null;
-
-let ipadDiagnosticStream =
     null;
 
 
@@ -6712,308 +6645,6 @@ function latchS(
 // 音声判定
 // ============================================================
 
-
-function chooseIpadDiagnosticMimeType() {
-
-    if (
-        typeof MediaRecorder === "undefined"
-    ) {
-        return "";
-    }
-
-    const candidates = [
-        "audio/mp4",
-        "audio/webm;codecs=opus",
-        "audio/webm"
-    ];
-
-    for (const type of candidates) {
-        if (MediaRecorder.isTypeSupported(type)) {
-            return type;
-        }
-    }
-
-    return "";
-}
-
-
-function setIpadDiagnosticButtonsDisabled(
-    disabled
-) {
-
-    ipadModeAButton.disabled = disabled;
-    ipadModeBButton.disabled = disabled;
-    ipadModeCButton.disabled = disabled;
-
-}
-
-
-function stopIpadDiagnosticStream() {
-
-    if (ipadDiagnosticStream) {
-
-        ipadDiagnosticStream
-            .getTracks()
-            .forEach(
-                function(track) {
-                    track.stop();
-                }
-            );
-
-        ipadDiagnosticStream = null;
-
-    }
-
-}
-
-
-async function recordIpadInputPattern(
-    patternName,
-    constraints
-) {
-
-    if (
-        typeof MediaRecorder === "undefined"
-    ) {
-
-        diagnosticRecordStatus.textContent =
-            "このSafariではWeb録音機能を利用できません。";
-
-        return;
-
-    }
-
-    if (
-        ipadDiagnosticRecorder
-        &&
-        ipadDiagnosticRecorder.state !== "inactive"
-    ) {
-        return;
-    }
-
-    setIpadDiagnosticButtonsDisabled(true);
-
-    diagnosticRecordStatus.textContent =
-        patternName
-        +
-        "：マイクを準備しています…";
-
-    try {
-
-        // 本体アプリのストリームとは別に、比較専用ストリームを取得する。
-        ipadDiagnosticStream =
-            await navigator.mediaDevices.getUserMedia(
-                {
-                    audio: constraints,
-                    video: false
-                }
-            );
-
-        const track =
-            ipadDiagnosticStream.getAudioTracks()[0];
-
-        const settings =
-            track && track.getSettings
-            ? track.getSettings()
-            : {};
-
-        const settingText =
-            " AGC="
-            + String(settings.autoGainControl)
-            + " NS="
-            + String(settings.noiseSuppression)
-            + " EC="
-            + String(settings.echoCancellation)
-            + " SR="
-            + String(settings.sampleRate)
-            + " CH="
-            + String(settings.channelCount);
-
-        ipadDiagnosticChunks = [];
-
-        const mimeType =
-            chooseIpadDiagnosticMimeType();
-
-        ipadDiagnosticRecorder =
-            mimeType
-            ? new MediaRecorder(
-                ipadDiagnosticStream,
-                { mimeType: mimeType }
-            )
-            : new MediaRecorder(
-                ipadDiagnosticStream
-            );
-
-        ipadDiagnosticRecorder.ondataavailable =
-            function(event) {
-
-                if (
-                    event.data
-                    &&
-                    event.data.size > 0
-                ) {
-                    ipadDiagnosticChunks.push(
-                        event.data
-                    );
-                }
-
-            };
-
-        ipadDiagnosticRecorder.onstop =
-            function() {
-
-                const actualType =
-                    ipadDiagnosticRecorder.mimeType
-                    ||
-                    mimeType
-                    ||
-                    "audio/mp4";
-
-                const blob =
-                    new Blob(
-                        ipadDiagnosticChunks,
-                        { type: actualType }
-                    );
-
-                const url =
-                    URL.createObjectURL(blob);
-
-                const extension =
-                    actualType.includes("mp4")
-                    ? "m4a"
-                    : "webm";
-
-                const safeName =
-                    patternName
-                    .replace(/[^\w\u3040-\u30ff\u4e00-\u9fff①②③-]+/g, "_");
-
-                const link =
-                    document.createElement("a");
-
-                link.href = url;
-                link.download =
-                    safeName
-                    + "-ipad-mic-test."
-                    + extension;
-
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-
-                setTimeout(
-                    function() {
-                        URL.revokeObjectURL(url);
-                    },
-                    5000
-                );
-
-                stopIpadDiagnosticStream();
-
-                diagnosticRecordStatus.textContent =
-                    patternName
-                    +
-                    "：録音完了。"
-                    +
-                    settingText;
-
-                setIpadDiagnosticButtonsDisabled(false);
-
-            };
-
-        ipadDiagnosticRecorder.start();
-
-        diagnosticRecordStatus.textContent =
-            patternName
-            +
-            "：10秒録音中。「すーーー」→少し休む→「ふーーー」を繰り返してください。"
-            +
-            settingText;
-
-        ipadDiagnosticTimer =
-            setTimeout(
-                function() {
-
-                    ipadDiagnosticTimer = null;
-
-                    if (
-                        ipadDiagnosticRecorder
-                        &&
-                        ipadDiagnosticRecorder.state !== "inactive"
-                    ) {
-                        ipadDiagnosticRecorder.stop();
-                    }
-
-                },
-                10000
-            );
-
-    }
-    catch (error) {
-
-        console.error(error);
-
-        stopIpadDiagnosticStream();
-
-        diagnosticRecordStatus.textContent =
-            patternName
-            +
-            "：マイク取得に失敗しました。";
-
-        setIpadDiagnosticButtonsDisabled(false);
-
-    }
-
-}
-
-
-ipadModeAButton.addEventListener(
-    "click",
-    function() {
-
-        recordIpadInputPattern(
-            "①処理OFF",
-            {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false,
-                channelCount: 1
-            }
-        );
-
-    }
-);
-
-
-ipadModeBButton.addEventListener(
-    "click",
-    function() {
-
-        recordIpadInputPattern(
-            "②audio_true",
-            true
-        );
-
-    }
-);
-
-
-ipadModeCButton.addEventListener(
-    "click",
-    function() {
-
-        // 音声処理のON/OFFを指定せず、
-        // モノラルだけを希望する最小限の制約。
-        recordIpadInputPattern(
-            "③最小制約",
-            {
-                channelCount: 1
-            }
-        );
-
-    }
-);
-
-
 function updateDiagnostic(
     result
 ) {
@@ -8298,95 +7929,38 @@ function stopExistingMicrophone() {
 
 function createAudioConstraints() {
 
-    const constraints =
-        {};
-
-
-    let supported =
-        {};
-
-
-    try {
-
-        supported =
-            navigator
-                .mediaDevices
-                .getSupportedConstraints
-            ?
-            navigator
-                .mediaDevices
-                .getSupportedConstraints()
-            :
-            {};
-
-    }
-
-    catch (error) {
-
-        supported =
-            {};
-
-    }
-
-
-    if (
-        IS_IOS
-    ) {
-
-        if (
-            supported.echoCancellation
-        ) {
-
-            constraints.echoCancellation =
-                false;
-
-        }
-
-
-        if (
-            supported.noiseSuppression
-        ) {
-
-            constraints.noiseSuppression =
-                false;
-
-        }
-
-
-        if (
-            supported.autoGainControl
-        ) {
-
-            constraints.autoGainControl =
-                false;
-
-        }
-
-
-        if (
-            supported.channelCount
-        ) {
-
-            constraints.channelCount =
-                1;
-
-        }
-
-    }
-
-
-    if (
-        Object.keys(
-            constraints
-        ).length === 0
-    ) {
-
+    // iPad診断実験：
+    // 第10世代で false 指定時に入力が消える現象が確認されたため、
+    // iOSだけ Safari にマイク取得方法を任せる。
+    if (isIOS) {
         return true;
-
     }
 
+    const supported =
+        navigator.mediaDevices
+        &&
+        navigator.mediaDevices.getSupportedConstraints
+        ?
+        navigator.mediaDevices.getSupportedConstraints()
+        :
+        {};
 
-    return constraints;
+    const audioConstraints = {};
+
+    // PC / Android は本番ベースラインの挙動を維持する。
+    if (
+        supported.channelCount
+    ) {
+        audioConstraints.channelCount = 1;
+    }
+
+    return (
+        Object.keys(audioConstraints).length > 0
+        ?
+        audioConstraints
+        :
+        true
+    );
 
 }
 

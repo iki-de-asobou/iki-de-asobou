@@ -194,6 +194,27 @@ button {
     font-size: 18px;
 }
 
+
+.diagnostic-panel {
+    margin-top: 10px;
+    padding: 9px 10px;
+    border: 1px solid #b9cbd2;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    line-height: 1.55;
+    text-align: left;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.diagnostic-title {
+    margin-bottom: 4px;
+    font-family: sans-serif;
+    font-weight: 700;
+}
+
 .start-control {
     display: flex;
     align-items: center;
@@ -732,6 +753,11 @@ button {
     class="count"
 >
 登録画像：0 / 20
+</div>
+
+<div id="diagnosticPanel" class="diagnostic-panel">
+    <div class="diagnostic-title">マイク診断（調査用）</div>
+    <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
 </div>
@@ -1535,6 +1561,15 @@ const statusElement =
     document.getElementById(
         "status"
     );
+
+
+const diagnosticText =
+    document.getElementById(
+        "diagnosticText"
+    );
+
+let lastDiagnosticUpdate =
+    0;
 
 
 const startButton =
@@ -6599,6 +6634,174 @@ function latchS(
 // 音声判定
 // ============================================================
 
+function updateDiagnostic(
+    result
+) {
+
+    if (
+        !diagnosticText
+    ) {
+
+        return;
+
+    }
+
+
+    const now =
+        performance.now();
+
+
+    // 数字が速すぎて読めなくならないよう約5回/秒に制限。
+    if (
+        now - lastDiagnosticUpdate < 200
+    ) {
+
+        return;
+
+    }
+
+
+    lastDiagnosticUpdate =
+        now;
+
+
+    const platform =
+        IS_IOS
+        ?
+        "iPad / iPhone"
+        :
+        (
+            IS_ANDROID
+            ?
+            "Android"
+            :
+            "PC"
+        );
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak / result.volume
+        :
+        0;
+
+
+    let sVolumeThreshold =
+        weakDynamicMin;
+
+
+    if (
+        IS_IOS
+    ) {
+
+        sVolumeThreshold =
+            iosWeakDynamicMin;
+
+    }
+
+
+    const sShapeBasic =
+        result.highRatio >= HIGH_RATIO_MIN
+        &&
+        result.zcr >= ZCR_MIN;
+
+
+    let breathVolumeThreshold =
+        Math.max(
+            BREATH_MIN_VOLUME,
+            noiseFloor
+            *
+            BREATH_NOISE_MULTIPLIER,
+            noiseFloor
+            +
+            BREATH_NOISE_ADD
+        );
+
+
+    if (
+        IS_IOS
+    ) {
+
+        breathVolumeThreshold =
+            Math.max(
+                IOS_BREATH_MIN_VOLUME,
+                noiseFloor
+                *
+                IOS_BREATH_NOISE_MULTIPLIER,
+                noiseFloor
+                +
+                IOS_BREATH_NOISE_ADD
+            );
+
+    }
+
+
+    const lines = [
+        "端末: " + platform
+            + " / モード: "
+            + (
+                practiceMode === "breath"
+                ? "ふーっと！"
+                : "すーっと！"
+            ),
+        calibrating
+            ? "状態: キャリブレーション中"
+            : "状態: 計測中",
+        "",
+        "音量 volume      : "
+            + result.volume.toFixed(6),
+        "ピーク peak       : "
+            + result.peak.toFixed(6),
+        "peak / volume     : "
+            + peakRatio.toFixed(2),
+        "高域比 highRatio  : "
+            + result.highRatio.toFixed(3),
+        "重心 centroid     : "
+            + Math.round(
+                result.spectralCentroid
+            )
+            + " Hz",
+        "ZCR               : "
+            + result.zcr.toFixed(3),
+        "lowMidRatio       : "
+            + result.lowMidRatio.toFixed(3),
+        "upperHighRatio    : "
+            + result.upperHighRatio.toFixed(3),
+        "mid24Ratio        : "
+            + result.mid24Ratio.toFixed(3),
+        "veryHighRatio     : "
+            + result.veryHighRatio.toFixed(3),
+        "",
+        "noiseFloor        : "
+            + noiseFloor.toFixed(6),
+        "S音量しきい値      : "
+            + sVolumeThreshold.toFixed(6),
+        "S基本形状(HR/ZCR)  : "
+            + (
+                sShapeBasic
+                ? "○"
+                : "×"
+            ),
+        "ふー音量しきい値    : "
+            + breathVolumeThreshold.toFixed(6),
+        "画像表示中         : "
+            + (
+                soundLatched
+                ? "はい"
+                : "いいえ"
+            )
+    ];
+
+
+    diagnosticText.textContent =
+        lines.join(
+            "\n"
+        );
+
+}
+
+
 function processResult(
     result
 ) {
@@ -7205,6 +7408,11 @@ function addSamples(
             analyzeFrame(
                 frame
             );
+
+
+        updateDiagnostic(
+            result
+        );
 
 
         processResult(

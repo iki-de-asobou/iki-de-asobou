@@ -8002,6 +8002,58 @@ function createAudioConstraints() {
     }
 
 
+    // PC診断用：
+    // Windows / Chrome等で「すー」が途中から極端に小さくなる原因を
+    // 切り分けるため、PCだけ音声処理を明示的にOFFで要求する。
+    // Androidには触れない。
+    if (
+        !IS_IOS
+        &&
+        !IS_ANDROID
+    ) {
+
+        if (
+            supported.echoCancellation
+        ) {
+
+            constraints.echoCancellation =
+                false;
+
+        }
+
+
+        if (
+            supported.noiseSuppression
+        ) {
+
+            constraints.noiseSuppression =
+                false;
+
+        }
+
+
+        if (
+            supported.autoGainControl
+        ) {
+
+            constraints.autoGainControl =
+                false;
+
+        }
+
+
+        if (
+            supported.channelCount
+        ) {
+
+            constraints.channelCount =
+                1;
+
+        }
+
+    }
+
+
     if (
         Object.keys(
             constraints

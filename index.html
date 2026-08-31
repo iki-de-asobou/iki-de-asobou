@@ -756,7 +756,7 @@ button {
 </div>
 
 <div id="diagnosticPanel" class="diagnostic-panel">
-    <div class="diagnostic-title">マイク診断（PC・S条件追跡）</div>
+    <div class="diagnostic-title">マイク診断（PC・S音量なし連続判定）</div>
     <div id="diagnosticText">スタートすると数値が表示されます。</div>
 </div>
 
@@ -5681,76 +5681,23 @@ function pcOnsetContinuation(
     result
 ) {
 
-    const minimumVolume =
-        Math.max(
-            0.0027,
-            noiseFloor * 1.15,
-            noiseFloor + 0.0004
-        );
-
-
-    if (
-        result.volume
-        <
-        minimumVolume
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.highRatio
-        <
-        0.32
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.zcr
-        <
-        0.018
-    ) {
-
-        return false;
-
-    }
-
-
-    const peakRatio =
-        result.volume > 0
-        ?
-        result.peak
-        /
-        result.volume
-        :
-        999;
-
-
-    if (
-        peakRatio > 5.0
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        result.peak > 0.095
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
+    // PC診断実験：
+    // 絶対音量は使わず、Sらしいスペクトル形状が
+    // 続いているかだけで開始確認する。
+    //
+    // 無音時の誤反応が起きないかを確認するための
+    // 調査版であり、iPad / Android の判定には影響しない。
+    return (
+        result.highRatio >= 0.60
+        &&
+        result.spectralCentroid >= 5500
+        &&
+        result.zcr >= 0.10
+        &&
+        result.upperHighRatio >= 0.30
+        &&
+        result.veryHighRatio >= 0.18
+    );
 
 }
 

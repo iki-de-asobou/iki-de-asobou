@@ -219,7 +219,6 @@ button {
     display: inline-block;
 }
 
-#practiceModeButton,
 #displayModeButton,
 #imageOrderButton {
     line-height: 1.4;
@@ -638,7 +637,6 @@ button {
     }
 
     .start-control,
-    #practiceModeButton,
     #displayModeButton,
     #imageOrderButton {
         grid-column: 1 / -1;
@@ -773,10 +771,6 @@ button {
 
 <button id="imageOrderButton">
 表示順：ランダム
-</button>
-
-<button id="practiceModeButton">
-練習モード：すーっと！
 </button>
 
 <button id="vowelButton">
@@ -1093,26 +1087,18 @@ const MAX_WORD_IMAGES = 20;
 // 練習モード
 // ============================================================
 
+// 現在は「すーっと！」モードのみ。
+// 以前「ふーっと！」を選んでいた端末でも、必ずSモードで開始する。
 const PRACTICE_MODE_STORAGE_KEY =
     "IkiDeAsobouPracticeMode";
 
-
 let practiceMode =
-    localStorage.getItem(
-        PRACTICE_MODE_STORAGE_KEY
-    );
+    "s";
 
-
-if (
-    practiceMode !== "s"
-    &&
-    practiceMode !== "breath"
-) {
-
-    practiceMode =
-        "s";
-
-}
+localStorage.setItem(
+    PRACTICE_MODE_STORAGE_KEY,
+    practiceMode
+);
 
 
 // ============================================================
@@ -1276,14 +1262,51 @@ const IS_IOS =
 // Android
 // ============================================================
 
+// ============================================================
+// Android S感度調整
+// ============================================================
+//
+// iOSやPCには影響させず、Androidだけ
+// ・弱いSの開始
+// ・開始後の持続
+// を拾いやすくする。
+
+const ANDROID_WEAK_MIN_VOLUME =
+    0.0020;
+
+const ANDROID_WEAK_NOISE_MULTIPLIER =
+    1.06;
+
+const ANDROID_WEAK_NOISE_ADD =
+    0.00015;
+
+const ANDROID_WEAK_REQUIRED =
+    3;
+
+
+// Android：開始後の弱いSを保持しやすくする。
+const ANDROID_HOLD_MIN_VOLUME =
+    0.0010;
+
+const ANDROID_HOLD_NOISE_MULTIPLIER =
+    1.06;
+
+const ANDROID_HOLD_NOISE_ADD =
+    0.00012;
+
 const ANDROID_HOLD_HIGH_RATIO_MIN =
-    0.30;
+    0.25;
 
 const ANDROID_HOLD_ZCR_MIN =
-    0.018;
+    0.012;
 
+// Sらしい音が一時的に崩れた場合は、従来どおり少し長めに待つ。
 const ANDROID_RELEASE_SECONDS =
-    0.28;
+    0.60;
+
+// ほぼ無音まで落ちた場合だけ、より早く画像を消す。
+const ANDROID_SILENCE_RELEASE_SECONDS =
+    0.18;
 
 
 // ============================================================
@@ -1310,8 +1333,20 @@ const PC_ONSET_EXTRA_FRAMES =
 // iPad / iPhone
 // ============================================================
 
+// iPad第9世代 S開始感度テスト。
+// 通常のS音量しきい値は変えず、iOSの弱音経路だけ開始音量を下げる。
+// 実際の開始時に 0.0008～0.0009 前後しか届かないケースに対応。
+// 第9世代で、より弱い自然な「すー」にも入りやすくする微調整。
+// もう一段だけ弱い自然な「すー」から開始しやすくする。
+// iPad第9世代：自然な距離・弱いSでも開始しやすくする追加調整。
+// iPad第9世代：自然な距離で、さらに弱いSでも開始しやすくする追加調整。
+// iPad第9世代：自然な距離で、さらに弱いSから開始しやすくする。
+// iPad第9世代：自然な距離で、さらに弱いSから開始しやすくする。
+// iPad第9世代：自然な距離で、さらに弱いSから開始しやすくする。
+// iPad第9世代：自然な距離で、さらに弱いSから開始しやすくする。
+// iPad第9世代：50cm程度の自然な距離からの弱いSを狙う試験値。
 const IOS_WEAK_MIN_VOLUME =
-    0.0028;
+    0.00020;
 
 const IOS_WEAK_REQUIRED =
     12;
@@ -1322,6 +1357,23 @@ const IOS_WEAK_REQUIRED =
 // 先にラッチしてしまうのをさらに防ぐ。
 const IOS_NORMAL_REQUIRED =
     12;
+
+// iPad + USB-C外部マイク専用。
+// 実測では弱いSでも High Ratio / Centroid / ZCR が十分Sらしいため、
+// S形状条件は維持したまま「開始までの待ち時間」だけ短くする。
+const IOS_USB_S_REQUIRED =
+    2;
+
+// iPad + USB-C外部マイク専用の弱いS開始音量。
+// 実測：無音 約0.0018、弱めS 約0.020。
+// その中間に十分な余裕を持たせ、0.010から拾う。
+// 内蔵マイク用の iosWeakDynamicMin は変更しない。
+// 厳しいS形状条件も同時に満たした場合だけ開始候補になる。
+const IOS_USB_WEAK_MIN_VOLUME =
+    0.010;
+
+const IOS_USB_WEAK_NOISE_MULTIPLIER =
+    1.00;
 
 
 // iPad / iPhone の「ふー」除外。
@@ -1389,11 +1441,51 @@ const IOS_RELEASE_NOISE_ADD =
 const IOS_RELEASE_SECONDS =
     0.20;
 
+// 弱いSで一瞬だけ周波数条件が崩れても、すぐには画像を消さない。
 const IOS_SPECTRAL_RELEASE_SECONDS =
-    0.40;
+    0.55;
 
 const IOS_INITIAL_PROTECTION_SECONDS =
     0.30;
+
+
+// ============================================================
+// iPad / iPhone 低音量S追跡（試験版）
+// ============================================================
+//
+// 第9世代では「すー」の開始直後は十分な音量がある一方、
+// 継続中にSafariへ届く音量だけが大きく下がることがある。
+// そのため、最初に通常のS判定を満たしたことを確認した後だけ、
+// 非常にSらしい高域形状が続く間は低音量でも候補・継続を許可する。
+// 無音から直接この経路へ入ることはできない。
+// iPad第9世代：弱いSの持続中にSafari側でさらに音量が落ちても
+// Sらしい高域形状が続く限り保持しやすくする。
+const IOS_S_LOW_VOLUME_MIN =
+    0.00018;
+
+const IOS_S_LOW_NOISE_MULTIPLIER =
+    0.75;
+
+const IOS_S_LOW_NOISE_ADD =
+    0.000000;
+
+const IOS_S_LOW_HIGH_RATIO_MIN =
+    0.70;
+
+const IOS_S_LOW_CENTROID_MIN =
+    6500;
+
+const IOS_S_LOW_UPPER_HIGH_MIN =
+    0.35;
+
+const IOS_S_LOW_ZCR_MIN =
+    0.080;
+
+const IOS_S_LOW_VERY_HIGH_MIN =
+    0.18;
+
+const IOS_S_SEED_REQUIRED =
+    2;
 
 
 // ============================================================
@@ -1435,16 +1527,16 @@ const BREATH_REQUIRED =
 
 // 継続中は開始条件よりさらに緩くする。
 const BREATH_HOLD_MIN_VOLUME =
-    0.00050;
+    0.00035;
 
 const BREATH_HOLD_NOISE_MULTIPLIER =
-    1.010;
+    1.005;
 
 const BREATH_HOLD_NOISE_ADD =
-    0.00002;
+    0.00001;
 
 const BREATH_RELEASE_SECONDS =
-    0.18;
+    0.30;
 
 
 // iPad / iPhone の「ふーっと！」だけ追加調整。
@@ -1453,7 +1545,7 @@ const BREATH_RELEASE_SECONDS =
 // ・息が止まったら早めに終了する
 // ための端末別判定。
 const IOS_BREATH_RELEASE_SECONDS =
-    0.10;
+    0.42;
 
 const IOS_BREATH_REFERENCE_BUILD_SECONDS =
     0.22;
@@ -1471,14 +1563,16 @@ const IOS_BREATH_RELEASE_NOISE_ADD =
 // iPad / iPhone の「ふーっと！」開始判定。
 // 弱い息への感度をかなり高く保ちつつ、
 // 一瞬の接触音・物音は連続時間とピーク形状で除外する。
+// 「ふーっと！」も弱い呼気で開始しやすくする微調整。
+// もう一段だけ弱い「ふー」から開始しやすくする。
 const IOS_BREATH_MIN_VOLUME =
-    0.00040;
+    0.00032;
 
 const IOS_BREATH_NOISE_MULTIPLIER =
-    1.008;
+    1.003;
 
 const IOS_BREATH_NOISE_ADD =
-    0.000015;
+    0.000008;
 
 const IOS_BREATH_HIGH_RATIO_MIN =
     0.045;
@@ -1498,7 +1592,7 @@ const IOS_BREATH_PEAK_LIMIT =
 // 約80ms前後の連続した息らしさを要求。
 // 感度を音量では落とさず、短い物音だけを切る狙い。
 const IOS_BREATH_MODE_REQUIRED =
-    5;
+    4;
 
 
 // ============================================================
@@ -1546,12 +1640,6 @@ const startButton =
 const recognitionStatus =
     document.getElementById(
         "recognitionStatus"
-    );
-
-
-const practiceModeButton =
-    document.getElementById(
-        "practiceModeButton"
     );
 
 
@@ -1646,81 +1734,12 @@ const deleteSelectedImagesButton =
 
 
 // ============================================================
-// 練習モード
-// ============================================================
-
-function updatePracticeModeButton() {
-
-    if (
-        practiceMode === "s"
-    ) {
-
-        practiceModeButton.textContent =
-            "練習モード：すーっと！";
-
-    }
-
-    else {
-
-        practiceModeButton.textContent =
-            "練習モード：ふーっと！";
-
-    }
-
-}
-
-
-practiceModeButton.addEventListener(
-    "click",
-    function() {
-
-        if (
-            practiceMode === "s"
-        ) {
-
-            practiceMode =
-                "breath";
-
-        }
-
-        else {
-
-            practiceMode =
-                "s";
-
-        }
-
-
-        localStorage.setItem(
-            PRACTICE_MODE_STORAGE_KEY,
-            practiceMode
-        );
-
-
-        // モード切替時は前の発音状態を持ち越さない。
-        resetRecognitionState(
-            true
-        );
-
-
-        updatePracticeModeButton();
-        updateDisplayModeButton();
-
-    }
-);
-
-
-// ============================================================
 // 表示モード
 // ============================================================
 
 function updateDisplayModeButton() {
 
     const targetName =
-        practiceMode === "breath"
-        ?
-        "息"
-        :
         "s音";
 
 
@@ -4271,6 +4290,12 @@ let calibrationFramesNeeded =
 let androidReleaseFramesNeeded =
     17;
 
+let androidSilenceReleaseFramesNeeded =
+    11;
+
+let androidSilenceCount =
+    0;
+
 
 let pcSoftReleaseFramesNeeded =
     30;
@@ -4320,6 +4345,12 @@ let iosWeakDynamicMin =
     IOS_WEAK_MIN_VOLUME;
 
 
+// iPad / iPhone で USB-C 等の外部入力を使っているか。
+// 世代判定ではなく、実際の入力トラック名で判定する。
+let iosExternalUSBMic =
+    false;
+
+
 let normalCount =
     0;
 
@@ -4330,6 +4361,15 @@ let weakCount =
 
 let iosWeakCount =
     0;
+
+
+// iOS低音量S追跡。
+// 最初に通常のS音量を満たしたフレームが連続してからだけ有効にする。
+let iosSSeedCount =
+    0;
+
+let iosSSeeded =
+    false;
 
 
 let iosBreathCount =
@@ -4445,6 +4485,14 @@ function resetRecognitionState(
 
     iosWeakCount =
         0;
+
+
+    iosSSeedCount =
+        0;
+
+
+    iosSSeeded =
+        false;
 
 
     iosBreathCount =
@@ -5333,6 +5381,184 @@ function weakS(
 
 
 // ============================================================
+// Android 「ふー」らしい息の除外
+// ============================================================
+//
+// V14のS開始感度そのものは変えない。
+// 「ふー」はSより高域の集中が弱く、スペクトル重心や
+// 6kHz/8kHz以上の成分が少ない場合が多いため、
+// 明確に息寄りの形だけをS開始候補から外す。
+
+function androidClearlyBreathy(
+    result
+) {
+
+    const clearBreath =
+        result.spectralCentroid <= 4700
+        &&
+        result.upperHighRatio <= 0.24
+        &&
+        result.veryHighRatio <= 0.11;
+
+
+    const lowHighBreath =
+        result.spectralCentroid <= 5500
+        &&
+        result.lowMidRatio >= 0.20
+        &&
+        result.upperHighRatio <= 0.28
+        &&
+        result.veryHighRatio <= 0.13
+        &&
+        result.highRatio <= 0.66;
+
+
+    // 中くらい以上の「ふー」は音量が上がると、
+    // genericなS判定のHigh Ratioを超えることがある。
+    // その場合でも8kHz以上への集中が弱く、
+    // 2〜4kHz帯が比較的多い形なら息として除外する。
+    const strongBreath =
+        result.spectralCentroid <= 5900
+        &&
+        result.mid24Ratio >= 0.15
+        &&
+        result.veryHighRatio <= 0.14
+        &&
+        (
+            result.veryHighRatio
+            /
+            Math.max(
+                result.mid24Ratio,
+                0.001
+            )
+        )
+        <
+        0.80;
+
+
+    return (
+        clearBreath
+        ||
+        lowHighBreath
+        ||
+        strongBreath
+    );
+
+}
+
+
+// ============================================================
+// Android Sらしい高域形状
+// ============================================================
+//
+// 口をすぼめた「ふー」は、音量やHigh Ratioが上がると
+// genericなS判定を通ることがある。
+// そこでAndroidでは、Sに多い
+// ・高いスペクトル重心
+// ・6kHz以上
+// ・8kHz以上
+// の集中も確認する。
+// iOSほど厳しくせず、Androidの正しい弱いSを残しやすい値にする。
+
+function androidSShape(
+    result
+) {
+
+    const upperShareOfHigh =
+        result.upperHighRatio
+        /
+        Math.max(
+            result.highRatio,
+            0.001
+        );
+
+
+    const veryHighShareOfHigh =
+        result.veryHighRatio
+        /
+        Math.max(
+            result.highRatio,
+            0.001
+        );
+
+
+    // 摩擦感のある「ふー」は High Ratio 自体は高くなることがあるが、
+    // 正しい /s/ より 6kHz以上・8kHz以上への集中が弱く、
+    // 2〜4kHzや700〜3000Hz側に成分が残りやすい。
+    // V19/V20より少しだけ「高域への集中」を重視する。
+    const upperToLowMid =
+        result.upperHighRatio
+        /
+        Math.max(
+            result.lowMidRatio,
+            0.001
+        );
+
+
+    const veryHighToMid =
+        result.veryHighRatio
+        /
+        Math.max(
+            result.mid24Ratio,
+            0.001
+        );
+
+
+    return (
+        result.spectralCentroid >= 4800
+        &&
+        result.upperHighRatio >= 0.19
+        &&
+        result.veryHighRatio >= 0.060
+        &&
+        upperShareOfHigh >= 0.33
+        &&
+        veryHighShareOfHigh >= 0.105
+        &&
+        upperToLowMid >= 0.82
+        &&
+        veryHighToMid >= 0.38
+    );
+
+}
+
+
+// ============================================================
+// Android 弱いS開始
+// ============================================================
+
+function weakSAndroid(
+    result
+) {
+
+    const minimumVolume =
+        Math.max(
+            ANDROID_WEAK_MIN_VOLUME,
+            noiseFloor * ANDROID_WEAK_NOISE_MULTIPLIER,
+            noiseFloor + ANDROID_WEAK_NOISE_ADD
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    // 音量だけを下げ、Sらしさの基本条件は維持する。
+    return commonSFeatures(
+        result
+    );
+
+}
+
+
+// ============================================================
 // iPad 「ふー」らしい息だけを除外
 // ============================================================
 
@@ -5560,10 +5786,23 @@ function weakSIOS(
     result
 ) {
 
+    const minimumVolume =
+        iosExternalUSBMic
+        ?
+        Math.max(
+            IOS_USB_WEAK_MIN_VOLUME,
+            noiseFloor
+            *
+            IOS_USB_WEAK_NOISE_MULTIPLIER
+        )
+        :
+        iosWeakDynamicMin;
+
+
     if (
         result.volume
         <
-        iosWeakDynamicMin
+        minimumVolume
     ) {
 
         return false;
@@ -5667,6 +5906,31 @@ function pcOnsetContinuation(
 
 
 // ============================================================
+// Android 無音判定
+// ============================================================
+
+function androidClearlySilent(
+    result
+) {
+
+    const silenceThreshold =
+        Math.max(
+            0.00055,
+            noiseFloor * 1.08,
+            noiseFloor + 0.00008
+        );
+
+
+    return (
+        result.volume
+        <
+        silenceThreshold
+    );
+
+}
+
+
+// ============================================================
 // Android継続
 // ============================================================
 
@@ -5676,9 +5940,9 @@ function holdSAndroid(
 
     const minimumVolume =
         Math.max(
-            WEAK_MIN_VOLUME * 0.70,
-            noiseFloor * 1.20,
-            noiseFloor + 0.0005
+            ANDROID_HOLD_MIN_VOLUME,
+            noiseFloor * ANDROID_HOLD_NOISE_MULTIPLIER,
+            noiseFloor + ANDROID_HOLD_NOISE_ADD
         );
 
 
@@ -5708,6 +5972,19 @@ function holdSAndroid(
         result.zcr
         <
         ANDROID_HOLD_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    // ラッチ後に「ふー」へ移行した場合も、
+    // そのままSとして保持し続けない。
+    if (
+        androidClearlyBreathy(
+            result
+        )
     ) {
 
         return false;
@@ -5827,6 +6104,126 @@ function pcClearlySilent(
 // iPad継続
 // ============================================================
 
+
+// ============================================================
+// iPad / iPhone 低音量S追跡
+// ============================================================
+
+function iosLowVolumeSContinuation(
+    result
+) {
+
+    const minimumVolume =
+        Math.max(
+            IOS_S_LOW_VOLUME_MIN,
+            noiseFloor * IOS_S_LOW_NOISE_MULTIPLIER,
+            noiseFloor + IOS_S_LOW_NOISE_ADD
+        );
+
+
+    if (
+        result.volume
+        <
+        minimumVolume
+    ) {
+
+        return false;
+
+    }
+
+
+    // 音量をかなり低く許す代わりに、
+    // 周波数形状は通常の開始判定よりも厳しく「Sらしさ」を確認する。
+    if (
+        result.highRatio
+        <
+        IOS_S_LOW_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.spectralCentroid
+        <
+        IOS_S_LOW_CENTROID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.upperHighRatio
+        <
+        IOS_S_LOW_UPPER_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        IOS_S_LOW_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.veryHighRatio
+        <
+        IOS_S_LOW_VERY_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const peakRatio =
+        result.volume > 0
+        ?
+        result.peak / result.volume
+        :
+        999;
+
+
+    if (
+        peakRatio
+        >
+        PEAK_RATIO_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.peak
+        >
+        PEAK_LIMIT
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
 function holdSIOS(
     result
 ) {
@@ -5845,7 +6242,9 @@ function holdSIOS(
         minimumVolume
     ) {
 
-        return false;
+        return iosLowVolumeSContinuation(
+            result
+        );
 
     }
 
@@ -5990,8 +6389,8 @@ function finishCalibration() {
     iosWeakDynamicMin =
         Math.max(
             IOS_WEAK_MIN_VOLUME,
-            noiseFloor * 1.08,
-            noiseFloor + 0.00035
+            noiseFloor * 0.75,
+            noiseFloor
         );
 
 
@@ -6286,7 +6685,18 @@ function holdBreathIOS(
     result
 ) {
 
-    // 息開始直後の最大音量を短時間だけ基準として保存する。
+    // ========================================================
+    // iPad「ふーっと！」持続判定・試験版
+    // ========================================================
+    // 開始判定は従来のまま。
+    // 第9世代では、持続する「ふー」が入力処理によって
+    // 0.02台 → 0.001台まで徐々に小さくなることがあるため、
+    // 「開始時最大音量の40%」を固定し続けない。
+    //
+    // 最初の短時間だけ最大値を基準にし、その後は基準値を
+    // 少しずつ下げて、実際に届いている息の音量へ追従させる。
+    // 無音との区別は noiseThreshold と息らしさ条件で維持する。
+
     breathActiveFrameCount++;
 
 
@@ -6294,14 +6704,32 @@ function holdBreathIOS(
         breathActiveFrameCount
         <=
         iosBreathReferenceBuildFramesNeeded
-        &&
-        result.volume
-        >
-        breathReferenceVolume
     ) {
 
+        if (
+            result.volume
+            >
+            breathReferenceVolume
+        ) {
+
+            breathReferenceVolume =
+                result.volume;
+
+        }
+
+    }
+
+    else {
+
+        // 1フレームごとに基準値を約10%ずつ下げる。
+        // 現在音量の方が大きい場合は、その音量へ戻す。
+        // これにより「ふー」が時間とともに減衰しても
+        // 持続判定が追従できるようにする。
         breathReferenceVolume =
-            result.volume;
+            Math.max(
+                result.volume,
+                breathReferenceVolume * 0.90
+            );
 
     }
 
@@ -6309,7 +6737,7 @@ function holdBreathIOS(
     const relativeThreshold =
         breathReferenceVolume
         *
-        IOS_BREATH_RELEASE_RATIO;
+        0.12;
 
 
     const noiseThreshold =
@@ -6322,7 +6750,7 @@ function holdBreathIOS(
             +
             IOS_BREATH_RELEASE_NOISE_ADD,
 
-            0.00042
+            0.00034
         );
 
 
@@ -6562,11 +6990,23 @@ function latchS(
         0;
 
 
+    iosSSeedCount =
+        0;
+
+
+    iosSSeeded =
+        false;
+
+
     iosBreathCount =
         0;
 
 
     releaseCount =
+        0;
+
+
+    androidSilenceCount =
         0;
 
 
@@ -6621,22 +7061,6 @@ function processResult(
             finishCalibration();
 
         }
-
-
-        return;
-
-    }
-
-
-    // 「ふーっと！」は、従来のS判定とは完全に別系統で処理する。
-    // これにより「すーっと！」の感度・端末別調整値を変更しない。
-    if (
-        practiceMode === "breath"
-    ) {
-
-        processBreathResult(
-            result
-        );
 
 
         return;
@@ -6749,6 +7173,14 @@ function processResult(
                 iosWeakCount =
                     0;
 
+
+                iosSSeedCount =
+                    0;
+
+
+                iosSSeeded =
+                    false;
+
                 return;
 
             }
@@ -6780,15 +7212,51 @@ function processResult(
                 result
             )
             &&
-            iosShapeOK;
+            iosShapeOK
+            &&
+            (
+                !IS_ANDROID
+                ||
+                (
+                    !androidClearlyBreathy(
+                        result
+                    )
+                    &&
+                    androidSShape(
+                        result
+                    )
+                )
+            );
 
 
         const weakCandidate =
-            weakS(
-                result
+            (
+                IS_ANDROID
+                ?
+                weakSAndroid(
+                    result
+                )
+                :
+                weakS(
+                    result
+                )
             )
             &&
-            iosShapeOK;
+            iosShapeOK
+            &&
+            (
+                !IS_ANDROID
+                ||
+                (
+                    !androidClearlyBreathy(
+                        result
+                    )
+                    &&
+                    androidSShape(
+                        result
+                    )
+                )
+            );
 
 
         if (
@@ -6827,12 +7295,46 @@ function processResult(
             IS_IOS
         ) {
 
-            if (
+            const fullVolumeIOSCandidate =
                 weakSIOS(
+                    result
+                );
+
+
+            if (
+                fullVolumeIOSCandidate
+            ) {
+
+                iosSSeedCount++;
+
+
+                if (
+                    iosSSeedCount
+                    >=
+                    IOS_S_SEED_REQUIRED
+                ) {
+
+                    iosSSeeded =
+                        true;
+
+                }
+
+
+                iosWeakCount++;
+
+            }
+
+            else if (
+                iosSSeeded
+                &&
+                iosLowVolumeSContinuation(
                     result
                 )
             ) {
 
+                // 一度、通常の音量でSだと確認できた後は、
+                // 第9世代で音量だけが減衰しても、
+                // 強いS形状が続いていれば候補カウントを切らさない。
                 iosWeakCount++;
 
             }
@@ -6841,6 +7343,14 @@ function processResult(
 
                 iosWeakCount =
                     0;
+
+
+                iosSSeedCount =
+                    0;
+
+
+                iosSSeeded =
+                    false;
 
             }
 
@@ -6851,6 +7361,14 @@ function processResult(
             iosWeakCount =
                 0;
 
+
+            iosSSeedCount =
+                0;
+
+
+            iosSSeeded =
+                false;
+
         }
 
 
@@ -6860,7 +7378,13 @@ function processResult(
             (
                 IS_IOS
                 ?
-                IOS_NORMAL_REQUIRED
+                (
+                    iosExternalUSBMic
+                    ?
+                    IOS_USB_S_REQUIRED
+                    :
+                    IOS_NORMAL_REQUIRED
+                )
                 :
                 NORMAL_REQUIRED
             );
@@ -6872,9 +7396,21 @@ function processResult(
             (
                 IS_IOS
                 ?
-                IOS_WEAK_REQUIRED
+                (
+                    iosExternalUSBMic
+                    ?
+                    IOS_USB_S_REQUIRED
+                    :
+                    IOS_WEAK_REQUIRED
+                )
                 :
-                WEAK_REQUIRED
+                (
+                    IS_ANDROID
+                    ?
+                    ANDROID_WEAK_REQUIRED
+                    :
+                    WEAK_REQUIRED
+                )
             );
 
 
@@ -6883,7 +7419,13 @@ function processResult(
             &&
             iosWeakCount
             >=
-            IOS_WEAK_REQUIRED;
+            (
+                iosExternalUSBMic
+                ?
+                IOS_USB_S_REQUIRED
+                :
+                IOS_WEAK_REQUIRED
+            );
 
 
         if (
@@ -6942,6 +7484,9 @@ function processResult(
             releaseCount =
                 0;
 
+            androidSilenceCount =
+                0;
+
 
             return;
 
@@ -6949,6 +7494,39 @@ function processResult(
 
 
         releaseCount++;
+
+
+        if (
+            androidClearlySilent(
+                result
+            )
+        ) {
+
+            androidSilenceCount++;
+
+        }
+
+        else {
+
+            androidSilenceCount =
+                0;
+
+        }
+
+
+        // 本当に無音へ落ちた場合だけ早く終了する。
+        // 弱いSや一時的な周波数の崩れは、従来の0.60秒猶予を残す。
+        if (
+            androidSilenceCount
+            >=
+            androidSilenceReleaseFramesNeeded
+        ) {
+
+            finishCurrentS();
+
+            return;
+
+        }
 
 
         if (
@@ -7013,10 +7591,18 @@ function processResult(
             iosReleaseVolumeThreshold();
 
 
+        const lowVolumeSStillPresent =
+            iosLowVolumeSContinuation(
+                result
+            );
+
+
         if (
             result.volume
             <
             releaseVolume
+            &&
+            !lowVolumeSStillPresent
         ) {
 
             silenceCount++;
@@ -7841,6 +8427,54 @@ async function startMicrophone() {
                 );
 
 
+        // iPad第8・9世代の内蔵マイク設定には影響させず、
+        // USB-C外部マイクのときだけ専用の開始フレーム数を使う。
+        iosExternalUSBMic =
+            false;
+
+
+        if (
+            IS_IOS
+        ) {
+
+            try {
+
+                const audioTracks =
+                    mediaStream.getAudioTracks();
+
+
+                const inputLabel =
+                    (
+                        audioTracks.length > 0
+                        ?
+                        audioTracks[0].label
+                        :
+                        ""
+                    )
+                    .toLowerCase();
+
+
+                iosExternalUSBMic =
+                    (
+                        inputLabel.includes("usb")
+                        ||
+                        inputLabel.includes("external")
+                        ||
+                        inputLabel.includes("input adapter")
+                    );
+
+            }
+
+            catch (error) {
+
+                iosExternalUSBMic =
+                    false;
+
+            }
+
+        }
+
+
         const AudioContextClass =
             window.AudioContext
             ||
@@ -7898,6 +8532,20 @@ async function startMicrophone() {
 
                 Math.round(
                     ANDROID_RELEASE_SECONDS
+                    *
+                    audioContext.sampleRate
+                    /
+                    frameSize
+                )
+            );
+
+
+        androidSilenceReleaseFramesNeeded =
+            Math.max(
+                1,
+
+                Math.round(
+                    ANDROID_SILENCE_RELEASE_SECONDS
                     *
                     audioContext.sampleRate
                     /
@@ -8200,8 +8848,7 @@ async function initialize() {
 
     try {
 
-        updatePracticeModeButton();
-
+        
 
         updateDisplayModeButton();
 

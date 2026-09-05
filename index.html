@@ -1302,13 +1302,17 @@ const ANDROID_HOLD_ZCR_MIN =
 
 // Sらしい音が一時的に崩れた場合は、従来どおり少し長めに待つ。
 const ANDROID_RELEASE_SECONDS =
-    0.60;
+    0.45;
 
 // ほぼ無音まで落ちた場合だけ、より早く画像を消す。
 const ANDROID_SILENCE_RELEASE_SECONDS =
     0.18;
 
 
+
+
+// ============================================================
+// Android 弱いS / 減衰S 救済
 // ============================================================
 // PC
 // ============================================================
@@ -7039,6 +7043,106 @@ function latchS(
 // 音声判定
 // ============================================================
 
+
+// ============================================================
+// Android 弱いS / 減衰S 救済（S成立後の持続専用）
+// ============================================================
+
+function androidRescueS(
+    result
+) {
+
+    if (
+        result.volume
+        <
+        ANDROID_RESCUE_MIN_VOLUME
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.highRatio
+        <
+        ANDROID_RESCUE_HIGH_RATIO_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.zcr
+        <
+        ANDROID_RESCUE_ZCR_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.upperHighRatio
+        <
+        ANDROID_RESCUE_UPPER_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        result.veryHighRatio
+        <
+        ANDROID_RESCUE_VERY_HIGH_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    const upperToLowMid =
+        result.upperHighRatio
+        /
+        Math.max(
+            result.lowMidRatio,
+            0.001
+        );
+
+
+    if (
+        upperToLowMid
+        <
+        ANDROID_RESCUE_UPPER_TO_LOWMID_MIN
+    ) {
+
+        return false;
+
+    }
+
+
+    // 既存の「ふー」除外はそのまま使う。
+    if (
+        androidClearlyBreathy(
+            result
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
 function processResult(
     result
 ) {
@@ -7476,8 +7580,14 @@ function processResult(
     ) {
 
         if (
-            holdSAndroid(
-                result
+            (
+                holdSAndroid(
+                    result
+                )
+                ||
+                androidRescueS(
+                    result
+                )
             )
         ) {
 
@@ -8321,7 +8431,21 @@ function createAudioConstraints() {
     }
 
 
+    
+    // Androidは EchoCancellation / NoiseSuppression を既定のまま残し、
+    // Sの持続改善が見られた AutoGainControl だけOFFにする。
     if (
+        IS_ANDROID
+        &&
+        supported.autoGainControl
+    ) {
+
+        constraints.autoGainControl =
+            false;
+
+    }
+
+if (
         Object.keys(
             constraints
         ).length === 0
